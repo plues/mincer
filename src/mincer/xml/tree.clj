@@ -41,6 +41,9 @@
 (defmethod parse-tree :ModulBaum [node]
   (apply merge (map parse-tree (:content node))))
 
+; known but ignored tags
+(defmethod parse-tree :regeln [node] (println "Ignoring node regeln"))
+(defmethod parse-tree :i [node] (println "Ignoring node i"))
 
 (defmethod parse-tree :default [node]
   (throw  (IllegalArgumentException. (name  (:tag node)))))
