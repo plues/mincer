@@ -91,9 +91,7 @@
   {:units (map tree-to-unit-map (:content node))})
 
 (defmethod tree-to-module-map :default [node]
-  (println "Tag " (:tag node))
-  (throw  (IllegalArgumentException. (:tag node)))
-)
+  (throw  (IllegalArgumentException. (name  (:tag node)))))
 
 (defn transform [node]
   (apply merge (map tree-to-module-map (:content node))))

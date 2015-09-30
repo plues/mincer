@@ -41,8 +41,9 @@
 (defmethod parse-tree :ModulBaum [node]
   (apply merge (map parse-tree (:content node))))
 
+
 (defmethod parse-tree :default [node]
-  (throw  (IllegalArgumentException. (:tag node))))
+  (throw  (IllegalArgumentException. (name  (:tag node)))))
 
 (defn process [f]
   (parse-tree (get-xml f)))
