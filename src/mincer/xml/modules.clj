@@ -67,13 +67,12 @@
       (apply merge filtered-modules))))
 
 (defmethod tree-to-module-map :course [node]
-  ; add course info to modules
   ; NOTE: keeping only those courses that have modules (with a pordnr)
   (let [attrs   (:attrs node)
         course  {:type  :course
                  :id    (:id attrs)
                  :title (:title attrs)}
-        modules (first (:content node))] ; there is only one child in course-tag
+        modules (first (:content node))] ; there is only one child in the course-tag
     (tree-to-module-map modules course)))
 
 (defmethod tree-to-module-map :course-module-units [node]
