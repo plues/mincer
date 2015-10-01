@@ -6,12 +6,11 @@
 (defmulti parse-tree (comp :tag first))
 
 (defmethod parse-tree :m [{{:keys [name pordnr pflicht]} :attrs}]
-  (let [attrs (:attrs node)]
     {:type :module
      :name name
      :id pordnr
      :pordnr pordnr
-     :mandatory (= pflicht "j")}))
+     :mandatory (= pflicht "j")})
 
 (defmethod parse-tree :l [{{:keys [min max name TM ART]} :attrs content :content}]
   (let [children  (mapv parse-tree content)]

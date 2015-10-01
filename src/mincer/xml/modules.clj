@@ -47,7 +47,7 @@
 
 (defmethod tree-to-module-map :module [{{:keys [pordnr title]} :attrs content :content} course]
   (when pordnr 
-    {pordnr {:title  (:title attrs)
+    {pordnr {:title  title
              :course course
              :pordnr pordnr
              :abstract-units
