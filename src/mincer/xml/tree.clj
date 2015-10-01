@@ -1,52 +1,47 @@
 (ns mincer.xml.tree
   (:gen-class)
-   (:require [mincer.xml.util :refer [get-xml]]))
+  (:require [mincer.xml.util :refer [get-xml]]))
 
 
-(defn build-key [attrs]
-  (clojure.string/join "" (map attrs [:stg :kzfa :pversion])))
+(defmulti parse-tree (comp :tag first))
 
-(defmulti parse-tree (fn [x & args] (:tag x)))
-
-(defmethod parse-tree :m [node]
+(defmethod parse-tree :m [{{:keys [name pordnr pflicht]} :attrs}]
   (let [attrs (:attrs node)]
     {:type :module
-     :name (:name attrs)
-     :id (:pordnr attrs)
-     :pordnr (:pordnr attrs)
-     :mandatory (= (:pflicht attrs) "j")}))
+     :name name
+     :id pordnr
+     :pordnr pordnr
+     :mandatory (= pflicht "j")}))
 
-(defmethod parse-tree :l [node]
-  (let [children  (mapv parse-tree (:content node))
-        attrs (:attrs node)]
+(defmethod parse-tree :l [{{:keys [min max name TM ART]} :attrs content :content}]
+  (let [children  (mapv parse-tree content)]
     {:type     :level
-     :min      (:min attrs)
-     :max      (:max attrs)
-     :name     (:name attrs)
-     :tm       (:TM attrs)
-     :art      (:ART attrs)
+     :min      min
+     :max      max
+     :name     name
+     :tm       TM
+     :art      ART
      :children children}))
 
-(defmethod parse-tree :b [node]
-  (let [levels  (mapv parse-tree (:content node))
-        attrs (:attrs node)]
-    {(build-key attrs) {:type     :course
-                        :degree   (:abschl attrs)
-                        :course   (:stg attrs)
-                        :po       (:pversion attrs)
-                        :kzfa     (:kzfa attrs) ; XXX find out what this means
-                        :name     (:name attrs)
-                        :children levels}}))
+(defmethod parse-tree :b [{{:keys [abschl stg pversion kzfa name]} :attrs content :content}]
+  (let [levels  (mapv parse-tree content)]
+    {(str stg kzfa pversion) {:type     :course
+                              :degree   abschl
+                              :course   stg
+                              :po       pversion
+                              :kzfa     kzfa ; XXX find out what this means
+                              :name     name
+                              :children levels}}))
 
-(defmethod parse-tree :ModulBaum [node]
-  (apply merge (map parse-tree (:content node))))
+(defmethod parse-tree :ModulBaum [{:keys [content]}]
+  (apply merge (map parse-tree content)))
 
-; known but ignored tags
+                                        ; known but ignored tags
 (defmethod parse-tree :regeln [node] (println "Ignoring node regeln"))
 (defmethod parse-tree :i [node] (println "Ignoring node i"))
 
-(defmethod parse-tree :default [node]
-  (throw  (IllegalArgumentException. (name  (:tag node)))))
+(defmethod parse-tree :default [{:keys [tag]}]
+  (throw  (IllegalArgumentException. (name tag))))
 
 (defn process [f]
   (parse-tree (get-xml f)))
