@@ -6,7 +6,7 @@
 (defn extract-semesters [s]
   (map #(Integer/parseInt %) (clojure.string/split s #",")))
 
-(defmulti tree-to-unit-map (comp :tag first))
+(defmulti tree-to-unit-map :tag)
 
 (defmethod tree-to-unit-map :session [{{:keys [day time duration rhythm]} :attrs}]
   {:type     :session
@@ -37,7 +37,7 @@
 (defmethod tree-to-unit-map :default [{tag :tag}]
   (throw  (IllegalArgumentException. (name tag))))
 
-(defmulti tree-to-module-map (comp :tag first))
+(defmulti tree-to-module-map :tag)
 
 (defmethod tree-to-module-map :abstract-unit [{{:keys [id title type semester]} :attrs}]
   {:id id
