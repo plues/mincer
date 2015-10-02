@@ -15,8 +15,8 @@
 (defmethod parse-tree :l [{{:keys [min max name TM ART]} :attrs content :content}]
   (let [children  (mapv parse-tree content)]
     {:type     :level
-     :min      (Integer/parseInt min)
-     :max      (Integer/parseInt max)
+     :min      (when-not (nil? min) (Integer/parseInt min))
+     :max      (when-not (nil? max) (Integer/parseInt max))
      :name     name
      :tm       TM
      :art      ART
