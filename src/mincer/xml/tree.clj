@@ -23,7 +23,7 @@
      :children children}))
 
 (defmethod parse-tree :b [{{:keys [abschl stg pversion kzfa name]} :attrs content :content}]
-  (let [levels  (mapv parse-tree content)]
+  (let [levels  (remove nil? (mapv parse-tree content))]
     {(str stg kzfa pversion) {:type     :course
                               :degree   abschl
                               :course   stg

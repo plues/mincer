@@ -61,3 +61,8 @@
 (deftest test-parse-modulbaum (is (= (parse-tree modulbaum-tag)
                                     ; result is a dict of the merged dicts for each course
                                      result-course)))
+(deftest test-ignored-tags-in-b
+  (let [course (parse-tree b-tag-with-regeln)
+        children (:children (get course "phiH2011"))]
+    (is (= 1 (count children)))
+    (is (not-any? nil? children))))

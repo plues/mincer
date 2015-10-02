@@ -22,4 +22,11 @@
             :content [nested-l-tag]
             :tag :b})
 
+(def b-tag-with-regeln {:attrs {:abschl "bk"
+                                :kzfa "H"
+                                :name "Kernfach Philosophie"
+                                :pversion "2011"
+                                :stg "phi"}
+                        :content [{:tag :regeln} {:tag :i} nested-l-tag]
+                        :tag :b})
 (def modulbaum-tag {:attrs nil :content  [b-tag] :tag :ModulBaum})
