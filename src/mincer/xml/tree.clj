@@ -3,7 +3,7 @@
   (:require [mincer.xml.util :refer [get-xml]]))
 
 
-(defmulti parse-tree (comp :tag first))
+(defmulti parse-tree :tag)
 
 (defmethod parse-tree :m [{{:keys [name pordnr pflicht]} :attrs}]
     {:type :module
@@ -15,8 +15,8 @@
 (defmethod parse-tree :l [{{:keys [min max name TM ART]} :attrs content :content}]
   (let [children  (mapv parse-tree content)]
     {:type     :level
-     :min      min
-     :max      max
+     :min      (Integer/parseInt min)
+     :max      (Integer/parseInt max)
      :name     name
      :tm       TM
      :art      ART
