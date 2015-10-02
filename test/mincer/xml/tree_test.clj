@@ -58,3 +58,6 @@
 
 (deftest test-parse-l-tag (is (= (parse-tree nested-l-tag) result-level)))
 (deftest test-parse-b-tag (is (= (parse-tree b-tag) result-course)))
+(deftest test-parse-modulbaum (is (= (parse-tree modulbaum-tag)
+                                    ; result is a dict of the merged dicts for each course
+                                     result-course)))
