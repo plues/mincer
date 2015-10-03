@@ -46,12 +46,11 @@
    :semester (extract-semesters semester)})
 
 (defmethod tree-to-module-map :module [{{:keys [pordnr title]} :attrs content :content} course]
-  (when pordnr 
+  (when pordnr
     {pordnr {:title  title
              :course course
              :pordnr pordnr
-             :abstract-units
-             (map tree-to-module-map content)}}))
+             :abstract-units (map tree-to-module-map content)}}))
 
 (defmethod tree-to-module-map :modules [{content :content} course]
   (let [modules (map tree-to-module-map content (repeat course))
