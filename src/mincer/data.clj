@@ -10,6 +10,7 @@
   (jdbc/db-do-commands  db-con (jdbc/create-table-ddl :info
                                                      [:key :string "NOT NULL"]
                                                      [:value :string "DEFAULT ''" "NOT NULL"])
+                               "CREATE UNIQUE INDEX info_key ON info(key)"
 
                                (jdbc/create-table-ddl :levels
                                                      [:id :integer "PRIMARY KEY" "AUTOINCREMENT"]
@@ -21,6 +22,7 @@
                                                      [:parent_id :int]
                                                      [:created_at :datetime :default :current_timestamp]
                                                      [:updated_at :datetime :default :current_timestamp])
+                               "CREATE INDEX parent_level ON levels(parent_id)"
 
                                (jdbc/create-table-ddl :courses
                                                       [:id :integer "PRIMARY KEY" "AUTOINCREMENT"]
@@ -49,16 +51,21 @@
                                                       [:type :string "NOT NULL"]
                                                       [:created_at :datetime :default :current_timestamp]
                                                       [:updated_at :datetime :default :current_timestamp])
+                               "CREATE INDEX abstract_unit_key ON abstract_units(key)"
 
                                (jdbc/create-table-ddl :modules_abstract_units_semesters
                                                       [:abstract_unit_id :int "NOT NULL"]
                                                       [:module_id :int "NOT NULL"]
                                                       [:semester :int "NOT NULL"])
+                               "CREATE INDEX modules_abstract_units_semesters_au_id ON modules_abstract_units_semesters(abstract_unit_id)"
+                               "CREATE INDEX modules_abstract_units_semesters_module_id ON modules_abstract_units_semesters(module_id)"
 
                                (jdbc/create-table-ddl :unit_abstract_unit_semester
                                                       [:unit_id :int "NOT NULL"]
                                                       [:abstract_unit_id :int "NOT NULL"]
                                                       [:semester :int "NOT NULL"])
+                               "CREATE INDEX unit_abstract_unit_semester_unit_id ON unit_abstract_unit_semester(unit_id)"
+                               "CREATE INDEX unit_abstract_unit_semester_abstract_unit_id ON unit_abstract_unit_semester(abstract_unit_id)"
 
                                (jdbc/create-table-ddl :units
                                                       [:id :integer "PRIMARY KEY" "AUTOINCREMENT"]
@@ -66,10 +73,12 @@
                                                       [:title :string "NOT NULL"]
                                                       [:created_at :datetime :default :current_timestamp]
                                                       [:updated_at :datetime :default :current_timestamp])
+                               "CREATE INDEX unit_key ON units(unit_key)"
 
                                 (jdbc/create-table-ddl :groups
                                                       [:id :integer "PRIMARY KEY" "AUTOINCREMENT"]
                                                       [:unit_id :int "NOT NULL"])
+                               "CREATE INDEX group_unit_id ON groups(unit_id)"
 
                                  (jdbc/create-table-ddl :sessions
                                                       [:id :integer "PRIMARY KEY" "AUTOINCREMENT"]
@@ -78,10 +87,8 @@
                                                       [:time :integer "NOT NULL"]
                                                       [:duration :integer "NOT NULL"]
                                                       [:rhythm :integer "NOT NULL"]))
+                               "CREATE INDEX session_group_id ON sessions(group_id)"
 
-  (jdbc/db-do-commands db-con "CREATE UNIQUE INDEX info_key ON info(key)")
-  (jdbc/db-do-commands db-con "CREATE INDEX parent_level ON levels(parent_id)")
-  (jdbc/db-do-commands db-con "CREATE INDEX abstract_unit_key ON abstract_units(key)")
   (jdbc/insert! db-con :info {:key "schema_version"
                               :value "3.0"})
   (jdbc/insert! db-con :info {:key "generator"
