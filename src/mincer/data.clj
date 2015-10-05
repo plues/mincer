@@ -55,6 +55,11 @@
                                                       [:module_id :int "NOT NULL"]
                                                       [:semester :int "NOT NULL"])
 
+                               (jdbc/create-table-ddl :unit_abstract_unit_semester
+                                                      [:unit_id :int "NOT NULL"]
+                                                      [:abstract_unit_id :int "NOT NULL"]
+                                                      [:semester :int "NOT NULL"])
+
                                (jdbc/create-table-ddl :units
                                                       [:id :integer "PRIMARY KEY" "AUTOINCREMENT"]
                                                       [:unit_key :string "NOT NULL"]
@@ -76,6 +81,7 @@
 
   (jdbc/db-do-commands db-con "CREATE UNIQUE INDEX info_key ON info(key)")
   (jdbc/db-do-commands db-con "CREATE INDEX parent_level ON levels(parent_id)")
+  (jdbc/db-do-commands db-con "CREATE INDEX abstract_unit_key ON abstract_units(key)")
   (jdbc/insert! db-con :info {:key "schema_version"
                               :value "3.0"})
   (jdbc/insert! db-con :info {:key "generator"
@@ -100,6 +106,17 @@
 
 
 (declare persist-courses)
+(defn store-unit-abstract-unit-semester [db-con unit-id semesters abstract-unit-ref]
+  (let [[{:keys [id]}] (jdbc/query db-con
+                          ["SELECT id FROM abstract_units WHERE key = ?"
+                           (:id  abstract-unit-ref)])]
+    (if-not (nil? id)
+      (mapv (fn [s] (insert! db-con :unit_abstract_unit_semester {:unit_id unit-id :abstract_unit_id id :semester s})) semesters)
+      (println "No au for " (:id  abstract-unit-ref)))))
+
+(defn store-refs [db-con unit-id refs semesters]
+  (mapv
+    (partial store-unit-abstract-unit-semester db-con unit-id semesters) refs))
 
 (defn store-session [db-con group-id session]
   (assert (= :session (:type session)))
@@ -115,8 +132,7 @@
   (let [record {:unit_key id :title title}
         unit-id (insert! db-con :units record)]
     (mapv (partial store-group db-con unit-id) groups)
-    ; XXX store mapping from unit, semester, abstract unit
-    ))
+    (store-refs db-con unit-id refs semester)))
 (defn persist-units [db-con units]
   (mapv (partial store-unit db-con) units))
 
