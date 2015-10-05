@@ -17,8 +17,8 @@
                                                      [:name :string "NOT NULL"]
                                                      [:tm :string]
                                                      [:art :string]
-                                                     [:min :int] ; XXX can be nil if tm and art are set
-                                                     [:max :int] ; XXX can be nil if tm and art are set
+                                                     [:min :int] ; NOTE can be nil if tm and art are set
+                                                     [:max :int] ; NOTE can be nil if tm and art are set
                                                      [:parent_id :int]
                                                      [:created_at :datetime :default :current_timestamp]
                                                      [:updated_at :datetime :default :current_timestamp])
@@ -36,11 +36,12 @@
                                (jdbc/create-table-ddl :modules
                                                       [:id :integer "PRIMARY KEY" "AUTOINCREMENT"]
                                                       [:level_id :int]
+                                                      ; XXX consider discarding one of both
                                                       [:name :string "NOT NULL"]
-                                                      [:title  :string] ; XXX consider discarding one of both
+                                                      [:title  :string]
                                                       [:pordnr :integer]
                                                       [:mandatory :boolean]
-                                                      ; XXX do we need the direct link to the course?
+                                                      ; XXX do we a direct link to the course?
                                                       [:created_at :datetime :default :current_timestamp]
                                                       [:updated_at :datetime :default :current_timestamp])
 
@@ -177,9 +178,9 @@
         record {:level_id parent-id
                 :mandatory mandatory
                 :name name}]
-    (if (nil? title) ; XXX or use something else
+    (if (nil? title) ; NOTE or use something else
       (insert! db-con :modules record)
-      ; XXX update course in this case
+      ; XXX update course in this case -> need to retreive the course or bubble the data for the udpate
       ; merge both module records
       (let [extended-record (merge record {:pordnr pordnr :title title})
             module-id (insert! db-con :modules extended-record)]
