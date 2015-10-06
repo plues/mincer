@@ -47,14 +47,14 @@
   [& args]
   ;; work around dangerous default behaviour in Clojure
   (alter-var-root #'*read-eval* (constantly false))
-  (let [{:keys [options arguments errors summary]} (parse-opts args cli-options)]
+  (let [{:keys [options arguments errors summary]} (parse-opts args cli-options)
+        {:keys [module-tree module-data output]} options]
     ;; Handle help and error conditions
     (cond
       (:help options) (usage summary)
       errors (error-msg errors)
-      (= (count options) 3) (start-cli (:module-tree options) (:module-data options) (:output options))
-      (= (count options) 0) (start-gui)
-      (true) (usage summary))))
+      (not-any? nil? [module-tree module-data output]) (start-cli module-tree module-data output)
+      true (start-gui))))
 
 
 (defn process-data []
