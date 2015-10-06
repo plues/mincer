@@ -11,15 +11,15 @@
                                                      [:key :string "NOT NULL"]
                                                      [:value :string "DEFAULT ''" "NOT NULL"])
                                "CREATE UNIQUE INDEX info_key ON info(key)"
-
+                               "PRAGMA foreign_keys = ON"
                                (jdbc/create-table-ddl :levels
                                                      [:id :integer "PRIMARY KEY" "AUTOINCREMENT"]
                                                      [:name :string "NOT NULL"]
                                                      [:tm :string]
                                                      [:art :string]
-                                                     [:min :int] ; NOTE can be nil if tm and art are set
-                                                     [:max :int] ; NOTE can be nil if tm and art are set
-                                                     [:parent_id :int]
+                                                     [:min :integer] ; NOTE can be nil if tm and art are set
+                                                     [:max :integer] ; NOTE can be nil if tm and art are set
+                                                     [:parent_id :integer "REFERENCES levels"]
                                                      [:created_at :datetime :default :current_timestamp]
                                                      [:updated_at :datetime :default :current_timestamp])
                                "CREATE INDEX parent_level ON levels(parent_id)"
@@ -35,7 +35,7 @@
 
                                (jdbc/create-table-ddl :modules
                                                       [:id :integer "PRIMARY KEY" "AUTOINCREMENT"]
-                                                      [:level_id :int]
+                                                      [:level_id :integer "REFERENCES levels"]
                                                       ; XXX consider discarding one of both
                                                       [:name :string "NOT NULL"]
                                                       [:title  :string]
@@ -55,15 +55,15 @@
                                "CREATE INDEX abstract_unit_key ON abstract_units(key)"
 
                                (jdbc/create-table-ddl :modules_abstract_units_semesters
-                                                      [:abstract_unit_id :int "NOT NULL"]
-                                                      [:module_id :int "NOT NULL"]
+                                                      [:abstract_unit_id :int "NOT NULL" "REFERENCES abstract_units"]
+                                                      [:module_id :int "NOT NULL" "REFERENCES modules"]
                                                       [:semester :int "NOT NULL"])
                                "CREATE INDEX modules_abstract_units_semesters_au_id ON modules_abstract_units_semesters(abstract_unit_id)"
                                "CREATE INDEX modules_abstract_units_semesters_module_id ON modules_abstract_units_semesters(module_id)"
 
                                (jdbc/create-table-ddl :unit_abstract_unit_semester
-                                                      [:unit_id :int "NOT NULL"]
-                                                      [:abstract_unit_id :int "NOT NULL"]
+                                                      [:unit_id :int "NOT NULL" "REFERENCES unit"]
+                                                      [:abstract_unit_id :int "NOT NULL" "REFERENCES abstract_unit"]
                                                       [:semester :int "NOT NULL"])
                                "CREATE INDEX unit_abstract_unit_semester_unit_id ON unit_abstract_unit_semester(unit_id)"
                                "CREATE INDEX unit_abstract_unit_semester_abstract_unit_id ON unit_abstract_unit_semester(abstract_unit_id)"
@@ -78,12 +78,12 @@
 
                                 (jdbc/create-table-ddl :groups
                                                       [:id :integer "PRIMARY KEY" "AUTOINCREMENT"]
-                                                      [:unit_id :int "NOT NULL"])
+                                                      [:unit_id :int "NOT NULL" "REFERENCES units"])
                                "CREATE INDEX group_unit_id ON groups(unit_id)"
 
                                  (jdbc/create-table-ddl :sessions
                                                       [:id :integer "PRIMARY KEY" "AUTOINCREMENT"]
-                                                      [:group_id :integer "NOT NULL"]
+                                                      [:group_id :integer "NOT NULL" "REFERENCES groups"]
                                                       [:day :string "NOT NULL"]
                                                       [:time :integer "NOT NULL"]
                                                       [:duration :integer "NOT NULL"]
