@@ -33,6 +33,12 @@
                                                       [:created_at :datetime :default :current_timestamp]
                                                       [:updated_at :datetime :default :current_timestamp])
 
+                               (jdbc/create-table-ddl :course_levels
+                                                      [:course_id "NOT NULL" "REFERENCES courses"]
+                                                      [:level_id "NOT NULL" "REFERENCES levels"])
+                               "CREATE INDEX course_level_course ON course_levels(course_id)"
+                               "CREATE INDEX course_level_level ON course_levels(level_id)"
+
                                (jdbc/create-table-ddl :modules
                                                       [:id :integer "PRIMARY KEY" "AUTOINCREMENT"]
                                                       [:level_id :integer "REFERENCES levels"]
@@ -175,20 +181,25 @@
                 :art art
                 :name name}
         parent-id (insert! db-con :levels record)]
-    (doall (map (fn [l] (store-child l db-con parent-id modules)) children))))
+    (doall (map (fn [l] (store-child l db-con parent-id modules)) children))
+    ; return the id of the created record
+    parent-id))
 
 (defmethod store-child :module [{:keys [name id pordnr mandatory]} db-con parent-id modules]
   (let [{:keys [title abstract-units course]} (get modules id)
         record {:level_id parent-id
                 :mandatory mandatory
                 :name name}]
-    (if (nil? title) ; NOTE or use something else
-      (insert! db-con :modules record)
+    (println (type title))
+    (if-not (nil? title) ; NOTE or use something else
+      ; (insert! db-con :modules record)
       ; XXX update course in this case -> need to retreive the course or bubble the data for the udpate
       ; merge both module records
       (let [extended-record (merge record {:pordnr pordnr :title title})
             module-id (insert! db-con :modules extended-record)]
-        (mapv (partial store-abstract-unit db-con module-id) abstract-units)))))
+        (mapv (partial store-abstract-unit db-con module-id) abstract-units)
+        ; return the id of the created record
+        module-id))))
 
 (defmethod store-child :default [child & args]
   (throw  (IllegalArgumentException. (str (:type child)))))
@@ -198,8 +209,10 @@
                 :short_name course
                 :name       name
                 :po         po}]
-    (let [parent-id (insert! db-con :courses params)]
-      (mapv (fn [l] (store-child l db-con parent-id modules)) children))))
+    (let [parent-id (insert! db-con :courses params)
+          levels (mapv (fn [l] (store-child l db-con nil modules)) children)]
+      ; insert course-level/parent-id pairs into course_level table
+      (mapv (fn [l] (insert! db-con :course_levels {:course_id parent-id :level_id l})) levels))))
 
 (defn persist-courses [db-con levels modules]
   (reduce-kv (fn [_ k v] (store-course db-con k v modules)) nil levels))
