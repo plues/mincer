@@ -78,7 +78,9 @@
 
                                 (jdbc/create-table-ddl :groups
                                                       [:id :integer "PRIMARY KEY" "AUTOINCREMENT"]
-                                                      [:unit_id :int "NOT NULL" "REFERENCES units"])
+                                                      [:unit_id :int "NOT NULL" "REFERENCES units"]
+                                                      [:created_at :datetime :default :current_timestamp]
+                                                      [:updated_at :datetime :default :current_timestamp]) 
                                "CREATE INDEX group_unit_id ON groups(unit_id)"
 
                                  (jdbc/create-table-ddl :sessions
@@ -87,7 +89,9 @@
                                                       [:day :string "NOT NULL"]
                                                       [:time :integer "NOT NULL"]
                                                       [:duration :integer "NOT NULL"]
-                                                      [:rhythm :integer "NOT NULL"]))
+                                                      [:rhythm :integer "NOT NULL"]
+                                                      [:created_at :datetime :default :current_timestamp]
+                                                      [:updated_at :datetime :default :current_timestamp]))  
                                "CREATE INDEX session_group_id ON sessions(group_id)"
 
   (jdbc/insert! db-con :info {:key "schema_version"
