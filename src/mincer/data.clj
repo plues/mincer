@@ -161,7 +161,7 @@
 (defn store-abstract-unit [db-con module-id {:keys [id title type semester]}]
   (let [record {:key id
                 :title title
-                :type type
+                :type (name type)
                 }
         au-id (insert! db-con :abstract_units record)
         merge-table-fn (fn [sem]
