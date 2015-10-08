@@ -91,7 +91,7 @@
                                "CREATE INDEX session_group_id ON sessions(group_id)"
 
   (jdbc/insert! db-con :info {:key "schema_version"
-                              :value "3.0"})
+                              :value (str "v3.0")})
   (jdbc/insert! db-con :info {:key "generator"
                               :value (str "mincer" "-" mincer-version)}))
 
