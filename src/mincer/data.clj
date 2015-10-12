@@ -29,6 +29,7 @@
                                                       [:degree :string "NOT NULL"]
                                                       [:short_name :string "NOT NULL"]
                                                       [:name :string "NOT NULL"]
+                                                      [:kzfa :string "NOT NULL"]
                                                       [:po :string]
                                                       [:created_at :datetime :default :current_timestamp]
                                                       [:updated_at :datetime :default :current_timestamp])
@@ -204,9 +205,10 @@
 (defmethod store-child :default [child & args]
   (throw  (IllegalArgumentException. (str (:type child)))))
 
-(defn store-course [db-con idx {:keys  [degree course name po children]} modules]
+(defn store-course [db-con idx {:keys  [kzfa degree course name po children]} modules]
   (let [params {:degree     degree
                 :short_name course
+                :kzfa       kzfa ; XXX find a propper name for this
                 :name       name
                 :po         po}]
     (let [parent-id (insert! db-con :courses params)
