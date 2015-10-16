@@ -32,7 +32,7 @@
       (my-writer
         (choose-file
           :type :save
-          :filters [[".sql" ["sql"]]])))]))
+          :filters [[".sqlite3" ["sqlite3"]]])))]))
 
 (defn enable-save []
   (if (and (not (nil? (get @files :meta))) (not (nil? (get @files :source))))
