@@ -6,7 +6,8 @@
     [clojure.java.io :refer [as-file copy]]
     [mincer.xml.modules :as modules]
     [mincer.xml.tree :as tree]
-    [mincer.data :refer [persist]]))
+    [mincer.data :refer [persist]]
+    [mincer.ui :refer [start-ui]]))
 
 
 (def cli-options
@@ -41,7 +42,7 @@
         db (persist tree (:modules data) (:units data))]
     (copy (as-file db) (as-file target))))
 
-(defn start-gui [] (println "gui"))
+(defn start-gui [] (start-ui))
 
 (defn -main
   [& args]
