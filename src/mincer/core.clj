@@ -31,7 +31,8 @@
         ""
         "Options:"
         options-summary]
-       (string/join \newline)))
+       (string/join \newline)
+       println))
 
 (defn error-msg [errors]
   (str "The following errors occurred while parsing your command:\n\n"
