@@ -2,7 +2,8 @@
   (:gen-class)
   (:require
     [clojure.java.jdbc :as jdbc]
-    [clojure.java.jdbc :refer [with-db-connection]]))
+    [clojure.java.jdbc :refer [with-db-connection]]
+    [clojure.tools.logging :as log]))
 
 (def mincer-version "0.1.0-SNAPSHOT") ; updated with bumpversion
 (defn setup-db [db-con]
@@ -107,6 +108,7 @@
                               :value (str "mincer" "-" mincer-version)}))
 
 (defn insert! [db-con table col]
+  (log/info "Saving to" table col)
   ((keyword "last_insert_rowid()")
    (first (jdbc/insert! db-con table col))))
 
@@ -129,7 +131,8 @@
                           ["SELECT id FROM abstract_units WHERE key = ?"
                            (:id  abstract-unit-ref)])]
     (if-not (nil? id)
-      (mapv (fn [s] (insert! db-con :unit_abstract_unit_semester {:unit_id unit-id :abstract_unit_id id :semester s})) semesters))))
+      (mapv (fn [s] (insert! db-con :unit_abstract_unit_semester {:unit_id unit-id :abstract_unit_id id :semester s})) semesters)
+      (log/info "No au for " (:id  abstract-unit-ref)))))
 
 (defn store-refs [db-con unit-id refs semesters]
   (mapv
@@ -189,6 +192,7 @@
         record {:level_id parent-id
                 :mandatory mandatory
                 :name name}]
+    (log/info (type title))
     (if-not (nil? title) ; NOTE or use something else
       ; (insert! db-con :modules record)
       ; XXX update course in this case -> need to retreive the course or bubble the data for the udpate

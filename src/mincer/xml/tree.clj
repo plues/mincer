@@ -1,6 +1,7 @@
 (ns mincer.xml.tree
   (:gen-class)
-  (:require [mincer.xml.util :refer [get-xml]]))
+  (:require [mincer.xml.util :refer [get-xml]]
+            [clojure.tools.logging :as log]))
 
 
 (defmulti parse-tree :tag)
@@ -36,8 +37,8 @@
   (apply merge (map parse-tree content)))
 
                                         ; known but ignored tags
-(defmethod parse-tree :regeln [node] (println "Ignoring node regeln"))
-(defmethod parse-tree :i [node] (println "Ignoring node i"))
+(defmethod parse-tree :regeln [node] (log/debug "Ignoring node regeln"))
+(defmethod parse-tree :i [node] (log/debug "Ignoring node i"))
 
 (defmethod parse-tree :default [{:keys [tag]}]
   (throw  (IllegalArgumentException. (name tag))))

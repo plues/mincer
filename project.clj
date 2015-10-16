@@ -6,6 +6,8 @@
   :dependencies [[org.clojure/clojure "1.7.0"]
                  [org.clojure/java.jdbc "0.4.2"]
                  [org.xerial/sqlite-jdbc "3.8.11.1"]
+                 [org.clojure/tools.logging "0.3.1"]
                  [org.clojure/tools.cli "0.3.3"]
-                 [seesaw "1.4.5"]]
+                 [seesaw "1.4.5"]
+                 [org.slf4j/slf4j-log4j12 "1.7.12"]]
   :main mincer.core)
