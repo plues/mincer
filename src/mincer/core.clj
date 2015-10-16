@@ -8,7 +8,7 @@
     [mincer.xml.modules :as modules]
     [mincer.xml.tree :as tree]
     [mincer.data :refer [persist mincer-version]]
-    [mincer.ui :refer [start-ui]]))
+    ))
 
 
 (def cli-options
@@ -45,7 +45,9 @@
     (copy (as-file db) (as-file target))
     (log/info "Created database" target)))
 
-(defn start-gui [] (start-ui))
+(defn start-gui []
+  (require '[mincer.ui :refer [start-ui]])
+  ((ns-resolve 'mincer.ui (symbol 'start-ui))))
 
 (defn -main
   [& args]
