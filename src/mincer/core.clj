@@ -4,9 +4,10 @@
     [clojure.string :as string]
     [clojure.tools.cli :refer [parse-opts]]
     [clojure.java.io :refer [as-file copy]]
+    [clojure.tools.logging :as log]
     [mincer.xml.modules :as modules]
     [mincer.xml.tree :as tree]
-    [mincer.data :refer [persist]]
+    [mincer.data :refer [persist mincer-version]]
     [mincer.ui :refer [start-ui]]))
 
 
@@ -40,13 +41,15 @@
   (let [data (modules/process module-data)
         tree (tree/process module-tree)
         db (persist tree (:modules data) (:units data))]
-    (copy (as-file db) (as-file target))))
+    (copy (as-file db) (as-file target))
+    (log/info "Created database" target)))
 
 (defn start-gui [] (start-ui))
 
 (defn -main
   [& args]
   ;; work around dangerous default behaviour in Clojure
+  (log/info "Version" mincer-version)
   (alter-var-root #'*read-eval* (constantly false))
   (let [{:keys [options arguments errors summary]} (parse-opts args cli-options)
         {:keys [module-tree module-data output]} options]

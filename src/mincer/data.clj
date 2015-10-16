@@ -108,7 +108,7 @@
                               :value (str "mincer" "-" mincer-version)}))
 
 (defn insert! [db-con table col]
-  (log/info "Saving to" table col)
+  (log/debug "Saving to" table col)
   ((keyword "last_insert_rowid()")
    (first (jdbc/insert! db-con table col))))
 
@@ -118,7 +118,7 @@
                    :subprotocol "sqlite"
                    :subname     database}]
       (with-db-connection [db-con db-spec]
-        (println database)
+        (log/debug database)
         (setup-db db-con)
         (func db-con))
       ; return path to generated DB
@@ -132,7 +132,7 @@
                            (:id  abstract-unit-ref)])]
     (if-not (nil? id)
       (mapv (fn [s] (insert! db-con :unit_abstract_unit_semester {:unit_id unit-id :abstract_unit_id id :semester s})) semesters)
-      (log/info "No au for " (:id  abstract-unit-ref)))))
+      (log/debug "No au for " (:id  abstract-unit-ref)))))
 
 (defn store-refs [db-con unit-id refs semesters]
   (mapv
@@ -192,7 +192,7 @@
         record {:level_id parent-id
                 :mandatory mandatory
                 :name name}]
-    (log/info (type title))
+    (log/debug (type title))
     (if-not (nil? title) ; NOTE or use something else
       ; (insert! db-con :modules record)
       ; XXX update course in this case -> need to retreive the course or bubble the data for the udpate
