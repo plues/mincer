@@ -11,3 +11,4 @@ pom.xml.asc
 .lein-plugins
 .lein-repl-history
 test-data
+*.sqlite3
