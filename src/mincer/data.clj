@@ -107,7 +107,6 @@
                               :value (str "mincer" "-" mincer-version)}))
 
 (defn insert! [db-con table col]
-  (println "Saving to" table col)
   ((keyword "last_insert_rowid()")
    (first (jdbc/insert! db-con table col))))
 
@@ -130,8 +129,7 @@
                           ["SELECT id FROM abstract_units WHERE key = ?"
                            (:id  abstract-unit-ref)])]
     (if-not (nil? id)
-      (mapv (fn [s] (insert! db-con :unit_abstract_unit_semester {:unit_id unit-id :abstract_unit_id id :semester s})) semesters)
-      (println "No au for " (:id  abstract-unit-ref)))))
+      (mapv (fn [s] (insert! db-con :unit_abstract_unit_semester {:unit_id unit-id :abstract_unit_id id :semester s})) semesters))))
 
 (defn store-refs [db-con unit-id refs semesters]
   (mapv
@@ -191,7 +189,6 @@
         record {:level_id parent-id
                 :mandatory mandatory
                 :name name}]
-    (println (type title))
     (if-not (nil? title) ; NOTE or use something else
       ; (insert! db-con :modules record)
       ; XXX update course in this case -> need to retreive the course or bubble the data for the udpate
