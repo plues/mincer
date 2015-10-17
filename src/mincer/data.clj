@@ -3,6 +3,7 @@
   (:require
     [clojure.java.jdbc :as jdbc]
     [clojure.java.jdbc :refer [with-db-connection]]
+    [clojure.string :refer [join upper-case]]
     [clojure.tools.logging :as log]))
 
 (def mincer-version "0.1.0-SNAPSHOT") ; updated with bumpversion
@@ -220,6 +221,7 @@
 
 (defn store-course [db-con idx {:keys  [kzfa degree course name po children]} modules]
   (let [params {:degree     degree
+                :key        (upper-case (join "-" [degree course kzfa po]))
                 :short_name course
                 :kzfa       kzfa ; XXX find a propper name for this
                 :name       name
