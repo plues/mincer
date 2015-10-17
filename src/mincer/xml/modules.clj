@@ -46,9 +46,10 @@
    :type (keyword type)
    :semester (extract-semesters semester)})
 
-(defmethod tree-to-module-map :module [{{:keys [pordnr title]} :attrs content :content} course]
+(defmethod tree-to-module-map :module [{{:keys [id pordnr title]} :attrs content :content} course]
   (when pordnr
     {pordnr {:title  title
+             :key id
              :course course
              :pordnr pordnr
              :abstract-units (map tree-to-module-map content)}}))
