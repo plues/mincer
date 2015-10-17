@@ -44,6 +44,12 @@
                                "CREATE INDEX course_level_course ON course_levels(course_id)"
                                "CREATE INDEX course_level_level ON course_levels(level_id)"
 
+                               (jdbc/create-table-ddl :course_modules
+                                                      [:course_id "NOT NULL" "REFERENCES courses"]
+                                                      [:module_id "NOT NULL" "REFERENCES modules"])
+                               "CREATE INDEX course_module_course ON course_modules(course_id)"
+                               "CREATE INDEX course_module_module ON course_modules(module_id)"
+
                                (jdbc/create-table-ddl :modules
                                                       [:id :integer "PRIMARY KEY" "AUTOINCREMENT"]
                                                       [:level_id :integer "REFERENCES levels"]
@@ -166,6 +172,7 @@
         unit-id (insert! db-con :units record)]
     (mapv (partial store-group db-con unit-id) groups)
     (store-refs db-con unit-id refs semester)))
+
 (defn persist-units [db-con units]
   (mapv (partial store-unit db-con) units))
 
@@ -187,7 +194,7 @@
 
 (defmulti store-child (fn [child & args] (:type child)))
 
-(defmethod store-child :level [{:keys [:min max name tm art children]} db-con parent-id modules]
+(defmethod store-child :level [{:keys [:min max name tm art children]} db-con parent-id course-id modules]
   "Insert node into level table in db-con. Returns id of created record."
   (let [record {:parent_id parent-id
                 :min min
@@ -196,11 +203,11 @@
                 :art art
                 :name name}
         parent-id (insert! db-con :levels record)]
-    (doall (map (fn [l] (store-child l db-con parent-id modules)) children))
+    (doall (map (fn [l] (store-child l db-con parent-id course-id modules)) children))
     ; return the id of the created record
     parent-id))
 
-(defmethod store-child :module [{:keys [name id pordnr mandatory]} db-con parent-id modules]
+(defmethod store-child :module [{:keys [name id pordnr mandatory]} db-con parent-id course-id modules]
   (let [{:keys [title abstract-units course key]} (get modules id)
         record {:level_id parent-id
                 :mandatory mandatory
@@ -211,6 +218,7 @@
       ; merge both module records
       (let [extended-record (merge record {:pordnr pordnr :title title})
             module-id (insert! db-con :modules extended-record)]
+        (insert! db-con :course_modules {:course_id course-id :module_id module-id})
         (mapv (partial store-abstract-unit db-con module-id) abstract-units)
         ; return the id of the created record
         module-id))))
@@ -226,7 +234,7 @@
                 :name       name
                 :po         po}]
     (let [parent-id (insert! db-con :courses params)
-          levels (mapv (fn [l] (store-child l db-con nil modules)) children)]
+          levels (mapv (fn [l] (store-child l db-con nil parent-id modules)) children)]
       ; insert course-level/parent-id pairs into course_level table
       (mapv (fn [l] (insert! db-con :course_levels {:course_id parent-id :level_id l})) levels))))
 
