@@ -11,13 +11,14 @@
                            :semester '(1 2)})
 
 (def result-course {:type  :course
-                    :id    "ba-aua-KF-2013"
+                    :key    "BA-AUA-KF-2013"
                     :title  "Bachelor Anglistik und Amerikanistik Kernfach PO 2013"})
 (def result-module
    (let [pordnr "1"]
      {pordnr {:title  "Module Language Skills 1"
               :course result-course
               :pordnr pordnr
+              :key "P-IAA-M-BMLS1"
               :abstract-units [result-abstract-unit]}}))
 
 (def result-module3
@@ -25,6 +26,7 @@
      {pordnr {:title  "Module Language Skills II"
               :course result-course
               :pordnr pordnr
+              :key "P-IAA-M-BMLS1"
               :abstract-units [result-abstract-unit]}}))
 
 
