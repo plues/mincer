@@ -105,6 +105,15 @@
                                                       [:updated_at :datetime :default :current_timestamp])
                                "CREATE INDEX session_group_id ON sessions(group_id)"
 
+                                (jdbc/create-table-ddl :log
+                                                      [:session_id :integer "NOT NULL" "REFERENCES sessions"]
+                                                      [:src_day :string]
+                                                      [:src_time :integer]
+                                                      [:target_day :string]
+                                                      [:target_time :integer]
+                                                      [:created_at :datetime :default :current_timestamp])
+                               "CREATE INDEX log_session_id ON log(session_id)")
+
   (jdbc/insert! db-con :info {:key "schema_version"
                               :value (str "v3.0")})
   (jdbc/insert! db-con :info {:key "generator"
