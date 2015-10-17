@@ -201,14 +201,13 @@
     parent-id))
 
 (defmethod store-child :module [{:keys [name id pordnr mandatory]} db-con parent-id modules]
-  (let [{:keys [title abstract-units course]} (get modules id)
+  (let [{:keys [title abstract-units course key]} (get modules id)
         record {:level_id parent-id
                 :mandatory mandatory
+                :key key
                 :name name}]
     (log/debug (type title))
     (if-not (nil? title) ; NOTE or use something else
-      ; (insert! db-con :modules record)
-      ; XXX update course in this case -> need to retreive the course or bubble the data for the udpate
       ; merge both module records
       (let [extended-record (merge record {:pordnr pordnr :title title})
             module-id (insert! db-con :modules extended-record)]
