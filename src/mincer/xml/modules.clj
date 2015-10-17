@@ -1,7 +1,8 @@
 (ns mincer.xml.modules
   (:gen-class)
   (:require
-   [mincer.xml.util :refer [get-xml]]))
+    [clojure.string :refer [upper-case]]
+    [mincer.xml.util :refer [get-xml]]))
 
 (defn extract-semesters [s]
   (map #(Integer/parseInt %) (clojure.string/split s #",")))
@@ -62,7 +63,7 @@
                                         ; add course info to modules
                                         ; NOTE: keeping only those courses that have modules (with a pordnr)
   (let [course  {:type  :course
-                 :id   id
+                 :key   (upper-case id)
                  :title title}
         modules (first content)] ; there is only one child in course-tag
     (tree-to-module-map modules course)))
