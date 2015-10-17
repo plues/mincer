@@ -27,6 +27,7 @@
 
                                (jdbc/create-table-ddl :courses
                                                       [:id :integer "PRIMARY KEY" "AUTOINCREMENT"]
+                                                      [:key :string "NOT NULL"]
                                                       [:degree :string "NOT NULL"]
                                                       [:short_name :string "NOT NULL"]
                                                       [:name :string "NOT NULL"]
@@ -34,6 +35,7 @@
                                                       [:po :string]
                                                       [:created_at :datetime :default :current_timestamp]
                                                       [:updated_at :datetime :default :current_timestamp])
+                               "CREATE INDEX course_key ON courses(key)"
 
                                (jdbc/create-table-ddl :course_levels
                                                       [:course_id "NOT NULL" "REFERENCES courses"]
@@ -44,6 +46,7 @@
                                (jdbc/create-table-ddl :modules
                                                       [:id :integer "PRIMARY KEY" "AUTOINCREMENT"]
                                                       [:level_id :integer "REFERENCES levels"]
+                                                      [:key :string "NOT NULL"]
                                                       ; XXX consider discarding one of both
                                                       [:name :string "NOT NULL"]
                                                       [:title  :string]
