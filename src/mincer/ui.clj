@@ -23,50 +23,86 @@
   (text :text t
         :editable? false))
 
+(def meta-text
+  (text :text (get @files :meta) :editable? false))
+
+(def source-text
+  (text :text (get @files :source) :editable? false))
+
+; button functions
 (def save-button
   (button
     :id :save
     :text ::create
     :enabled? false
     :listen [:action (fn [e]
-      (my-writer
-        (choose-file
-          :type :save
-          :filters [[".sqlite3" ["sqlite3"]]])))]))
+      (try
+        (my-writer
+          (choose-file
+            :type :save
+            :filters [[".sqlite3" ["sqlite3"]]]))
+      (catch Exception e
+        (invoke-later
+          (show!
+            (frame
+              :title "Error!"
+              :content (.getMessage e)
+              :on-close :exit
+              :size [450 :by 300]
+              :resizable? false))))))]))
 
 (defn enable-save []
   (if (and (not (nil? (get @files :meta))) (not (nil? (get @files :source))))
     (config! save-button :enabled? true)
     (config! save-button :enabled? false)))
 
-(defn open-button [id]
-    (button
-      :id id
-      :text ::open
-      :listen [:action (fn [e]
-        (swap! files update-in [id] (fn [old new] new)
-          (choose-file
-            :type :open
-            :filters [[".xml" ["xml"]]]))
-        (enable-save))]))
+(defn check-text [id t]
+  (if (not (nil? (get @files id)))
+    (config! t :text (.getAbsolutePath (get @files id)))))
+
+(def meta-button
+  (button
+    :id :meta
+    :text ::meta
+    :listen [:action (fn [e]
+      (swap! files update-in [:meta] (fn [old new] new)
+        (choose-file
+          :type :open
+          :filters [[".xml" ["xml"]]]))
+      (enable-save)
+      (check-text :meta meta-text))]))
+
+(def source-button
+  (button
+    :id :source
+    :text ::source
+    :listen [:action (fn [e]
+      (swap! files update-in [:source] (fn [old new] new)
+        (choose-file
+          :type :open
+          :filters [[".xml" ["xml"]]]))
+      (enable-save)
+      (check-text :source source-text))]))
 
 (def my-frame
   (frame
     :title ::frame-title,
     :content (grid-panel
-                :rows 3
+                :rows 4
                 :columns 2
                 :hgap 10
                 :vgap 10
                 :items
                   [(my-text ::file-select)
-                   save-button
-                   (my-text ::meta)
-                   (open-button :meta)
-                   (my-text ::source)
-                   (open-button :source)])
+                   (text "")
+                   meta-button
+                   meta-text
+                   source-button
+                   source-text
+                   (my-text ::save)
+                   save-button])
     :on-close :exit
-    :size [450 :by 300]
+    :size [600 :by 300]
     :resizable? false))
 
 (defn start-ui []
