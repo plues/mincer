@@ -50,8 +50,8 @@
 
 (defn -main
   [& args]
-  ;; work around dangerous default behaviour in Clojure
   (log/info "Version" mincer-version)
+  ;; work around dangerous default behaviour in Clojure
   (alter-var-root #'*read-eval* (constantly false))
   (let [{:keys [options arguments errors summary]} (parse-opts args cli-options)
         {:keys [module-tree module-data output]} options]

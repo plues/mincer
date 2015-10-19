@@ -136,8 +136,8 @@
           db-spec {:classname   "org.sqlite.JDBC"
                    :subprotocol "sqlite"
                    :subname     database}]
+      (log/debug database)
       (with-db-connection [db-con db-spec]
-        (log/debug database)
         (setup-db db-con)
         (func db-con))
       ; return path to generated DB
