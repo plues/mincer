@@ -15,7 +15,7 @@
         tree (tree/process (get @files :meta))
         db (persist tree (:modules data) (:units data))]
     (copy (as-file db) (as-file file))
-    (println "Created database" file)))
+    (println "Created database" (.getAbsolutePath file))))
 
 (defn my-text [t]
   (text :text t
