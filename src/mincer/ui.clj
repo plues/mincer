@@ -10,14 +10,12 @@
 
 (def files (atom {:meta nil :source nil}))
 
-; here instead of slurp:
-; do sth with the files and write it out
 (defn my-writer [file]
   (let [data (modules/process (get @files :source))
         tree (tree/process (get @files :meta))
         db (persist tree (:modules data) (:units data))]
-    (copy (as-file db) (as-file file)))
-  (println "Finished!"))
+    (copy (as-file db) (as-file file))
+    (println "Created database" file)))
 
 (defn my-text [t]
   (text :text t
