@@ -41,7 +41,7 @@
               db (persist tree (:modules data) (:units data))
               file (choose-file :type :save)]
         (copy (as-file db) (as-file file))
-        (println "Created database" (.getAbsolutePath file))
+        (println "Created database" (.getAbsolutePath file)))
       (catch Exception e
         (invoke-later
           (show!
