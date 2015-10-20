@@ -18,9 +18,6 @@
     (javax.imageio.ImageIO/read
      (new java.io.File "./resources/mincer/logo.png"))))
 
-(defn my-writer []
-  )
-
 (defn my-text [t]
   (text :text t
         :editable? false))
