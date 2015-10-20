@@ -1,8 +1,9 @@
 (ns mincer.ui
   (:gen-class)
   (:require
-    [seesaw.core :refer [text button config! frame invoke-later show! grid-panel]]
+    [seesaw.core :refer [text button config! frame invoke-later show! grid-panel label]]
     [seesaw.chooser :refer [choose-file]]
+    [seesaw.icon :refer [icon]]
     [clojure.java.io :refer [as-file copy]]
     [mincer.data :refer [persist]]
     [mincer.xml.modules :as modules]
@@ -10,12 +11,15 @@
 
 (def files (atom {:meta nil :source nil}))
 
-(defn my-writer [file]
-  (let [data (modules/process (get @files :source))
-        tree (tree/process (get @files :meta))
-        db (persist tree (:modules data) (:units data))]
-    (copy (as-file db) (as-file file))
-    (println "Created database" (.getAbsolutePath file))))
+(def save-button)
+
+(def logo
+  (icon
+    (javax.imageio.ImageIO/read
+     (new java.io.File "./resources/mincer/logo.png"))))
+
+(defn my-writer []
+  )
 
 (defn my-text [t]
   (text :text t
@@ -35,10 +39,12 @@
     :enabled? false
     :listen [:action (fn [e]
       (try
-        (my-writer
-          (choose-file
-            :type :save
-            :filters [[".sqlite3" ["sqlite3"]]]))
+        (let [data (modules/process (get @files :source))
+              tree (tree/process (get @files :meta))
+              db (persist tree (:modules data) (:units data))
+              file (choose-file :type :save)]
+        (copy (as-file db) (as-file file))
+        (println "Created database" (.getAbsolutePath file))
       (catch Exception e
         (invoke-later
           (show!
@@ -92,7 +98,7 @@
                 :vgap 10
                 :items
                   [(my-text ::file-select)
-                   (text "")
+                   (label :icon logo)
                    meta-button
                    meta-text
                    source-button
