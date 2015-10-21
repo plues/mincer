@@ -44,13 +44,23 @@
         (println "Created database" (.getAbsolutePath file)))
       (catch Exception e
         (invoke-later
-          (show!
+          (->
             (frame
               :title "Error!"
-              :content (.getStackTrace e)
-              :on-close :exit
-              :size [450 :by 300]
-              :resizable? false))))))]))
+              :content (text
+                :text
+                  (let [sw (new java.io.StringWriter)
+                        pw (new java.io.PrintWriter sw)]
+                    (.printStackTrace e pw)
+                    (.toString sw))
+                :multi-line? true
+                :wrap-lines? true
+                :tab-size 4
+                :rows 20
+                :editable? false)
+              :size [600 :by 600]
+              :on-close :dispose)
+            show!)))))]))
 
 (defn enable-save []
   (if (and (not (nil? (get @files :meta))) (not (nil? (get @files :source))))
