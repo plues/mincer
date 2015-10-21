@@ -47,7 +47,7 @@
           (show!
             (frame
               :title "Error!"
-              :content (.getMessage e)
+              :content (.getStackTrace e)
               :on-close :exit
               :size [450 :by 300]
               :resizable? false))))))]))
