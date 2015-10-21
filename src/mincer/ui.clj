@@ -1,7 +1,7 @@
 (ns mincer.ui
   (:gen-class)
   (:require
-    [seesaw.core :refer [native! text button config! frame invoke-later show! grid-panel label]]
+    [seesaw.core :refer [native! text button config! frame invoke-later show! grid-panel label scrollable]]
     [seesaw.chooser :refer [choose-file]]
     [seesaw.icon :refer [icon]]
     [clojure.java.io :refer [as-file copy]]
@@ -47,17 +47,18 @@
           (->
             (frame
               :title "Error!"
-              :content (text
-                :text
-                  (let [sw (new java.io.StringWriter)
-                        pw (new java.io.PrintWriter sw)]
-                    (.printStackTrace e pw)
-                    (.toString sw))
-                :multi-line? true
-                :wrap-lines? true
-                :tab-size 4
-                :rows 20
-                :editable? false)
+              :content (scrollable
+                (text
+                  :text
+                    (let [sw (new java.io.StringWriter)
+                          pw (new java.io.PrintWriter sw)]
+                      (.printStackTrace e pw)
+                      (.toString sw))
+                  :multi-line? true
+                  :wrap-lines? true
+                  :tab-size 4
+                  :rows 20
+                  :editable? false))
               :size [600 :by 600]
               :on-close :dispose)
             show!)))))]))
