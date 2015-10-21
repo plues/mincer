@@ -1,7 +1,7 @@
 (ns mincer.ui
   (:gen-class)
   (:require
-    [seesaw.core :refer [text button config! frame invoke-later show! grid-panel label]]
+    [seesaw.core :refer [native! text button config! frame invoke-later show! grid-panel label]]
     [seesaw.chooser :refer [choose-file]]
     [seesaw.icon :refer [icon]]
     [clojure.java.io :refer [as-file copy]]
@@ -107,5 +107,6 @@
     :resizable? false))
 
 (defn start-ui []
+  (native!)
   (invoke-later
     (-> my-frame show!)))
