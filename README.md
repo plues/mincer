@@ -1,5 +1,7 @@
 # mincer
 
+[![Build Status](https://travis-ci.org/plues/mincer.svg)](https://travis-ci.org/plues/mincer)
+
 Tool to create a SQLite database from module tree and data files.
 
 ## Installation
