@@ -4,7 +4,7 @@ Tool to create a SQLite database from module tree and data files.
 
 ## Installation
 
-Download a [nightly build](http://nightly.cobra.cs.uni-duesseldorf.de/slottool/mincer/)
+Download builds [here](http://www3.hhu.de/stups/downloads/plues/mincer/)
 
 ## Usage
 
@@ -33,7 +33,7 @@ result should be stored.
  
 ### Bugs
 
-Report bugs [here](http://tuatara.cs.uni-duesseldorf.de/slottool/mincer/issues)
+Report bugs [here](https://github.com/plues/mincer/issues)
 
 ## Building
 
