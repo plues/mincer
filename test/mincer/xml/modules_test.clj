@@ -19,6 +19,7 @@
               :course result-course
               :pordnr pordnr
               :key "P-IAA-M-BMLS1"
+              :elective-units 4
               :abstract-units [result-abstract-unit]}}))
 
 (def result-module3
@@ -27,6 +28,16 @@
               :course result-course
               :pordnr pordnr
               :key "P-IAA-M-BMLS1"
+              :elective-units 5
+              :abstract-units [result-abstract-unit]}}))
+
+(def result-module4
+   (let [pordnr "4"]
+     {pordnr {:title "Module Language Skills II"
+              :course result-course
+              :pordnr pordnr
+              :key "P-IAA-M-BMLS1"
+              :elective-units 0
               :abstract-units [result-abstract-unit]}}))
 
 
@@ -40,7 +51,8 @@
 (deftest test-module-parsing
   ; two testcases one with one without pordnr
   (is (= (tree-to-module-map module result-course) result-module))
-  (is (= (tree-to-module-map module2 result-course) nil)))
+  (is (= (tree-to-module-map module2 result-course) nil))
+  (is (= (tree-to-module-map module4 result-course) result-module4)) )
 
 (deftest test-modules-parsing
   ; two testcases one with one without pordnr

@@ -15,17 +15,24 @@
              :content [abstract-unit]
              :tag :module})
 
-(def module2 {:attrs {:elective-units "4"
+(def module2 {:attrs {:elective-units "2"
                      :id "P-IAA-M-BMLS1"
                      :title "Module Language Skills 1"
                      :type "m"}
              :content [abstract-unit]
              :tag :module})
 
-(def module3 {:attrs {:elective-units "4"
+(def module3 {:attrs {:elective-units "5"
                      :id "P-IAA-M-BMLS1"
                      :title "Module Language Skills II"
                      :pordnr "3"
+                     :type "m"}
+             :content [abstract-unit]
+             :tag :module})
+
+(def module4 {:attrs {:id "P-IAA-M-BMLS1"
+                     :title "Module Language Skills II"
+                     :pordnr "4"
                      :type "m"}
              :content [abstract-unit]
              :tag :module})

@@ -59,6 +59,7 @@
                                                       [:title  :string]
                                                       [:pordnr :integer]
                                                       [:mandatory :boolean]
+                                                      [:elective_units :integer]
                                                       ; XXX do we a direct link to the course?
                                                       [:created_at :datetime :default :current_timestamp]
                                                       [:updated_at :datetime :default :current_timestamp])
@@ -208,9 +209,10 @@
     parent-id))
 
 (defmethod store-child :module [{:keys [name id pordnr mandatory]} db-con parent-id course-id modules]
-  (let [{:keys [title abstract-units course key]} (get modules id)
+  (let [{:keys [title abstract-units course key elective-units]} (get modules id)
         record {:level_id parent-id
                 :mandatory mandatory
+                :elective_units elective-units
                 :key key
                 :name name}]
     (log/debug (type title))
