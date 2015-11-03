@@ -22,14 +22,14 @@
 
 (defmethod tree-to-unit-map :abstract-unit [{{id :id} :attrs}]
   {:type :abstract-unit-ref
-   :id   id})
+   :id   (upper-case id)})
 
 (defmethod tree-to-unit-map :unit [{{:keys [id title semester]} :attrs content :content}]
   (let [children (map tree-to-unit-map content)
         group-filter (fn [x] (= :group (:type x)))
         {groups true refs false} (group-by group-filter children)]
     {:type     :unit
-     :id       id
+     :id       (upper-case id)
      :title    title
      :semester (extract-semesters semester)
      :groups   groups
@@ -41,7 +41,7 @@
 (defmulti tree-to-module-map :tag)
 
 (defmethod tree-to-module-map :abstract-unit [{{:keys [id title type semester]} :attrs}]
-  {:id id
+  {:id (upper-case id)
    :title title
    :type (keyword type)
    :semester (extract-semesters semester)})
@@ -49,7 +49,7 @@
 (defmethod tree-to-module-map :module [{{:keys [id pordnr title elective-units]} :attrs content :content} course]
   (when pordnr
     {pordnr {:title  title
-             :key id
+             :key (upper-case id)
              :course course
              :pordnr pordnr
              :elective-units (Integer/parseInt (or elective-units "0"))
