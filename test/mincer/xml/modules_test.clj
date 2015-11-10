@@ -5,7 +5,7 @@
 
 
 
-(def result-abstract-unit {:id "P-IAA-L-BMLS1a"
+(def result-abstract-unit {:id "P-IAA-L-BMLS1A"
                            :title  "Grammar 1 (Übung)"
                            :type :m
                            :semester '(1 2)})
@@ -69,7 +69,7 @@
 (def result-session {:type :session :day "tue" :time 1 :duration 2 :rhythm 0})
 (def result-session2 {:type :session :day "mon" :time 3 :duration 1 :rhythm 2})
 (def result-group {:type :group :sessions [result-session result-session2]})
-(def result-abstract-unit-ref {:id "P-Phil-L-BPPKb" :type :abstract-unit-ref})
+(def result-abstract-unit-ref {:id "P-PHIL-L-BPPKB" :type :abstract-unit-ref})
 (def result-unit {:type :unit :id "120281" :title "Aristoteles: Politik (Basisseminar)" :semester [1 3 5] :groups [result-group]
                   :refs [result-abstract-unit-ref]})
 
