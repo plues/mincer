@@ -1,7 +1,8 @@
 (ns mincer.xml.tree
   (:gen-class)
   (:require [mincer.xml.util :refer [get-xml]]
-            [clojure.tools.logging :as log]))
+            [clojure.tools.logging :as log]
+            [clojure.string :refer [trim trim-newline]]))
 
 
 (defmulti parse-tree :tag)
@@ -40,8 +41,19 @@
 (defmethod parse-tree :regeln [node] (log/debug "Ignoring node regeln"))
 (defmethod parse-tree :i [node] (log/debug "Ignoring node i"))
 
-(defmethod parse-tree :default [{:keys [tag]}]
-  (throw  (IllegalArgumentException. (name tag))))
+(defn trunc [s n]
+    (subs s 0  (min  (count s) n)))
+
+(defn log-cdata [cdata]
+    (let [cd (trim (trim-newline cdata))
+          msg (trunc cd 50)]
+      (log/debug (str "Ignoring CDATA" " '" msg "...'"))))
+
+(defmethod parse-tree :default [arg]
+  (let [tag (:tag arg)]
+    (when-not (nil? tag)
+      (throw  (IllegalArgumentException. (name tag))))
+    (log-cdata arg)))
 
 (defn process [f]
   (parse-tree (get-xml f)))
