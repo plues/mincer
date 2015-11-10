@@ -66,3 +66,9 @@
                     :title "Aristoteles: Politik (Basisseminar)"}
             :content  [group abstract-unit-ref]
             :tag :unit})
+
+(def unit2 {:attrs  {:id "120282"
+                    :semester "1,3,5"
+                    :title "Aristoteles: Politik (Basisseminar)"}
+            :content  [group]
+            :tag :unit})

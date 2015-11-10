@@ -27,13 +27,13 @@
 (defmethod tree-to-unit-map :unit [{{:keys [id title semester]} :attrs content :content}]
   (let [children (map tree-to-unit-map content)
         group-filter (fn [x] (= :group (:type x)))
-        {groups true refs false} (group-by group-filter children)]
+        {:keys [group abstract-unit-ref]} (group-by #(:type %) children)]
     {:type     :unit
      :id       (upper-case id)
      :title    title
      :semester (extract-semesters semester)
-     :groups   groups
-     :refs     refs}))
+     :groups   group
+     :refs     (or abstract-unit-ref [])}))
 
 (defmethod tree-to-unit-map :default [{tag :tag}]
   (throw  (IllegalArgumentException. (name tag))))
