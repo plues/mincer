@@ -229,6 +229,7 @@
   (throw  (IllegalArgumentException. (str (:type child)))))
 
 (defn store-course [db-con idx {:keys  [kzfa degree course name po children]} modules]
+  (log/debug {:kzfa kzfa :degree degree :course course :name name :po po})
   (let [params {:degree     degree
                 :key        (upper-case (join "-" [degree course kzfa po]))
                 :short_name course

@@ -25,8 +25,9 @@
      :children children}))
 
 (defmethod parse-tree :b [{{:keys [abschl stg pversion kzfa name]} :attrs content :content}]
+  (log/debug {:tag :b :stg stg :pversion pversion :kzfa kzfa :name name :abschl abschl})
   (let [levels  (remove nil? (mapv parse-tree content))]
-    {(str stg kzfa pversion) {:type     :course
+    {(str stg abschl kzfa pversion) {:type     :course
                               :degree   abschl
                               :course   stg
                               :po       pversion
@@ -35,7 +36,7 @@
                               :children levels}}))
 
 (defmethod parse-tree :ModulBaum [{:keys [content]}]
-  (apply merge (map parse-tree content)))
+  (apply merge (mapv parse-tree content)))
 
                                         ; known but ignored tags
 (defmethod parse-tree :regeln [node] (log/debug "Ignoring node regeln"))
