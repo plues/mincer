@@ -2,6 +2,7 @@
   (:gen-class)
   (:require
     [clojure.string :refer [upper-case]]
+    [clojure.tools.logging :as log]
     [mincer.xml.util :refer [get-xml]]))
 
 (defn extract-semesters [s]
@@ -41,12 +42,14 @@
 (defmulti tree-to-module-map :tag)
 
 (defmethod tree-to-module-map :abstract-unit [{{:keys [id title type semester]} :attrs}]
+  (log/debug (str id " " title " " type " " semester))
   {:id (upper-case id)
    :title title
    :type (keyword type)
    :semester (extract-semesters semester)})
 
 (defmethod tree-to-module-map :module [{{:keys [id pordnr title elective-units]} :attrs content :content} course]
+  (log/debug (str "MODULE id:" id " title: '" title "' pordnr " pordnr))
   (when pordnr
     {pordnr {:title  title
              :key (upper-case id)
