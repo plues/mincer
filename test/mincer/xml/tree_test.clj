@@ -43,13 +43,13 @@
                                :children [result-module]}
                               ]})
 
-(def result-course {"phiH2011" {:type :course
+(def result-course {:type :course
                     :degree "bk"
                     :kzfa "H"
                     :name "Kernfach Philosophie"
                     :po "2011"
                     :course "phi"
-                    :children [result-level]}})
+                    :children [result-level]})
 
 (deftest test-parse-m-tag
   (is (= result-module (parse-tree m-tag)))
@@ -57,12 +57,17 @@
 
 
 (deftest test-parse-l-tag (is (= (parse-tree nested-l-tag) result-level)))
-(deftest test-parse-b-tag (is (= (parse-tree b-tag) result-course)))
-(deftest test-parse-modulbaum (is (= (parse-tree modulbaum-tag)
-                                    ; result is a dict of the merged dicts for each course
-                                     result-course)))
+
+(deftest test-parse-b-tag
+  (is (= result-course
+         (parse-tree b-tag))))
+
+(deftest test-parse-modulbaum
+  (is (= [result-course]
+         (parse-tree modulbaum-tag))))
+
 (deftest test-ignored-tags-in-b
   (let [course (parse-tree b-tag-with-regeln)
-        children (:children (get course "phiH2011"))]
+        children (:children course)]
     (is (= 1 (count children)))
     (is (not-any? nil? children))))
