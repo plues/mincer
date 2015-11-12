@@ -27,16 +27,16 @@
 (defmethod parse-tree :b [{{:keys [abschl stg pversion kzfa name]} :attrs content :content}]
   (log/debug {:tag :b :stg stg :pversion pversion :kzfa kzfa :name name :abschl abschl})
   (let [levels  (remove nil? (mapv parse-tree content))]
-    {(str stg abschl kzfa pversion) {:type     :course
-                              :degree   abschl
-                              :course   stg
-                              :po       pversion
-                              :kzfa     kzfa ; XXX find out what this means
-                              :name     name
-                              :children levels}}))
+    {:type     :course
+     :degree   abschl
+     :course   stg
+     :po       pversion
+     :kzfa     kzfa ; XXX find out what this means
+     :name     name
+     :children levels}))
 
 (defmethod parse-tree :ModulBaum [{:keys [content]}]
-  (apply merge (mapv parse-tree content)))
+  (mapv parse-tree content))
 
                                         ; known but ignored tags
 (defmethod parse-tree :regeln [node] (log/debug "Ignoring node regeln"))

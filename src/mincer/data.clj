@@ -228,7 +228,7 @@
 (defmethod store-child :default [child & args]
   (throw  (IllegalArgumentException. (str (:type child)))))
 
-(defn store-course [db-con idx {:keys  [kzfa degree course name po children]} modules]
+(defn store-course [db-con {:keys  [kzfa degree course name po children]} modules]
   (log/debug {:kzfa kzfa :degree degree :course course :name name :po po})
   (let [params {:degree     degree
                 :key        (upper-case (join "-" [degree course kzfa po]))
@@ -242,7 +242,7 @@
       (mapv (fn [l] (insert! db-con :course_levels {:course_id parent-id :level_id l})) levels))))
 
 (defn persist-courses [db-con levels modules]
-  (reduce-kv (fn [_ k v] (store-course db-con k v modules)) nil levels))
+  (mapv (fn [l] (store-course db-con l modules)) levels))
 
 (defn persist [levels modules units]
   (run-on-db #(store-stuff % levels modules units)))
