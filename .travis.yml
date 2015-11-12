@@ -10,7 +10,7 @@ before_install:
 before_script:
 - export DISPLAY=:99.0
 - sh -e /etc/init.d/xvfb start
-script: export DISPLAY=:99.0; lein deps; lein uberjar
+script: export DISPLAY=:99.0; lein deps; lein test && lein uberjar
 after_success:
 - travis-custom-deploy sftp target/mincer-0.1.0-SNAPSHOT-standalone.jar
 env:
