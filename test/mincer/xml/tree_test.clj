@@ -6,12 +6,14 @@
 (def result-module {:type :module
                     :name "Logik I"
                     :id "29381"
+                    :cp nil
                     :pordnr "29381"
                     :mandatory true})
 
 (def result-module-2 {:type :module
                     :name "Grundlagen"
                     :id "29380"
+                    :cp nil
                     :pordnr "29380"
                     :mandatory false})
 

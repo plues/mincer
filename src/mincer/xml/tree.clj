@@ -7,11 +7,12 @@
 
 (defmulti parse-tree :tag)
 
-(defmethod parse-tree :m [{{:keys [name pordnr pflicht]} :attrs}]
+(defmethod parse-tree :m [{{:keys [cp name pordnr pflicht]} :attrs}]
     {:type :module
      :name name
      :id pordnr
      :pordnr pordnr
+     :cp cp
      :mandatory (= pflicht "j")})
 
 (defmethod parse-tree :l [{{:keys [min max name TM ART]} :attrs content :content}]
