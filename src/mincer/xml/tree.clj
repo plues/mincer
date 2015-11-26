@@ -47,7 +47,7 @@
     (subs s 0  (min  (count s) n)))
 
 (defn log-cdata [cdata]
-    (let [cd (trim (trim-newline cdata))
+    (let [cd (trim (trim-newline (str cdata)))
           msg (trunc cd 50)]
       (log/debug (str "Ignoring CDATA" " '" msg "...'"))))
 
