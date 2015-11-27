@@ -15,11 +15,13 @@
      :cp (when-not (nil? cp) (Integer/parseInt cp))
      :mandatory (= pflicht "j")})
 
-(defmethod parse-tree :l [{{:keys [min max name TM ART]} :attrs content :content}]
+(defmethod parse-tree :l [{{:keys [min min-cp max max-cp name TM ART]} :attrs content :content}]
   (let [children  (remove nil? (mapv parse-tree content))]
     {:type     :level
      :min      (when-not (nil? min) (Integer/parseInt min))
      :max      (when-not (nil? max) (Integer/parseInt max))
+     :min-cp   (when-not (nil? min-cp) (Integer/parseInt min-cp))
+     :max-cp   (when-not (nil? max-cp) (Integer/parseInt max-cp))
      :name     name
      :tm       TM
      :art      ART

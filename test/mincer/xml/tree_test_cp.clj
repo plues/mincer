@@ -6,45 +6,52 @@
 (def result-cp-module {:type :module
                     :name "MV01: Makroökonomik"
                     :id "40553"
-                    :cp "6"
+                    :cp 6
                     :pordnr "40553"
                     :mandatory false})
 
-(def result-module-2 {:type :module
+(def result-cp-module-2 {:type :module
                     :name "MV03: Mikroökonomik"
                     :id "40554"
                     :pordnr "40554"
-                    :cp "7"
+                    :cp 7
                     :mandatory true})
 
-; (def result-level {:type :level :min 4 :max 6 :name  "Basiswahlpflichtmodule"
-;                    :tm nil
-;                    :art nil
-;                    :children [
-;                               {:type :level
-;                                :min 1
-;                                :max 2
-;                                :name  "Theoretische Philosophie"
-;                                :tm  nil
-;                                :art nil
-;                                :children [result-module]}
-;                               {:type :level
-;                                :min 1
-;                                :max 2
-;                                :name "Praktische Philosophie"
-;                                :tm "TM"
-;                                :art nil
-;                                :children [result-module result-module-2]
-;                                }
-;                               {:type :level
-;                                :min 2
-;                                :max 4
-;                                :name "Geschichte der Philosophie"
-;                                :tm nil
-;                                :art "ART"
-;                                :children [result-module]}
-;                               ]})
-
+(def result-cp-level {:art nil
+           :children [{:art nil
+                       :children [result-cp-module]
+                       :max nil
+                       :min nil
+                       :min-cp 10
+                       :max-cp 20
+                       :name "Area 1"
+                       :tm nil
+                       :type :level}
+                      {:art nil
+                       :children [result-cp-module-2 result-cp-module]
+                       :max nil
+                       :min nil
+                       :min-cp 5
+                       :max-cp 30
+                       :name "Area 2"
+                       :tm nil
+                       :type :level}
+                      {:art nil
+                       :children [result-cp-module]
+                       :max nil
+                       :min nil
+                       :min-cp 10
+                       :max-cp 100
+                       :name "Area 3"
+                       :tm nil
+                       :type :level}]
+           :max nil
+           :min nil
+           :min-cp 40
+           :max-cp 60
+           :name "Wahlpflichtmodule"
+           :tm nil
+           :type :level})
 ; (def result-course {:type :course
 ;                     :degree "bk"
 ;                     :kzfa "H"
@@ -55,11 +62,12 @@
 
 (deftest test-parse-m-tag
   (is (= result-cp-module (parse-tree m-cp-tag)))
-  (is (= result-module-2 (parse-tree m-cp-tag-2)))
+  (is (= result-cp-module-2 (parse-tree m-cp-tag-2)))
   )
 
 
-; (deftest test-parse-l-tag (is (= (parse-tree nested-l-tag) result-level)))
+(deftest test-parse-l-tag
+  (is (= result-cp-level (parse-tree nested-l-cp-tag))))
 
 ; (deftest test-parse-b-tag
 ;   (is (= result-course

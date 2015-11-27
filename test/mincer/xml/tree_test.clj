@@ -18,12 +18,16 @@
                     :mandatory false})
 
 (def result-level {:type :level :min 4 :max 6 :name  "Basiswahlpflichtmodule"
+                   :min-cp nil
+                   :max-cp nil
                    :tm nil
                    :art nil
                    :children [
                               {:type :level
                                :min 1
                                :max 2
+                               :min-cp nil
+                               :max-cp nil
                                :name  "Theoretische Philosophie"
                                :tm  nil
                                :art nil
@@ -31,6 +35,8 @@
                               {:type :level
                                :min 1
                                :max 2
+                               :min-cp nil
+                               :max-cp nil
                                :name "Praktische Philosophie"
                                :tm "TM"
                                :art nil
@@ -39,6 +45,8 @@
                               {:type :level
                                :min 2
                                :max 4
+                               :min-cp nil
+                               :max-cp nil
                                :name "Geschichte der Philosophie"
                                :tm nil
                                :art "ART"
