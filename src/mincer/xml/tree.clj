@@ -12,7 +12,7 @@
      :name name
      :id pordnr
      :pordnr pordnr
-     :cp cp
+     :cp (when-not (nil? cp) (Integer/parseInt cp))
      :mandatory (= pflicht "j")})
 
 (defmethod parse-tree :l [{{:keys [min max name TM ART]} :attrs content :content}]
