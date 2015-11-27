@@ -27,7 +27,7 @@
      :art      ART
      :children children}))
 
-(defmethod parse-tree :b [{{:keys [abschl stg pversion kzfa name]} :attrs content :content}]
+(defmethod parse-tree :b [{{:keys [abschl stg cp pversion kzfa name]} :attrs content :content}]
   (log/debug {:tag :b :stg stg :pversion pversion :kzfa kzfa :name name :abschl abschl})
   (let [levels  (remove nil? (mapv parse-tree content))]
     {:type     :course
@@ -36,6 +36,7 @@
      :po       pversion
      :kzfa     kzfa ; XXX find out what this means
      :name     name
+     :cp (when-not (nil? cp) (Integer/parseInt cp))
      :children levels}))
 
 (defmethod parse-tree :ModulBaum [{:keys [content]}]

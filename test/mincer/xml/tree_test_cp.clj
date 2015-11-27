@@ -52,13 +52,15 @@
            :name "Wahlpflichtmodule"
            :tm nil
            :type :level})
-; (def result-course {:type :course
-;                     :degree "bk"
-;                     :kzfa "H"
-;                     :name "Kernfach Philosophie"
-;                     :po "2011"
-;                     :course "phi"
-;                     :children [result-level]})
+
+(def result-course {:type :course
+                    :degree "bk"
+                    :kzfa "H"
+                    :cp 91
+                    :name "Kernfach Philosophie"
+                    :po "2011"
+                    :course "phi"
+                    :children [result-cp-level]})
 
 (deftest test-parse-m-tag
   (is (= result-cp-module (parse-tree m-cp-tag)))
@@ -69,16 +71,16 @@
 (deftest test-parse-l-tag
   (is (= result-cp-level (parse-tree nested-l-cp-tag))))
 
-; (deftest test-parse-b-tag
-;   (is (= result-course
-;          (parse-tree b-tag))))
+(deftest test-parse-b-tag
+  (is (= result-course
+         (parse-tree b-cp-tag))))
 
-; (deftest test-parse-modulbaum
-;   (is (= [result-course]
-;          (parse-tree modulbaum-tag))))
+(deftest test-parse-modulbaum
+  (is (= [result-course]
+         (parse-tree modulbaum-cp-tag))))
 
-; (deftest test-ignored-tags-in-b
-;   (let [course (parse-tree b-tag-with-regeln)
-;         children (:children course)]
-;     (is (= 1 (count children)))
-;     (is (not-any? nil? children))))
+(deftest test-ignored-tags-in-b
+  (let [course (parse-tree b-cp-tag-with-regeln)
+        children (:children course)]
+    (is (= 1 (count children)))
+    (is (not-any? nil? children))))

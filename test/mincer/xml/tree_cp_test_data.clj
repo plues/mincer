@@ -15,19 +15,21 @@
                               :tag :l}]
                    :tag :l})
 
-; (def b-tag {:attrs {:abschl "bk"
-;                     :kzfa "H"
-;                     :name "Kernfach Philosophie"
-;                     :pversion "2011"
-;                     :stg "phi"}
-;             :content [nested-l-tag]
-;             :tag :b})
+(def b-cp-tag {:attrs {:abschl "bk"
+                    :kzfa "H"
+                    :name "Kernfach Philosophie"
+                    :pversion "2011"
+                    :cp "91"
+                    :stg "phi"}
+            :content [nested-l-cp-tag]
+            :tag :b})
 
-; (def b-tag-with-regeln {:attrs {:abschl "bk"
-;                                 :kzfa "H"
-;                                 :name "Kernfach Philosophie"
-;                                 :pversion "2011"
-;                                 :stg "phi"}
-;                         :content [{:tag :regeln} {:tag :i} nested-l-tag]
-;                         :tag :b})
-; (def modulbaum-tag {:attrs nil :content  [b-tag] :tag :ModulBaum})
+(def b-cp-tag-with-regeln {:attrs {:abschl "bk"
+                                :kzfa "H"
+                                :name "Kernfach Philosophie"
+                                :pversion "2011"
+                                :cp "42"
+                                :stg "phi"}
+                        :content [{:tag :regeln} {:tag :i} nested-l-cp-tag]
+                        :tag :b})
+(def modulbaum-cp-tag {:attrs nil :content  [b-cp-tag] :tag :ModulBaum})
