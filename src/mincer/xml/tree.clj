@@ -8,6 +8,7 @@
 (defmulti parse-tree :tag)
 
 (defmethod parse-tree :m [{{:keys [cp name pordnr pflicht]} :attrs}]
+    (log/debug (str "module " [cp name pordnr pflicht]))
     {:type :module
      :name name
      :id pordnr

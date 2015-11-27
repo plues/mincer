@@ -19,8 +19,10 @@
                                                      [:name :string "NOT NULL"]
                                                      [:tm :string]
                                                      [:art :string]
-                                                     [:min :integer] ; NOTE can be nil if tm and art are set
-                                                     [:max :integer] ; NOTE can be nil if tm and art are set
+                                                     [:min :integer] ; NOTE can be nil if tm and art are set or if we are using credit points
+                                                     [:max :integer] ; NOTE can be nil if tm and art are set or if we are using credit points
+                                                     [:min_credit_points :integer :default "NULL"] ; NOTE can be nil
+                                                     [:max_credit_points :integer :default "NULL"] ; NOTE can be nil
                                                      [:parent_id :integer "REFERENCES levels"]
                                                      [:created_at :datetime :default :current_timestamp]
                                                      [:updated_at :datetime :default :current_timestamp])
@@ -34,6 +36,7 @@
                                                       [:name :string "NOT NULL"]
                                                       [:kzfa :string "NOT NULL"]
                                                       [:po :string]
+                                                      [:credit_points :integer :default "NULL"]
                                                       [:created_at :datetime :default :current_timestamp]
                                                       [:updated_at :datetime :default :current_timestamp])
                                "CREATE INDEX course_key ON courses(key)"
@@ -60,6 +63,7 @@
                                                       [:pordnr :integer]
                                                       [:mandatory :boolean]
                                                       [:elective_units :integer]
+                                                      [:credit_points :integer :default "NULL"]
                                                       ; XXX do we a direct link to the course?
                                                       [:created_at :datetime :default :current_timestamp]
                                                       [:updated_at :datetime :default :current_timestamp])
@@ -195,28 +199,32 @@
 
 (defmulti store-child (fn [child & args] (:type child)))
 
-(defmethod store-child :level [{:keys [:min max name tm art children]} db-con parent-id course-id modules]
+(defmethod store-child :level [{:keys [min max min-cp max-cp name tm art children]} db-con parent-id course-id modules]
   "Insert node into level table in db-con. Returns id of created record."
-  (let [record {:parent_id parent-id
-                :min min
-                :max max
-                :tm tm
-                :art art
-                :name name}
+  (let [record {:parent_id         parent-id
+                :min               min
+                :max               max
+                :min_credit_points min-cp
+                :max_credit_points max-cp
+                :tm                tm
+                :art               art
+                :name              name}
         parent-id (insert! db-con :levels record)]
     (doall (map (fn [l] (store-child l db-con parent-id course-id modules)) children))
     ; return the id of the created record
     parent-id))
 
-(defmethod store-child :module [{:keys [name id pordnr mandatory]} db-con parent-id course-id modules]
+(defmethod store-child :module [{:keys [name cp id pordnr mandatory]} db-con parent-id course-id modules]
+  (log/debug (get modules id))
   (let [{:keys [title abstract-units course key elective-units]} (get modules id)
-        record {:level_id parent-id
-                :mandatory mandatory
+        record {:level_id       parent-id
+                :mandatory      mandatory
                 :elective_units elective-units
-                :key key
-                :name name}]
+                :key            key
+                :credit_points  cp; xxx this is nil for some reason
+                :name           name}]
     (log/debug (type title))
-    (if-not (nil? title) ; NOTE or use something else
+    (if-not (nil? title) ; NOTE: or use something else to detect a vaild record
       ; merge both module records
       (let [extended-record (merge record {:pordnr pordnr :title title})
             module-id (insert! db-con :modules extended-record)]
@@ -228,14 +236,15 @@
 (defmethod store-child :default [child & args]
   (throw  (IllegalArgumentException. (str (:type child)))))
 
-(defn store-course [db-con {:keys  [kzfa degree course name po children]} modules]
+(defn store-course [db-con {:keys  [kzfa cp degree course name po children]} modules]
   (log/debug {:kzfa kzfa :degree degree :course course :name name :po po})
-  (let [params {:degree     degree
-                :key        (upper-case (join "-" [degree course kzfa po]))
-                :short_name course
-                :kzfa       kzfa ; XXX find a propper name for this
-                :name       name
-                :po         po}]
+  (let [params {:degree        degree
+                :key           (upper-case (join "-" [degree course kzfa po]))
+                :short_name    course
+                :kzfa          kzfa ; XXX find a propper name for this
+                :name          name
+                :credit_points cp
+                :po            po}]
     (let [parent-id (insert! db-con :courses params)
           levels (mapv (fn [l] (store-child l db-con nil parent-id modules)) children)]
       ; insert course-level/parent-id pairs into course_level table
