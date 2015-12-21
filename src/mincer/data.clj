@@ -35,7 +35,7 @@
                                                       [:short_name :string "NOT NULL"]
                                                       [:name :string "NOT NULL"]
                                                       [:kzfa :string "NOT NULL"]
-                                                      [:po :string]
+                                                      [:po :integer]
                                                       [:credit_points :integer :default "NULL"]
                                                       [:created_at :datetime :default :current_timestamp]
                                                       [:updated_at :datetime :default :current_timestamp])
