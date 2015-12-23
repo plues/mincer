@@ -57,7 +57,7 @@
                     :degree "bk"
                     :kzfa "H"
                     :name "Kernfach Philosophie"
-                    :po "2011"
+                    :po 2011
                     :cp nil
                     :course "phi"
                     :children [result-level]})

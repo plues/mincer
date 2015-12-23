@@ -58,7 +58,7 @@
                     :kzfa "H"
                     :cp 91
                     :name "Kernfach Philosophie"
-                    :po "2011"
+                    :po 2011
                     :course "phi"
                     :children [result-cp-level]})
 
