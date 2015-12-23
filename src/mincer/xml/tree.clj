@@ -28,20 +28,21 @@
      :art      ART
      :children children}))
 
-(defmethod parse-tree :b [{{:keys [abschl stg cp pversion kzfa name]} :attrs content :content}]
+(defmethod parse-tree :b [{{:keys [abschl ignored stg cp pversion kzfa name]} :attrs content :content}]
   (log/debug {:tag :b :stg stg :pversion pversion :kzfa kzfa :name name :abschl abschl})
-  (let [levels  (remove nil? (mapv parse-tree content))]
-    {:type     :course
-     :degree   abschl
-     :course   stg
-     :po       (when-not (nil? pversion) (Integer/parseInt pversion))
-     :kzfa     kzfa ; XXX find out what this means
-     :name     name
-     :cp (when-not (nil? cp) (Integer/parseInt cp))
-     :children levels}))
+  (when-not (= "true" ignored)
+    (let [levels  (remove nil? (pmap parse-tree content))]
+      {:type     :course
+       :degree   abschl
+       :course   stg
+       :po       (when-not (nil? pversion) (Integer/parseInt pversion))
+       :kzfa     kzfa ; XXX find out what this means
+       :name     name
+       :cp (when-not (nil? cp) (Integer/parseInt cp))
+       :children levels})))
 
 (defmethod parse-tree :ModulBaum [{:keys [content]}]
-  (mapv parse-tree content))
+  (filterv #(not (nil? %)) (mapv parse-tree content)))
 
                                         ; known but ignored tags
 (defmethod parse-tree :regeln [node] (log/debug "Ignoring node regeln"))
