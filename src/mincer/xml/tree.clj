@@ -17,7 +17,7 @@
      :mandatory (= pflicht "j")})
 
 (defmethod parse-tree :l [{{:keys [min min-cp max max-cp name TM ART]} :attrs content :content}]
-  (let [children  (remove nil? (mapv parse-tree content))]
+  (let [children  (remove nil? (pmap parse-tree content))]
     {:type     :level
      :min      (when-not (nil? min) (Integer/parseInt min))
      :max      (when-not (nil? max) (Integer/parseInt max))
@@ -42,7 +42,7 @@
        :children levels})))
 
 (defmethod parse-tree :ModulBaum [{:keys [content]}]
-  (filterv #(not (nil? %)) (mapv parse-tree content)))
+  (filterv #(not (nil? %)) (pmap parse-tree content)))
 
                                         ; known but ignored tags
 (defmethod parse-tree :regeln [node] (log/debug "Ignoring node regeln"))
