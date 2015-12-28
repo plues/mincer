@@ -4,7 +4,8 @@
     [clojure.java.jdbc :as jdbc]
     [clojure.java.jdbc :refer [with-db-connection]]
     [clojure.string :refer [join upper-case]]
-    [clojure.tools.logging :as log]))
+    [clojure.tools.logging :as log]
+    [mincer.module-combinations :refer [traverse-course]]))
 
 (def mincer-version "0.1.0-SNAPSHOT") ; updated with bumpversion
 (defn setup-db [db-con]
@@ -67,6 +68,13 @@
                                                       ; XXX do we a direct link to the course?
                                                       [:created_at :datetime :default :current_timestamp]
                                                       [:updated_at :datetime :default :current_timestamp])
+
+                               (jdbc/create-table-ddl :course_modules_combinations
+                                                      [:course_id "REFERENCES courses"]
+                                                      [:module_id "REFERENCES modules"]
+                                                      [:combination_id "INTEGER"]) ; unique for each course; represents each combination in a course
+                               "CREATE INDEX course_modules_combinations_course ON course_modules_combinations(course_id)"
+                               "CREATE INDEX course_modules_combinations_module ON course_modules_combinations(module_id)"
 
                                (jdbc/create-table-ddl :abstract_units
                                                       [:id :integer "PRIMARY KEY" "AUTOINCREMENT"]
@@ -236,19 +244,47 @@
 (defmethod store-child :default [child & args]
   (throw  (IllegalArgumentException. (str (:type child)))))
 
-(defn store-course [db-con {:keys  [kzfa cp degree course name po children]} modules]
-  (log/debug {:kzfa kzfa :degree degree :course course :name name :po po})
-  (let [params {:degree        degree
+(defn load-course-module-map [db-con course-id]
+  (let [sql "SELECT modules.pordnr, modules.id FROM course_modules JOIN modules ON course_modules.module_id WHERE course_id = ?;"
+        res (jdbc/query db-con [sql course-id])]
+    (into {} (map (fn [{:keys [pordnr id]}] [pordnr id]) res))))
+
+(defn store-course-module-combination [db-con course-id course-module-map module-combination-id module-combination] ; discard module-combinations that have "empty" modules (i.e. modules without actual units)
+  (let [modules (map #(Integer/parseInt (:pordnr %)) module-combination)]
+    (if (every? identity (map (fn [m] (contains? course-module-map m)) modules))
+      (doall (map (fn [m]
+             (let [record {:course_id course-id
+                           :combination_id module-combination-id
+                           :module_id (get course-module-map m)}]
+               (insert! db-con :course_modules_combinations record))) modules))
+      (log/debug "Discarding module combination for course " course-id modules))))
+
+(defn store-course-module-combinations [db-con course course-id]
+    (let [course-module-map (load-course-module-map db-con course-id)]
+      ; compute module combinations for course and store them to
+      ; course_module_combinations
+      (doall
+        (map-indexed
+          (partial store-course-module-combination db-con course-id course-module-map)
+          (traverse-course course)))))
+
+(defn store-course [db-con c modules]
+  (let [{:keys  [kzfa cp degree course name po children]} c
+        params {:degree        degree
                 :key           (upper-case (join "-" [degree course kzfa po]))
                 :short_name    course
                 :kzfa          kzfa ; XXX find a propper name for this
                 :name          name
                 :credit_points cp
-                :po            po}]
-    (let [parent-id (insert! db-con :courses params)
-          levels (mapv (fn [l] (store-child l db-con nil parent-id modules)) children)]
-      ; insert course-level/parent-id pairs into course_level table
-      (mapv (fn [l] (insert! db-con :course_levels {:course_id parent-id :level_id l})) levels))))
+                :po            po}
+        parent-id (insert! db-con :courses params)
+        levels (mapv (fn [l] (store-child l db-con nil parent-id modules)) children)]
+    (log/debug {:kzfa kzfa :degree degree :course course :name name :po po})
+    ; insert course-level/parent-id pairs into course_level table
+    (mapv
+      (fn [l] (insert! db-con :course_levels {:course_id parent-id :level_id l}))
+      levels)
+    (store-course-module-combinations db-con c parent-id)))
 
 (defn persist-courses [db-con levels modules]
   (mapv (fn [l] (store-course db-con l modules)) levels))
