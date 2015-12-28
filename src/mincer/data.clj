@@ -141,7 +141,7 @@
           db-spec {:classname   "org.sqlite.JDBC"
                    :subprotocol "sqlite"
                    :subname     database}]
-      (log/debug database)
+      (log/debug "Database " database)
       (with-db-connection [db-con db-spec]
         (setup-db db-con)
         (func db-con))
@@ -215,7 +215,7 @@
     parent-id))
 
 (defmethod store-child :module [{:keys [name cp id pordnr mandatory]} db-con parent-id course-id modules]
-  (log/debug (get modules id))
+  (log/debug "Module " (get modules id))
   (let [{:keys [title abstract-units course key elective-units]} (get modules id)
         record {:level_id       parent-id
                 :mandatory      mandatory
@@ -223,7 +223,7 @@
                 :key            key
                 :credit_points  cp; xxx this is nil for some reason
                 :name           name}]
-    (log/debug (type title))
+    (log/debug "Title type " (type title))
     (if-not (nil? title) ; NOTE: or use something else to detect a vaild record
       ; merge both module records
       (let [extended-record (merge record {:pordnr pordnr :title title})
