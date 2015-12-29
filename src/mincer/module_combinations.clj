@@ -7,7 +7,7 @@
 (defn filter-by-cp [level]
   (let [modules           (set (:children level))
         mandatory-modules (filter #(:mandatory %) modules)
-        elective-modules  (seq (difference modules mandatory-modules))
+        elective-modules  (seq (difference modules mandatory-modules)) ; has to be a seq type for subsets below
         mandatory-cp      (cp-sum mandatory-modules)
         ; mandatory-cp plus the sum of the chosen elective cp must be between
         ; min-cp and max-cp for the current level
@@ -69,6 +69,6 @@
   (filter-children course layer-filter-by-count filter-by-count))
 
 (defn traverse-course [course]
-  ((if-not (nil? (:cp course))
+  (set (map set ((if-not (nil? (:cp course))
      traverse-course-cp
-     traverse-course-count) course))
+     traverse-course-count) course))))
