@@ -36,8 +36,12 @@
      :groups   group
      :refs     (or abstract-unit-ref [])}))
 
-(defmethod tree-to-unit-map :default [{tag :tag}]
-  (throw  (IllegalArgumentException. (name tag))))
+(defmethod tree-to-unit-map :default [arg]
+  (let [tag (:tag arg)]
+    (log/debug "Invalid key" tag)
+    (throw  (IllegalArgumentException. (if-not (nil? tag)
+                                         (name tag)
+                                         (arg))))))
 
 (defmulti tree-to-module-map :tag)
 
@@ -79,8 +83,12 @@
 (defmethod tree-to-module-map :units [{:keys [content]}]
   {:units (map tree-to-unit-map content)})
 
-(defmethod tree-to-module-map :default [{:keys [tag]}]
-  (throw  (IllegalArgumentException. (name tag))))
+(defmethod tree-to-module-map :default [arg]
+  (let [tag (:tag arg)]
+    (log/debug "Invalid key" tag)
+      (throw  (IllegalArgumentException. (if-not (nil? tag)
+                                           (name tag)
+                                           (arg))))))
 
 (defn transform [{:keys [content]}]
   (apply merge (map tree-to-module-map content)))
