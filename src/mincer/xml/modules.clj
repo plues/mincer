@@ -3,6 +3,7 @@
   (:require
     [clojure.string :refer [upper-case]]
     [clojure.tools.logging :as log]
+    [mincer.xml.modules.validator :refer [validate]]
     [mincer.xml.util :refer [get-xml]]))
 
 (defn extract-semesters [s]
@@ -94,4 +95,6 @@
   (apply merge (map tree-to-module-map content)))
 
 (defn process [f]
-  (transform (get-xml f)))
+  (let [doc (get-xml f)]
+    (doall (validate doc))
+    (transform doc)))
