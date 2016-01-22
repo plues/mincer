@@ -63,6 +63,7 @@
 
 (def unit {:attrs  {:id "120281"
                     :semester "1,3,5"
+                    :half-semester "second"
                     :title "Aristoteles: Politik (Basisseminar)"}
             :content  [group abstract-unit-ref]
             :tag :unit})
