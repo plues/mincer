@@ -86,9 +86,7 @@
 (defmethod tree-to-module-map :default [arg]
   (let [tag (:tag arg)]
     (log/debug "Invalid key" tag)
-      (throw  (IllegalArgumentException. (if-not (nil? tag)
-                                           (name tag)
-                                           (arg))))))
+      (throw  (IllegalArgumentException. (str "ARG: "(if-not (nil? tag) (name tag) (arg)))))))
 
 (defn transform [{:keys [content]}]
   (apply merge (map tree-to-module-map content)))
