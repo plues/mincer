@@ -10,7 +10,9 @@
 
 (defn map-half-semester [x]
   (case x
+    "1" 1
     "first" 1
+    "2" 2
     "second" 2
     0))
 
