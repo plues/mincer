@@ -42,7 +42,7 @@
         tree (tree/process module-tree)
         db (persist tree (:modules data) (:units data))]
     (copy (as-file db) (as-file target))
-    (log/info "Created database" target)))
+    (log/info "Created database" (str target))))
 
 (defn start-gui []
   (require '[mincer.ui :refer [start-ui]])
