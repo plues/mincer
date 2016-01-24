@@ -9,6 +9,14 @@
 (defn extract-semesters [s]
   (map #(Integer/parseInt %) (clojure.string/split s #",")))
 
+(defn map-half-semester [x]
+  (case x
+    "1" 1
+    "first" 1
+    "2" 2
+    "second" 2
+    0))
+
 (defmulti tree-to-unit-map :tag)
 
 (defmethod tree-to-unit-map :session [{{:keys [day time duration rhythm]} :attrs}]
@@ -26,16 +34,17 @@
   {:type :abstract-unit-ref
    :id   (upper-case id)})
 
-(defmethod tree-to-unit-map :unit [{{:keys [id title semester]} :attrs content :content}]
+(defmethod tree-to-unit-map :unit [{{:keys [id title semester half-semester]} :attrs content :content}]
   (let [children (map tree-to-unit-map content)
         group-filter (fn [x] (= :group (:type x)))
         {:keys [group abstract-unit-ref]} (group-by #(:type %) children)]
-    {:type     :unit
-     :id       (upper-case id)
-     :title    title
-     :semester (extract-semesters semester)
-     :groups   group
-     :refs     (or abstract-unit-ref [])}))
+    {:type          :unit
+     :id            (upper-case id)
+     :title         title
+     :semester      (extract-semesters semester)
+     :half-semester (map-half-semester half-semester)
+     :groups        group
+     :refs          (or abstract-unit-ref [])}))
 
 (defmethod tree-to-unit-map :default [arg]
   (let [tag (:tag arg)]
@@ -87,9 +96,7 @@
 (defmethod tree-to-module-map :default [arg]
   (let [tag (:tag arg)]
     (log/debug "Invalid key" tag)
-      (throw  (IllegalArgumentException. (if-not (nil? tag)
-                                           (name tag)
-                                           (arg))))))
+      (throw  (IllegalArgumentException. (str "ARG: "(if-not (nil? tag) (name tag) (arg)))))))
 
 (defn transform [{:keys [content]}]
   (apply merge (map tree-to-module-map content)))

@@ -103,6 +103,7 @@
                                                       [:id :integer "PRIMARY KEY" "AUTOINCREMENT"]
                                                       [:unit_key :string "NOT NULL"]
                                                       [:title :string "NOT NULL"]
+                                                      [:half_semester :integer "NOT NULL"]
                                                       [:created_at :datetime :default :current_timestamp]
                                                       [:updated_at :datetime :default :current_timestamp])
                                "CREATE INDEX unit_key ON units(unit_key)"
@@ -179,9 +180,9 @@
   (let [group-id (insert! db-con :groups {:unit_id unit-id})]
     (mapv (partial store-session db-con group-id) sessions)))
 
-(defn store-unit [db-con {:keys [type id title semester groups refs]}]
+(defn store-unit [db-con {:keys [type id title semester half-semester groups refs]}]
   (assert (= :unit type))
-  (let [record {:unit_key id :title title}
+  (let [record {:unit_key id :title title :half_semester half-semester}
         unit-id (insert! db-con :units record)]
     (mapv (partial store-group db-con unit-id) groups)
     (store-refs db-con unit-id refs semester)))
