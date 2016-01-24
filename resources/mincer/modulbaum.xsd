@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+  <xs:element name="ModulBaum">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="1" maxOccurs="unbounded" ref="b"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="b">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="1" maxOccurs="unbounded">
+        <xs:element ref="l"/>
+        <xs:element ref="regeln"/>
+      </xs:choice>
+      <xs:attribute name="abschl" use="required" type="xs:NCName"/>
+      <xs:attribute name="ignored" type="xs:boolean"/>
+      <xs:attribute name="kzfa" use="required" type="xs:NCName"/>
+      <xs:attribute name="name" use="required"/>
+      <xs:attribute name="pversion" use="required" type="xs:integer"/>
+      <xs:attribute name="stg" use="required" type="xs:NCName"/>
+      <xs:attribute name="cp" use="optional" type="xs:integer"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="regeln">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:any />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="l">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="1" maxOccurs="unbounded">
+        <xs:element ref="l"/>
+        <xs:element ref="i"/>
+        <xs:element ref="m"/>
+      </xs:choice>
+      <xs:attribute name="ART" type="xs:NCName"/>
+      <xs:attribute name="FACH" type="xs:NCName"/>
+      <xs:attribute name="PART" type="xs:NCName"/>
+      <xs:attribute name="TM" type="xs:NCName"/>
+      <xs:attribute name="max" type="xs:integer"/>
+      <xs:attribute name="min" type="xs:integer"/>
+      <xs:attribute name="max-cp" use="optional" type="xs:integer"/>
+      <xs:attribute name="min-cp" use="optional" type="xs:integer"/>
+      <xs:attribute name="name" type="xs:string" use="required"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="i" type="xs:string"/>
+  <xs:element name="m">
+    <xs:complexType>
+      <xs:attribute name="PART" type="xs:NCName"/>
+      <xs:attribute name="name" type="xs:string" use="required"/>
+      <xs:attribute name="pflicht" type="xs:NCName"/>
+      <xs:attribute name="pnr" type="xs:integer"/>
+      <xs:attribute name="pordnr" use="required" type="xs:integer"/>
+      <xs:attribute name="cp" use="optional" type="xs:integer" />
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
