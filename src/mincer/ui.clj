@@ -16,7 +16,7 @@
 (def logo
   (icon
     (javax.imageio.ImageIO/read
-     (new java.io.File "./resources/mincer/logo.png"))))
+      (clojure.java.io/resource "mincer/logo.png"))))
 
 (defn my-text [t]
   (text :text t
