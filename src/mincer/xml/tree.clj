@@ -1,9 +1,11 @@
 (ns mincer.xml.tree
   (:gen-class)
-  (:require [mincer.xml.util :refer [get-xml]]
+  (:require [clojure.java.io :as io]
             [clojure.tools.logging :as log]
-            [clojure.string :refer [trim trim-newline]]))
+            [clojure.string :refer [trim trim-newline]]
+            [mincer.xml.util :refer [get-xml validate]]))
 
+(def schema (io/resource "mincer/modulbaum.xsd"))
 
 (defmulti parse-tree :tag)
 
@@ -63,4 +65,6 @@
     (log-cdata arg)))
 
 (defn process [f]
+  (validate schema f)
+  (log/info "validation passed")
   (parse-tree (get-xml f)))

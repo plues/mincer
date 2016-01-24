@@ -1,9 +1,11 @@
 (ns mincer.xml.modules
   (:gen-class)
-  (:require
-    [clojure.string :refer [upper-case]]
-    [clojure.tools.logging :as log]
-    [mincer.xml.util :refer [get-xml]]))
+  (:require [clojure.java.io :as io]
+            [clojure.string :refer [upper-case]]
+            [clojure.tools.logging :as log]
+            [mincer.xml.util :refer [get-xml validate]]))
+
+  (def schema (io/resource "mincer/moduldaten.xsd"))
 
 (defn extract-semesters [s]
   (map #(Integer/parseInt %) (clojure.string/split s #",")))
@@ -101,4 +103,6 @@
   (apply merge (map tree-to-module-map content)))
 
 (defn process [f]
+  (validate schema f)
+  (log/info "validation passed")
   (transform (get-xml f)))
