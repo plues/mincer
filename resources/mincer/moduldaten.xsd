@@ -40,6 +40,7 @@
       <xs:attribute name="id" use="required" type="xs:NCName"/>
       <xs:attribute name="pordnr" use="required" type="xs:integer"/>
       <xs:attribute name="title" use="required" type="xs:string"/>
+      <xs:attribute name="type" use="optional" type="xs:NCName"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="units">
