@@ -1,13 +1,15 @@
 (ns mincer.ui
   (:gen-class)
   (:require
-    [seesaw.core :refer [native! text button config! frame invoke-later show! grid-panel label scrollable]]
+    [seesaw.core :refer [alert native! text button config! frame invoke-later show! grid-panel label scrollable]]
     [seesaw.chooser :refer [choose-file]]
     [seesaw.icon :refer [icon]]
     [clojure.java.io :refer [as-file copy]]
+    [clojure.tools.logging :as log]
     [mincer.data :refer [persist]]
     [mincer.xml.modules :as modules]
-    [mincer.xml.tree :as tree]))
+    [mincer.xml.tree :as tree])
+  (:import (org.xml.sax SAXParseException)))
 
 (def files (atom {:meta nil :source nil}))
 
@@ -28,6 +30,18 @@
 (def source-text
   (text :text (get @files :source) :editable? false))
 
+(defn apply-with-error-handling [f file]
+  (try
+    (apply f [file])
+    (catch SAXParseException e
+      (let [msg (.getMessage e)
+            line (.getLineNumber e)
+            column (.getColumnNumber e)
+            info (format "Error in file %s:\nline: %s, column: %s\nMessage: %s" file line column msg)]
+        (log/info info)
+        (alert info))
+        (throw e))))
+
 ; button functions
 (def save-button
   (button
@@ -36,12 +50,13 @@
     :enabled? false
     :listen [:action (fn [e]
       (try
-        (let [data (modules/process (get @files :source))
-              tree (tree/process (get @files :meta))
+        (let [data (apply-with-error-handling modules/process (get @files :source))
+              tree (apply-with-error-handling tree/process (get @files :meta))
               db (persist tree (:modules data) (:units data))
               file (choose-file :type :save)]
         (copy (as-file db) (as-file file))
-        (println "Created database" (.getAbsolutePath file)))
+        (log/info "Created database" (.getAbsolutePath file)))
+      (catch SAXParseException e) ; handled before and ignored here
       (catch Exception e
         (invoke-later
           (->
