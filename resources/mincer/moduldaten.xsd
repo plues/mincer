@@ -40,7 +40,9 @@
       <xs:attribute name="id" use="required" type="xs:NCName"/>
       <xs:attribute name="pordnr" use="required" type="xs:integer"/>
       <xs:attribute name="title" use="required" type="xs:string"/>
+      <!-- allowed but ignored -->
       <xs:attribute name="type" use="optional" type="xs:NCName"/>
+      <xs:attribute name="cp" use="optional" type="xs:integer"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="units">
@@ -56,7 +58,7 @@
         <xs:element minOccurs="1" ref="group"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="abstract-unit"/>
       </xs:sequence>
-      <xs:attribute name="id" use="required" type="xs:integer"/>
+      <xs:attribute name="id" use="required" type="xs:string"/>
       <xs:attribute name="semester" use="required" type="xs:string"/>
       <xs:attribute name="title" use="required" type="xs:string"/>
       <xs:attribute name="half-semester" use="optional" type="xs:string"/>
