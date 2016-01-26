@@ -10,5 +10,6 @@
                  [org.clojure/tools.logging "0.3.1"]
                  [org.clojure/tools.cli "0.3.3"]
                  [seesaw "1.4.5"]
-                 [org.slf4j/slf4j-log4j12 "1.7.12"]]
+                 [org.slf4j/slf4j-log4j12 "1.7.12"]
+                 [org.clojure/test.check "0.9.0"]]
   :main mincer.core)
