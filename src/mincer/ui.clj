@@ -6,6 +6,7 @@
     [seesaw.icon :refer [icon]]
     [clojure.java.io :refer [as-file copy]]
     [clojure.tools.logging :as log]
+    [clojure.java.io :as io]
     [mincer.data :refer [persist]]
     [mincer.xml.modules :as modules]
     [mincer.xml.tree :as tree])
@@ -17,8 +18,7 @@
 
 (def logo
   (icon
-    (javax.imageio.ImageIO/read
-      (clojure.java.io/resource "mincer/logo.png"))))
+    (-> "mincer/logo.png" io/resource javax.imageio.ImageIO/read)))
 
 (defn my-text [t]
   (text :text t
