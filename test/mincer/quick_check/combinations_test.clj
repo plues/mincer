@@ -112,3 +112,34 @@
         #{module-1 module-4 module-5} #{module-1 module-4 module-6} #{module-1 module-5 module-6}
         #{module-2 module-4 module-5} #{module-2 module-4 module-6} #{module-2 module-5 module-6}
         #{module-3 module-4 module-5} #{module-3 module-4 module-6} #{module-3 module-5 module-6}})))
+
+;; Test 5: Einfacher 1..2-Baum (mit CPs)
+(def module-7
+  (createModule "Modul 7" "7" 5))
+
+(def module-8
+  (createModule "Modul 8" "8" 5))
+
+(def module-9
+  (createModule "Modul 9" "9" 5))
+
+(def module-10
+  (createModule "Modul 10" "10" 5))
+
+(def level-9
+  (createLevel nil nil "Level 9" 0 10 [module-7 module-8]))
+
+(def level-10
+  (createLevel nil nil "Level 10" 5 10 [module-9 module-10]))
+
+(def level-8
+  (createLevel nil nil "Level 8" 10 15 [level-9 level-10]))
+
+(def course-5
+  (createCourse "Major 5" 15 "maj5" [level-8]))
+
+(deftest test-tree-5
+    (is (= (traverse-course course-5)
+      #{#{module-9 module-10} #{module-7 module-9 module-10} #{module-8 module-9 module-10}
+      #{module-7 module-8 module-9} #{module-7 module-8 module-10} #{module-8 module-10}
+      #{module-8 module-9} #{module-7 module-10} #{module-7 module-9}})))
