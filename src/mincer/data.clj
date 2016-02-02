@@ -229,7 +229,8 @@
                 :art               art
                 :name              name}
         parent-id (insert! db-con :levels record)]
-    (doall (map (fn [l] (store-child l db-con parent-id course-id modules)) children))
+    (doseq [l children]
+      (store-child l db-con parent-id course-id modules))
     ; return the id of the created record
     parent-id))
 
@@ -264,11 +265,11 @@
 (defn store-course-module-combination [db-con course-id course-module-map module-combination-id module-combination] ; discard module-combinations that have "empty" modules (i.e. modules without actual units)
   (let [modules (map #(Integer/parseInt (:pordnr %)) module-combination)]
     (if (every? identity (map (fn [m] (contains? course-module-map m)) modules))
-      (doall (map (fn [m]
+      (doseq [m modules]
              (let [record {:course_id course-id
                            :combination_id module-combination-id
                            :module_id (get course-module-map m)}]
-               (insert! db-con :course_modules_combinations record))) modules))
+               (insert! db-con :course_modules_combinations record)))
       (log/debug "Discarding module combination for course " course-id modules))))
 
 (defn store-course-module-combinations [db-con course course-id]
