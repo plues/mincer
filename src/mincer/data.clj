@@ -168,12 +168,15 @@
                           ["SELECT id FROM abstract_units WHERE key = ?"
                            (:id  abstract-unit-ref)])]
     (if-not (nil? id)
-      (mapv (fn [s] (insert! db-con :unit_abstract_unit_semester {:unit_id unit-id :abstract_unit_id id :semester s})) semesters)
-      (log/debug "No au for " (:id  abstract-unit-ref)))))
+      (doseq [s semesters]
+        (insert! db-con :unit_abstract_unit_semester {:unit_id unit-id
+                                                      :abstract_unit_id id
+                                                      :semester s})))
+      (log/debug "No au for " (:id  abstract-unit-ref))))
 
 (defn store-refs [db-con unit-id refs semesters]
-  (mapv
-    (partial store-unit-abstract-unit-semester db-con unit-id semesters) refs))
+  (doseq [r refs]
+    (store-unit-abstract-unit-semester db-con unit-id semesters r)))
 
 (defn session-record [group-id session]
   (assert (= :session (:type session)))
@@ -189,11 +192,13 @@
   (assert (= :unit type))
   (let [record {:unit_key id :title title}
         unit-id (insert! db-con :units record)]
-    (mapv (partial store-group db-con unit-id) groups)
+    (doseq [g groups]
+      store-group db-con unit-id g)
     (store-refs db-con unit-id refs semester)))
 
 (defn persist-units [db-con units]
-  (mapv (partial store-unit db-con) units))
+  (doseq [u units]
+    (store-unit db-con u)))
 
 (defn store-stuff [db-con levels modules units]
   (persist-courses db-con levels modules)
@@ -209,7 +214,7 @@
                          (insert! db-con :modules_abstract_units_semesters {:abstract_unit_id au-id
                                                                             :module_id module-id
                                                                             :semester sem}))]
-    (mapv merge-table-fn semester)))
+    (doseq [s semester] (merge-table-fn s))))
 
 (defmulti store-child (fn [child & args] (:type child)))
 
@@ -243,7 +248,8 @@
       (let [extended-record (merge record {:pordnr pordnr :title title})
             module-id (insert! db-con :modules extended-record)]
         (insert! db-con :course_modules {:course_id course-id :module_id module-id})
-        (mapv (partial store-abstract-unit db-con module-id) abstract-units)
+        (doseq [au abstract-units]
+          (store-abstract-unit db-con module-id au))
         ; return the id of the created record
         module-id))))
 
@@ -284,16 +290,16 @@
                 :credit_points cp
                 :po            po}
         parent-id (insert! db-con :courses params)
-        levels (mapv (fn [l] (store-child l db-con nil parent-id modules)) children)]
+        levels (map (fn [l] (store-child l db-con nil parent-id modules)) children)]
     (log/debug {:kzfa kzfa :degree degree :course course :name name :po po})
     ; insert course-level/parent-id pairs into course_level table
-    (mapv
-      (fn [l] (insert! db-con :course_levels {:course_id parent-id :level_id l}))
-      levels)
+    (doseq [l levels]
+      (insert! db-con :course_levels {:course_id parent-id :level_id l}))
     (store-course-module-combinations db-con c parent-id)))
 
 (defn persist-courses [db-con levels modules]
-  (mapv (fn [l] (store-course db-con l modules)) levels))
+  (doseq [l levels]
+    (store-course db-con l modules)))
 
 (defn persist [levels modules units]
   (run-on-db #(store-stuff % levels modules units)))
