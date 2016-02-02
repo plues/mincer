@@ -140,10 +140,10 @@
   (jdbc/insert! db-con :info {:key "generator"
                               :value (str "mincer" "-" mincer-version)}))
 
-(defn insert! [db-con table col]
-  (log/debug "Saving to" table col)
+(defn insert! [db-con table rec]
+  (log/debug "Saving to" table rec)
   ((keyword "last_insert_rowid()")
-   (first (jdbc/insert! db-con table col))))
+   (first (jdbc/insert! db-con table rec))))
 
 (defn run-on-db [func]
     (let [database (.getPath (java.io.File/createTempFile "mince" ".sqlite3"))
