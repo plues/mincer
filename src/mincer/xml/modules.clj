@@ -27,15 +27,16 @@
    :duration (Integer/parseInt duration)
    :rhythm   (Integer/parseInt rhythm)})
 
-(defmethod tree-to-unit-map :group [{content :content}]
-  {:type     :group
-   :sessions (map tree-to-unit-map content)})
+(defmethod tree-to-unit-map :group [{{:keys [half-semester]} :attrs content :content}]
+  {:type          :group
+   :half-semester (map-half-semester half-semester)
+   :sessions      (map tree-to-unit-map content)})
 
 (defmethod tree-to-unit-map :abstract-unit [{{id :id} :attrs}]
   {:type :abstract-unit-ref
    :id   (upper-case id)})
 
-(defmethod tree-to-unit-map :unit [{{:keys [id title semester half-semester]} :attrs content :content}]
+(defmethod tree-to-unit-map :unit [{{:keys [id title semester]} :attrs content :content}]
   (let [children (map tree-to-unit-map content)
         group-filter (fn [x] (= :group (:type x)))
         {:keys [group abstract-unit-ref]} (group-by #(:type %) children)]
@@ -43,7 +44,6 @@
      :id            (upper-case id)
      :title         title
      :semester      (extract-semesters semester)
-     :half-semester (map-half-semester half-semester)
      :groups        group
      :refs          (or abstract-unit-ref [])}))
 

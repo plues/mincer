@@ -68,13 +68,14 @@
 ; unit parsing
 (def result-session {:type :session :day "tue" :time 1 :duration 2 :rhythm 0})
 (def result-session2 {:type :session :day "mon" :time 3 :duration 1 :rhythm 2})
-(def result-group {:type :group :sessions [result-session result-session2]})
+(def result-group {:type :group
+                   :half-semester 2
+                   :sessions [result-session result-session2]})
 (def result-abstract-unit-ref {:id "P-PHIL-L-BPPKB" :type :abstract-unit-ref})
 (def result-unit {:type :unit
                   :id "120281"
                   :title "Aristoteles: Politik (Basisseminar)"
                   :semester [1 3 5]
-                  :half-semester 2
                   :groups [result-group]
                   :refs [result-abstract-unit-ref]})
 
@@ -82,7 +83,6 @@
                    :id "120282"
                    :title "Aristoteles: Politik (Basisseminar)"
                    :semester [1 3 5]
-                   :half-semester 0
                    :groups [result-group]
                   :refs []})
 

@@ -103,7 +103,6 @@
                                                       [:id :integer "PRIMARY KEY" "AUTOINCREMENT"]
                                                       [:unit_key :string "NOT NULL"]
                                                       [:title :string "NOT NULL"]
-                                                      [:half_semester :integer "NOT NULL"]
                                                       [:created_at :datetime :default :current_timestamp]
                                                       [:updated_at :datetime :default :current_timestamp])
                                "CREATE INDEX unit_key ON units(unit_key)"
@@ -111,6 +110,7 @@
                                 (jdbc/create-table-ddl :groups
                                                       [:id :integer "PRIMARY KEY" "AUTOINCREMENT"]
                                                       [:unit_id :int "NOT NULL" "REFERENCES units"]
+                                                      [:half_semester :integer "NOT NULL"]
                                                       [:created_at :datetime :default :current_timestamp]
                                                       [:updated_at :datetime :default :current_timestamp])
                                "CREATE INDEX group_unit_id ON groups(unit_id)"
@@ -175,14 +175,14 @@
   (assert (= :session (:type session)))
   (insert! db-con :sessions (assoc (dissoc session :type) :group_id group-id)))
 
-(defn store-group [db-con unit-id {:keys [type sessions]}]
+(defn store-group [db-con unit-id {:keys [half-semester type sessions]}]
   (assert (= :group type) type)
-  (let [group-id (insert! db-con :groups {:unit_id unit-id})]
+  (let [group-id (insert! db-con :groups {:unit_id unit-id :half_semester half-semester})]
     (mapv (partial store-session db-con group-id) sessions)))
 
-(defn store-unit [db-con {:keys [type id title semester half-semester groups refs]}]
+(defn store-unit [db-con {:keys [type id title semester groups refs]}]
   (assert (= :unit type))
-  (let [record {:unit_key id :title title :half_semester half-semester}
+  (let [record {:unit_key id :title title}
         unit-id (insert! db-con :units record)]
     (mapv (partial store-group db-con unit-id) groups)
     (store-refs db-con unit-id refs semester)))
