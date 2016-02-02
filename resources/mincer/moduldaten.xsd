@@ -61,7 +61,6 @@
       <xs:attribute name="id" use="required" type="xs:string"/>
       <xs:attribute name="semester" use="required" type="xs:string"/>
       <xs:attribute name="title" use="required" type="xs:string"/>
-      <xs:attribute name="half-semester" use="optional" type="xs:string"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="group">
@@ -69,6 +68,7 @@
       <xs:sequence>
         <xs:element maxOccurs="unbounded" ref="session"/>
       </xs:sequence>
+      <xs:attribute name="half-semester" use="optional" type="xs:string"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="session">
