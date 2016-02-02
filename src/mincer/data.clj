@@ -193,7 +193,7 @@
   (let [record {:unit_key id :title title}
         unit-id (insert! db-con :units record)]
     (doseq [g groups]
-      store-group db-con unit-id g)
+      (store-group db-con unit-id g))
     (store-refs db-con unit-id refs semester)))
 
 (defn persist-units [db-con units]
