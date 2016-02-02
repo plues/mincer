@@ -148,6 +148,7 @@
 (defn insert-all! [db-con table recs]
   (log/debug "Saving to" table recs)
   (apply jdbc/insert! db-con table recs))
+
 (defn run-on-db [func]
     (let [database (.getPath (java.io.File/createTempFile "mincer" ".sqlite3"))
           db-spec {:classname   "org.sqlite.JDBC"
