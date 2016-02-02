@@ -55,7 +55,7 @@
   <xs:element name="unit">
     <xs:complexType>
       <xs:sequence>
-        <xs:element minOccurs="1" ref="group"/>
+        <xs:element minOccurs="1" maxOccurs="unbounded" ref="group"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="abstract-unit"/>
       </xs:sequence>
       <xs:attribute name="id" use="required" type="xs:string"/>
