@@ -2,7 +2,7 @@
   (:gen-class)
   (:require
     [clojure.java.jdbc :as jdbc]
-    [clojure.java.jdbc :refer [with-db-connection]]
+    [clojure.java.jdbc :refer [with-db-transaction]]
     [clojure.string :refer [join upper-case]]
     [clojure.tools.logging :as log]
     [mincer.module-combinations :refer [traverse-course]]))
@@ -151,7 +151,7 @@
                    :subprotocol "sqlite"
                    :subname     database}]
       (log/debug "Database " database)
-      (with-db-connection [db-con db-spec]
+      (with-db-transaction [db-con db-spec]
         (setup-db db-con)
         (func db-con))
       ; return path to generated DB
