@@ -73,7 +73,21 @@
   </xs:element>
   <xs:element name="session">
     <xs:complexType>
-      <xs:attribute name="day" use="required" type="xs:NCName"/>
+      <xs:attribute name="day" use="required">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+              <xs:enumeration value="mon"/>
+              <xs:enumeration value="tue"/>
+              <xs:enumeration value="wed"/>
+              <xs:enumeration value="thu"/>
+              <xs:enumeration value="fri"/>
+              <!-- you never know -->
+              <xs:enumeration value="sat"/>
+              <xs:enumeration value="sun"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+
       <xs:attribute name="duration" use="required" type="xs:integer"/>
       <xs:attribute name="rhythm" use="required" type="xs:integer"/>
       <xs:attribute name="time" use="required" type="xs:integer"/>
