@@ -31,7 +31,7 @@
 
                                (jdbc/create-table-ddl :courses
                                                       [:id :integer "PRIMARY KEY" "AUTOINCREMENT"]
-                                                      [:key :string "NOT NULL"]
+                                                      [:key :string "NOT NULL UNIQUE"]
                                                       [:degree :string "NOT NULL"]
                                                       [:short_name :string "NOT NULL"]
                                                       [:name :string "NOT NULL"]
@@ -61,7 +61,7 @@
                                                       ; XXX consider discarding one of both
                                                       [:name :string "NOT NULL"]
                                                       [:title  :string]
-                                                      [:pordnr :integer]
+                                                      [:pordnr :integer "UNIQUE"]
                                                       [:mandatory :boolean]
                                                       [:elective_units :integer]
                                                       [:credit_points :integer :default "NULL"]
@@ -78,12 +78,11 @@
 
                                (jdbc/create-table-ddl :abstract_units
                                                       [:id :integer "PRIMARY KEY" "AUTOINCREMENT"]
-                                                      [:key :string "NOT NULL"]
+                                                      [:key :string "NOT NULL UNIQUE"]
                                                       [:title :string "NOT NULL"]
                                                       [:type :string "NOT NULL"]
                                                       [:created_at :datetime :default :current_timestamp]
                                                       [:updated_at :datetime :default :current_timestamp])
-                               "CREATE UNIQUE INDEX abstract_unit_key ON abstract_units(key)"
 
                                (jdbc/create-table-ddl :modules_abstract_units_semesters
                                                       [:abstract_unit_id :int "NOT NULL" "REFERENCES abstract_units"]
@@ -101,7 +100,7 @@
 
                                (jdbc/create-table-ddl :units
                                                       [:id :integer "PRIMARY KEY" "AUTOINCREMENT"]
-                                                      [:unit_key :string "NOT NULL"]
+                                                      [:unit_key :string "NOT NULL UNIQUE"]
                                                       [:title :string "NOT NULL"]
                                                       [:created_at :datetime :default :current_timestamp]
                                                       [:updated_at :datetime :default :current_timestamp])
