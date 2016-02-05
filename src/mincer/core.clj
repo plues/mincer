@@ -7,7 +7,8 @@
     [clojure.tools.logging :as log]
     [mincer.xml.modules :as modules]
     [mincer.xml.tree :as tree]
-    [mincer.data :refer [persist mincer-version]]))
+    [mincer.db :refer [mincer-version]]
+    [mincer.data :refer [persist]]))
 
 
 (def cli-options
