@@ -83,7 +83,7 @@
                                                       [:type :string "NOT NULL"]
                                                       [:created_at :datetime :default :current_timestamp]
                                                       [:updated_at :datetime :default :current_timestamp])
-                               "CREATE INDEX abstract_unit_key ON abstract_units(key)"
+                               "CREATE UNIQUE INDEX abstract_unit_key ON abstract_units(key)"
 
                                (jdbc/create-table-ddl :modules_abstract_units_semesters
                                                       [:abstract_unit_id :int "NOT NULL" "REFERENCES abstract_units"]
