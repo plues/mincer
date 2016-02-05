@@ -36,13 +36,20 @@
       <xs:sequence>
         <xs:element minOccurs="1" maxOccurs="unbounded" ref="abstract-unit"/>
       </xs:sequence>
-      <xs:attribute name="elective-units" use="required" type="xs:integer"/>
+      <xs:attribute name="elective-units" use="required" type="xs:nonNegativeInteger"/>
       <xs:attribute name="id" use="required" type="xs:NCName"/>
-      <xs:attribute name="pordnr" use="required" type="xs:integer"/>
-      <xs:attribute name="title" use="required" type="xs:string"/>
+      <xs:attribute name="pordnr" use="required" type="xs:nonNegativeInteger"/>
+      <xs:attribute name="title" use="required" type="xs:normalizedString"/>
       <!-- allowed but ignored -->
-      <xs:attribute name="type" use="optional" type="xs:NCName"/>
-      <xs:attribute name="cp" use="optional" type="xs:integer"/>
+      <xs:attribute name="type" use="optional">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+              <xs:enumeration value="m"/>
+              <xs:enumeration value="e"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+      <xs:attribute name="cp" use="optional" type="xs:nonNegativeInteger"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="units">
@@ -59,8 +66,8 @@
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="abstract-unit"/>
       </xs:sequence>
       <xs:attribute name="id" use="required" type="xs:string"/>
-      <xs:attribute name="semester" use="required" type="xs:string"/>
-      <xs:attribute name="title" use="required" type="xs:string"/>
+      <xs:attribute name="semester" use="required" type="xs:normalizedString"/>
+      <xs:attribute name="title" use="required" type="xs:normalizedString"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="group">
@@ -68,7 +75,14 @@
       <xs:sequence>
         <xs:element maxOccurs="unbounded" ref="session"/>
       </xs:sequence>
-      <xs:attribute name="half-semester" use="optional" type="xs:string"/>
+      <xs:attribute name="half-semester" use="optional">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+              <xs:enumeration value="first"/>
+              <xs:enumeration value="second"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
     </xs:complexType>
   </xs:element>
   <xs:element name="session">
@@ -88,17 +102,26 @@
         </xs:simpleType>
       </xs:attribute>
 
-      <xs:attribute name="duration" use="required" type="xs:integer"/>
-      <xs:attribute name="rhythm" use="required" type="xs:integer"/>
-      <xs:attribute name="time" use="required" type="xs:integer"/>
+      <xs:attribute name="duration" use="required" type="xs:positiveInteger" />
+      <xs:attribute name="rhythm" use="required">
+        <xs:simpleType>
+          <xs:restriction base="xs:nonNegativeInteger">
+            <xs:enumeration value="0"/> <!-- eekly -->
+            <xs:enumeration value="1"/> <!-- Biweekly on even number calendar weeks. -->
+            <xs:enumeration value="2"/> <!-- Biweekly on odd number calendar weeks. -->
+              <xs:enumeration value="3"/> <!-- Block -->
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+      <xs:attribute name="time" use="required" type="xs:positiveInteger"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="abstract-unit">
     <xs:complexType>
       <xs:attribute name="id" use="required"/>
-      <xs:attribute name="semester"/>
-      <xs:attribute name="title"/>
-      <xs:attribute name="type" type="xs:NCName"/>
+      <xs:attribute name="semester" type="xs:normalizedString" />
+      <xs:attribute name="title" type="xs:normalizedString" />
+      <xs:attribute name="type" type="xs:normalizedString" />
     </xs:complexType>
   </xs:element>
 </xs:schema>
