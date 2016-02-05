@@ -100,7 +100,7 @@
 
                                (jdbc/create-table-ddl :units
                                                       [:id :integer "PRIMARY KEY" "AUTOINCREMENT"]
-                                                      [:unit_key :string "NOT NULL UNIQUE"]
+                                                      [:unit_key :string "NOT NULL"]
                                                       [:title :string "NOT NULL"]
                                                       [:created_at :datetime :default :current_timestamp]
                                                       [:updated_at :datetime :default :current_timestamp])
