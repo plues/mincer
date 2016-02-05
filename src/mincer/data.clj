@@ -162,11 +162,14 @@
       database))
 
 
+(defn abstract-unit-by-key [db-con key]
+  (let [records (jdbc/query db-con ["SELECT * FROM abstract_units WHERE key = ?" key])]
+    (when (= 1 (count records))
+    (first records))))
+
 (declare persist-courses)
 (defn store-unit-abstract-unit-semester [db-con unit-id semesters abstract-unit-ref]
-  (let [[{:keys [id]}] (jdbc/query db-con
-                          ["SELECT id FROM abstract_units WHERE key = ?"
-                           (:id  abstract-unit-ref)])]
+  (let [{:keys [id]} (abstract-unit-by-key db-con (:id abstract-unit-ref))]
     (if-not (nil? id)
       (doseq [s semesters]
         (insert! db-con :unit_abstract_unit_semester {:unit_id unit-id
@@ -216,6 +219,11 @@
                                                                             :semester sem}))]
     (doseq [s semester] (merge-table-fn s))))
 
+(defn store-abstract-units [db-con module-id abstract-units]
+  (doseq [au abstract-units]
+    (when (nil? (abstract-unit-by-key db-con (:id au))) ; abstract unit not yet in the database
+      (store-abstract-unit db-con module-id au))))
+
 (defmulti store-child (fn [child & args] (:type child)))
 
 (defmethod store-child :level [{:keys [min max min-cp max-cp name tm art children]} db-con parent-id course-id modules]
@@ -249,8 +257,7 @@
       (let [extended-record (merge record {:pordnr pordnr :title title})
             module-id (insert! db-con :modules extended-record)]
         (insert! db-con :course_modules {:course_id course-id :module_id module-id})
-        (doseq [au abstract-units]
-          (store-abstract-unit db-con module-id au))
+        (store-abstract-units db-con module-id abstract-units)
         ; return the id of the created record
         module-id))))
 
