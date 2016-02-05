@@ -164,7 +164,12 @@
 (defn abstract-unit-by-key [db-con key]
   (let [records (jdbc/query db-con ["SELECT * FROM abstract_units WHERE key = ?" key])]
     (when (= 1 (count records))
-    (first records))))
+      (first records))))
+
+(defn module-by-pordnr [db-con pordnr]
+  (let [records (jdbc/query db-con ["SELECT * FROM modules WHERE pordnr = ?" pordnr])]
+    (when (= 1 (count records))
+      (first records))))
 
 (declare persist-courses)
 (defn store-unit-abstract-unit-semester [db-con unit-id semesters abstract-unit-ref]
@@ -243,22 +248,24 @@
 
 (defmethod store-child :module [{:keys [name cp id pordnr mandatory]} db-con parent-id course-id modules]
   (log/debug "Module " (get modules id))
-  (let [{:keys [title abstract-units course key elective-units]} (get modules id)
-        record {:level_id       parent-id
-                :mandatory      mandatory
-                :elective_units elective-units
-                :key            key
-                :credit_points  cp; xxx this is nil for some reason
-                :name           name}]
-    (log/debug "Title type " (type title))
-    (if-not (nil? title) ; NOTE: or use something else to detect a vaild record
-      ; merge both module records
-      (let [extended-record (merge record {:pordnr pordnr :title title})
-            module-id (insert! db-con :modules extended-record)]
-        (insert! db-con :course_modules {:course_id course-id :module_id module-id})
-        (store-abstract-units db-con module-id abstract-units)
-        ; return the id of the created record
-        module-id))))
+  (if-let [module-from-db (:id (module-by-pordnr db-con pordnr))]
+    module-from-db ; module is already in the database
+    (let [{:keys [title abstract-units course key elective-units]} (get modules id)
+          record {:level_id       parent-id
+                  :mandatory      mandatory
+                  :elective_units elective-units
+                  :key            key
+                  :credit_points  cp; xxx this is nil for some reason
+                  :name           name}]
+      (log/debug "Title type " (type title))
+      (if-not (nil? title) ; NOTE: or use something else to detect a vaild record
+        ; merge both module records
+        (let [extended-record (merge record {:pordnr pordnr :title title})
+              module-id (insert! db-con :modules extended-record)]
+          (insert! db-con :course_modules {:course_id course-id :module_id module-id})
+          (store-abstract-units db-con module-id abstract-units)
+          ; return the id of the created record
+          module-id)))))
 
 (defmethod store-child :default [child & args]
   (throw  (IllegalArgumentException. (str (:type child)))))
