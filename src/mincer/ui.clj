@@ -1,7 +1,8 @@
 (ns mincer.ui
   (:gen-class)
   (:require
-    [seesaw.core :refer [alert native! text button config! frame invoke-later show! grid-panel label scrollable]]
+    [seesaw.core :refer [alert native! text button config!
+                         frame invoke-later show! grid-panel label scrollable top-bottom-split]]
     [seesaw.chooser :refer [choose-file]]
     [seesaw.icon :refer [icon]]
     [clojure.java.io :refer [as-file copy]]
@@ -10,19 +11,16 @@
     [mincer.data :refer [persist]]
     [mincer.xml.modules :as modules]
     [mincer.xml.tree :as tree])
-  (:import (org.xml.sax SAXParseException)))
+  (:import (org.xml.sax SAXParseException)
+           (org.apache.log4j AppenderSkeleton LogManager Level)))
 
 (def files (atom {:meta nil :source nil}))
 
-(def save-button)
+(def textarea (text :multi-line? true :editable? false :wrap-lines? true))
 
 (def logo
   (icon
     (-> "mincer/logo.png" io/resource javax.imageio.ImageIO/read)))
-
-(defn my-text [t]
-  (text :text t
-        :editable? false))
 
 (def meta-text
   (text :text (get @files :meta) :editable? false))
@@ -114,22 +112,25 @@
 (def my-frame
   (frame
     :title ::frame-title,
-    :content (grid-panel
-                :rows 4
-                :columns 2
-                :hgap 10
-                :vgap 10
-                :items
-                  [(my-text ::file-select)
-                   (label :icon logo)
-                   meta-button
-                   meta-text
-                   source-button
-                   source-text
-                   (my-text ::save)
-                   save-button])
+    :content (top-bottom-split
+               (grid-panel
+                 :rows 4
+                 :columns 2
+                 :hgap 10
+                 :vgap 10
+                 :items
+                   [(label ::file-select)
+                    (label :icon logo)
+                    meta-button
+                    meta-text
+                    source-button
+                    source-text
+                    (label ::save)
+                    save-button])
+               ; bottom logging textarea
+               (scrollable textarea))
     :on-close :exit
-    :size [600 :by 300]
+    :size [600 :by 700]
     :resizable? false))
 
 (defn log-message [ev]
@@ -150,5 +151,6 @@
 
 (defn start-ui []
   (native!)
+  (setup-logger)
   (invoke-later
     (-> my-frame show!)))
