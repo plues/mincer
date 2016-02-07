@@ -2,7 +2,8 @@
   (:gen-class)
   (:require
     [seesaw.core :refer [alert native! text button config!
-                         frame invoke-later show! grid-panel label scrollable top-bottom-split]]
+                         frame invoke-later invoke-now invoke-soon
+                         show! grid-panel label scrollable top-bottom-split]]
     [seesaw.chooser :refer [choose-file]]
     [seesaw.icon :refer [icon]]
     [clojure.java.io :refer [as-file copy]]
@@ -37,26 +38,10 @@
             column (.getColumnNumber e)
             info (format "Error in file %s:\nline: %s, column: %s\nMessage: %s" file line column msg)]
         (log/info info)
-        (alert info))
-        (throw e))))
-
-; button functions
-(def save-button
-  (button
-    :id :save
-    :text ::create
-    :enabled? false
-    :listen [:action (fn [e]
-      (try
-        (let [data (apply-with-error-handling modules/process (get @files :source))
-              tree (apply-with-error-handling tree/process (get @files :meta))
-              db (persist tree (:modules data) (:units data))
-              file (choose-file :type :save)]
-        (copy (as-file db) (as-file file))
-        (log/info "Created database" (.getAbsolutePath file)))
-      (catch SAXParseException e) ; handled before and ignored here
-      (catch Exception e
-        (invoke-later
+        (invoke-soon (alert info)))
+        (throw e))
+    (catch Exception e
+        (invoke-soon
           (->
             (frame
               :title "Error!"
@@ -74,12 +59,37 @@
                   :editable? false))
               :size [600 :by 600]
               :on-close :dispose)
-            show!)))))]))
+            show!))
+        (throw e))))
+
+
+; button functions
+(def save-button)
+(defn disable-save []
+  (config! save-button :enabled? false))
 
 (defn enable-save []
   (if (and (not (nil? (get @files :meta))) (not (nil? (get @files :source))))
     (config! save-button :enabled? true)
     (config! save-button :enabled? false)))
+
+(def save-button
+  (button
+    :id :save
+    :text ::create
+    :enabled? false
+    :listen [:action (fn [e]
+                       (try
+                         (disable-save)
+                         (let [data @(future (apply-with-error-handling modules/process (get @files :source)))
+                               tree @(future (apply-with-error-handling tree/process (get @files :meta)))
+                               db (future (persist tree (:modules data) (:units data)))
+                               file (choose-file :type :save)]
+                           (copy (as-file @db) (as-file file))
+                           (log/info "Created database" (.getAbsolutePath file)))
+                         ; Database creating failed
+                         (catch Exception e)
+                         (finally (enable-save))))]))
 
 (defn check-text [id t]
   (if (not (nil? (get @files id)))
@@ -135,11 +145,12 @@
 
 (defn log-message [ev]
   (let [level (.getLevel ev)
-        msg (.getMessage ev)])
+        msg (.getMessage ev)]
   ; ignore message bellow INFO
   (when (.isGreaterOrEqual level Level/INFO)
     (invoke-later
-      (.append textarea (str (.getMessage ev) "\n")))))
+      ; XXX considre printing messages with different colors based on the log level
+      (.append textarea (str level ": " msg "\n"))))))
 
 (defn get-logger [out-fn]
   (proxy [org.apache.log4j.AppenderSkeleton] []
