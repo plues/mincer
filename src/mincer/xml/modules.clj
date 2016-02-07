@@ -3,9 +3,10 @@
   (:require [clojure.java.io :as io]
             [clojure.string :refer [upper-case]]
             [clojure.tools.logging :as log]
-            [mincer.xml.util :refer [get-xml validate]]))
+            [mincer.xml.util :refer [get-xml validate]]
+            [mincer.xml.module-validation :refer [validate-values]]))
 
-  (def schema (io/resource "mincer/moduldaten.xsd"))
+(def schema (io/resource "mincer/moduldaten.xsd"))
 
 (defn extract-semesters [s]
   (map #(Integer/parseInt %) (clojure.string/split s #",")))
@@ -105,4 +106,6 @@
 (defn process [f]
   (validate schema f)
   (log/info "validation passed")
-  (transform (get-xml f)))
+  (let  [xml (get-xml f)]
+    (validate-values xml)
+    (transform xml)))
