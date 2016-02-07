@@ -3,7 +3,8 @@
   (:require [clojure.java.io :as io]
             [clojure.tools.logging :as log]
             [clojure.string :refer [trim trim-newline]]
-            [mincer.xml.util :refer [get-xml validate]]))
+            [mincer.xml.util :refer [get-xml validate]]
+            [mincer.xml.tree-validation :refer [validate-values]]))
 
 (def schema (io/resource "mincer/modulbaum.xsd"))
 
@@ -67,4 +68,7 @@
 (defn process [f]
   (validate schema f)
   (log/info "validation passed")
-  (parse-tree (get-xml f)))
+  (let [xml (get-xml f)]
+    (validate-values xml)
+    (log/info "value validation done")
+    (parse-tree (get-xml f))))
