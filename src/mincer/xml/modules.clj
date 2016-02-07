@@ -108,4 +108,5 @@
   (log/info "validation passed")
   (let  [xml (get-xml f)]
     (validate-values xml)
+    (log/info "value validation done")
     (transform xml)))
