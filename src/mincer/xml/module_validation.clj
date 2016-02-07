@@ -1,10 +1,8 @@
 (ns mincer.xml.module-validation
   (:gen-class)
   (:require
+    [mincer.xml.util :refer [freqs]]
     [clojure.tools.logging :as log]))
-
-(defn freqs [coll]
-  (into {} (filter (fn [[a b]] (> b 1)) (frequencies coll))))
 
 (defmulti validate :tag)
 

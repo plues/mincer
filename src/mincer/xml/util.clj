@@ -18,3 +18,7 @@
         schema (.newSchema sf schema-file)
         validator (.newValidator schema)]
     (.validate validator (StreamSource. xml-file))))
+
+(defn freqs [coll]
+  (into {} (filter (fn [[a b]] (> b 1)) (frequencies coll))))
+
