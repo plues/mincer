@@ -132,6 +132,22 @@
     :size [600 :by 300]
     :resizable? false))
 
+(defn log-message [ev]
+  (let [level (.getLevel ev)
+        msg (.getMessage ev)])
+  ; ignore message bellow INFO
+  (when (.isGreaterOrEqual level Level/INFO)
+    (invoke-later
+      (.append textarea (str (.getMessage ev) "\n")))))
+
+(defn get-logger [out-fn]
+  (proxy [org.apache.log4j.AppenderSkeleton] []
+    (append [event] (out-fn event))))
+
+(defn setup-logger []
+  (let [root (org.apache.log4j.LogManager/getRootLogger)]
+    (.addAppender root (get-logger log-message))))
+
 (defn start-ui []
   (native!)
   (invoke-later
