@@ -17,7 +17,7 @@
         (insert! db-con :unit_abstract_unit_semester {:unit_id unit-id
                                                       :abstract_unit_id id
                                                       :semester s})))
-      (log/debug "No au for " (:id  abstract-unit-ref))))
+      (log/trace "No au for " (:id  abstract-unit-ref))))
 
 (defn store-refs [db-con unit-id refs semesters]
   (doseq [r refs]
@@ -85,7 +85,7 @@
     parent-id))
 
 (defmethod store-child :module [{:keys [name cp id pordnr mandatory]} db-con parent-id course-id modules]
-  (log/debug "Module " (get modules id))
+  (log/trace "Module " (get modules id))
   (if-let [module-from-db (:id (module-by-pordnr db-con pordnr))]
     module-from-db ; module is already in the database
     (let [{:keys [title abstract-units course key elective-units]} (get modules id)
@@ -95,7 +95,7 @@
                   :key            key
                   :credit_points  cp; xxx this is nil for some reason
                   :name           name}]
-      (log/debug "Title type " (type title))
+      (log/trace "Title type " (type title))
       (if-not (nil? title) ; NOTE: or use something else to detect a vaild record
         ; merge both module records
         (let [extended-record (merge record {:pordnr pordnr :title title})
@@ -117,7 +117,7 @@
                            :combination_id module-combination-id
                            :module_id (get course-module-map m)}]
                (insert! db-con :course_modules_combinations record)))
-      (log/debug "Discarding module combination for course " course-id modules))))
+      (log/trace "Discarding module combination for course " course-id modules))))
 
 (defn store-course-module-combinations [db-con course course-id]
     (let [course-module-map (load-course-module-map db-con course-id)]
@@ -139,7 +139,7 @@
                 :po            po}
         parent-id (insert! db-con :courses params)
         levels (map (fn [l] (store-child l db-con nil parent-id modules)) children)]
-    (log/debug {:kzfa kzfa :degree degree :course course :name name :po po})
+    (log/trace {:kzfa kzfa :degree degree :course course :name name :po po})
     ; insert course-level/parent-id pairs into course_level table
     (doseq [l levels]
       (insert! db-con :course_levels {:course_id parent-id :level_id l}))
