@@ -125,6 +125,7 @@
     :content (top-bottom-split
                (grid-panel
                  :rows 4
+                 :size [600 :by 320]
                  :columns 2
                  :hgap 10
                  :vgap 10
@@ -138,9 +139,9 @@
                     (label ::save)
                     save-button])
                ; bottom logging textarea
-               (scrollable textarea))
+               (scrollable textarea :size [600 :by 250]))
     :on-close :exit
-    :size [600 :by 700]
+    :size [600 :by 570]
     :resizable? false))
 
 (defn log-message [ev]
