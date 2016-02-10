@@ -1,7 +1,7 @@
 (ns mincer.ui
   (:gen-class)
   (:require
-    [seesaw.core :refer [alert native! text button config!
+    [seesaw.core :refer [alert native! text text! button config!
                          frame invoke-later invoke-now invoke-soon
                          show! grid-panel label scrollable top-bottom-split]]
     [seesaw.chooser :refer [choose-file]]
@@ -18,6 +18,7 @@
 (def files (atom {:meta nil :source nil}))
 
 (def textarea (text :multi-line? true :editable? false :wrap-lines? true))
+(defn clear-textarea [] (text! textarea ""))
 
 (def logo
   (icon
@@ -73,23 +74,26 @@
     (config! save-button :enabled? true)
     (config! save-button :enabled? false)))
 
+(defn save-button-listener [e]
+  (try
+    (disable-save)
+    (clear-textarea)
+    (let [data @(future (apply-with-error-handling modules/process (get @files :source)))
+          tree @(future (apply-with-error-handling tree/process (get @files :meta)))
+          db (future (persist tree (:modules data) (:units data)))
+          file (choose-file :type :save)]
+      @(future (copy (as-file @db) (as-file file)))
+      (log/info "Created database" (.getAbsolutePath file)))
+    ; Database creating failed
+    (catch Exception e)
+    (finally (enable-save))))
+
 (def save-button
   (button
     :id :save
     :text ::create
     :enabled? false
-    :listen [:action (fn [e]
-                       (try
-                         (disable-save)
-                         (let [data @(future (apply-with-error-handling modules/process (get @files :source)))
-                               tree @(future (apply-with-error-handling tree/process (get @files :meta)))
-                               db (future (persist tree (:modules data) (:units data)))
-                               file (choose-file :type :save)]
-                           (copy (as-file @db) (as-file file))
-                           (log/info "Created database" (.getAbsolutePath file)))
-                         ; Database creating failed
-                         (catch Exception e)
-                         (finally (enable-save))))]))
+    :listen [:action save-button-listener]))
 
 (defn check-text [id t]
   (if (not (nil? (get @files id)))
