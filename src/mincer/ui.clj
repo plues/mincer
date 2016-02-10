@@ -10,14 +10,28 @@
     [clojure.tools.logging :as log]
     [clojure.java.io :as io]
     [mincer.data :refer [persist]]
+    [mincer.preferences :refer [load-prefs get-pref set-pref]]
     [mincer.xml.modules :as modules]
     [mincer.xml.tree :as tree])
   (:import (org.xml.sax SAXParseException)
            (org.apache.log4j AppenderSkeleton LogManager Level)))
 
+
+; preferences
+(def node-name "de/hhu/stups/mincer")
+(def last-tree-directory "last-tree-dir")
+(def last-data-directory "last-data-dir")
+(def last-output-directory "last-output-dir")
+(def prefs (load-prefs node-name))
+;
+
+
+(defn dirname [f] (-> f as-file .getCanonicalFile .getParent))
+
 (def files (atom {:meta nil :source nil}))
 
 (def textarea (text :multi-line? true :editable? false :wrap-lines? true))
+
 (defn clear-textarea [] (text! textarea ""))
 
 (def logo
@@ -64,7 +78,7 @@
         (throw e))))
 
 
-; button functions
+; heler functions
 (def save-button)
 (defn disable-save []
   (config! save-button :enabled? false))
@@ -74,6 +88,11 @@
     (config! save-button :enabled? true)
     (config! save-button :enabled? false)))
 
+(defn check-text [id t]
+  (if (not (nil? (get @files id)))
+    (config! t :text (.getAbsolutePath (get @files id)))))
+
+; event handler
 (defn save-button-listener [e]
   (try
     (disable-save)
@@ -81,13 +100,35 @@
     (let [data @(future (apply-with-error-handling modules/process (get @files :source)))
           tree @(future (apply-with-error-handling tree/process (get @files :meta)))
           db (future (persist tree (:modules data) (:units data)))
-          file (choose-file :type :save)]
+          file (choose-file :type :save :dir (get-pref prefs last-output-directory))]
       @(future (copy (as-file @db) (as-file file)))
+      (set-pref prefs last-output-directory (dirname file))
       (log/info "Created database" (.getAbsolutePath file)))
     ; Database creating failed
     (catch Exception e)
     (finally (enable-save))))
 
+(defn meta-button-listener [e]
+  (swap! files update-in [:meta]
+         (fn [old new] new)
+         (choose-file :type :open
+                      :dir (get-pref prefs last-tree-directory)
+                      :filters [[".xml" ["xml"]]]))
+  (enable-save)
+  (set-pref prefs last-tree-directory (dirname (get @files :meta)))
+  (check-text :meta meta-text))
+
+(defn source-button-listener [e]
+  (swap! files update-in [:source]
+         (fn [old new] new)
+         (choose-file :type :open
+                      :dir (get-pref prefs last-data-directory)
+                      :filters [[".xml" ["xml"]]]))
+  (enable-save)
+  (set-pref prefs last-data-directory (dirname (get @files :source)))
+  (check-text :source source-text))
+
+; ui elements
 (def save-button
   (button
     :id :save
@@ -95,33 +136,18 @@
     :enabled? false
     :listen [:action save-button-listener]))
 
-(defn check-text [id t]
-  (if (not (nil? (get @files id)))
-    (config! t :text (.getAbsolutePath (get @files id)))))
 
 (def meta-button
   (button
     :id :meta
     :text ::meta
-    :listen [:action (fn [e]
-      (swap! files update-in [:meta] (fn [old new] new)
-        (choose-file
-          :type :open
-          :filters [[".xml" ["xml"]]]))
-      (enable-save)
-      (check-text :meta meta-text))]))
+    :listen [:action meta-button-listener]))
 
 (def source-button
   (button
     :id :source
     :text ::source
-    :listen [:action (fn [e]
-      (swap! files update-in [:source] (fn [old new] new)
-        (choose-file
-          :type :open
-          :filters [[".xml" ["xml"]]]))
-      (enable-save)
-      (check-text :source source-text))]))
+    :listen [:action source-button-listener]))
 
 (def my-frame
   (frame
