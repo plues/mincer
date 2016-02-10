@@ -28,7 +28,8 @@
 
 (defn dirname [f] (-> f as-file .getCanonicalFile .getParent))
 
-(def files (atom {:meta nil :source nil}))
+(def tree-file (atom nil))
+(def data-file (atom nil))
 
 (def textarea (text :multi-line? true :editable? false :wrap-lines? true))
 
@@ -39,10 +40,10 @@
     (-> "mincer/logo.png" io/resource javax.imageio.ImageIO/read)))
 
 (def meta-text
-  (text :text (get @files :meta) :editable? false))
+  (text :text @tree-file :editable? false))
 
 (def source-text
-  (text :text (get @files :source) :editable? false))
+  (text :text @data-file :editable? false))
 
 (defn apply-with-error-handling [f file]
   (try
@@ -79,54 +80,57 @@
 
 
 ; heler functions
+(defn file-chosen? [] (boolean (and @tree-file @data-file)))
+
 (def save-button)
 (defn disable-save []
   (config! save-button :enabled? false))
 
 (defn enable-save []
-  (if (and (not (nil? (get @files :meta))) (not (nil? (get @files :source))))
-    (config! save-button :enabled? true)
-    (config! save-button :enabled? false)))
+  (config! save-button :enabled? (file-chosen?)))
 
 (defn check-text [id t]
-  (if (not (nil? (get @files id)))
-    (config! t :text (.getAbsolutePath (get @files id)))))
+  (if @id
+    (config! t :text (.getAbsolutePath @id))))
 
 ; event handler
 (defn save-button-listener [e]
   (try
     (disable-save)
     (clear-textarea)
-    (let [data @(future (apply-with-error-handling modules/process (get @files :source)))
-          tree @(future (apply-with-error-handling tree/process (get @files :meta)))
-          db (future (persist tree (:modules data) (:units data)))
-          file (choose-file :type :save :dir (get-pref prefs last-output-directory))]
-      @(future (copy (as-file @db) (as-file file)))
-      (set-pref prefs last-output-directory (dirname file))
-      (log/info "Created database" (.getAbsolutePath file)))
+    (let [data (future (apply-with-error-handling modules/process @data-file))
+          tree (future (apply-with-error-handling tree/process @tree-file))
+          db   (future (persist @tree (:modules @data) (:units @data)))]
+      (if-let [file (choose-file :type :save
+                                 :dir (if-not (file-chosen?) (get-pref prefs last-output-directory)))]
+        (do
+          @(future (copy (as-file @db) (as-file file)))
+          (set-pref prefs last-output-directory (dirname file))
+          (log/info "Created database" (.getAbsolutePath file)))
+        (log/info "User canceled operation")))
     ; Database creating failed
     (catch Exception e)
     (finally (enable-save))))
 
 (defn meta-button-listener [e]
-  (swap! files update-in [:meta]
-         (fn [old new] new)
-         (choose-file :type :open
-                      :dir (get-pref prefs last-tree-directory)
-                      :filters [[".xml" ["xml"]]]))
+  (choose-file :type :open
+               :dir (if-not (file-chosen?) (get-pref prefs last-tree-directory))
+               :filters [[".xml" ["xml"]]]
+               :success-fn (fn [fc file]
+                             (swap! tree-file (constantly file))
+                             (set-pref prefs last-tree-directory (dirname file))))
   (enable-save)
-  (set-pref prefs last-tree-directory (dirname (get @files :meta)))
-  (check-text :meta meta-text))
+  (check-text tree-file meta-text))
 
 (defn source-button-listener [e]
-  (swap! files update-in [:source]
-         (fn [old new] new)
-         (choose-file :type :open
-                      :dir (get-pref prefs last-data-directory)
-                      :filters [[".xml" ["xml"]]]))
+  (choose-file :type :open
+               :dir (if-not (file-chosen?) (get-pref prefs last-data-directory))
+               :filters [[".xml" ["xml"]]]
+               :success-fn  (fn [fc file]
+                              (swap! data-file (constantly file))
+                              (set-pref prefs last-data-directory (dirname file))))
   (enable-save)
-  (set-pref prefs last-data-directory (dirname (get @files :source)))
-  (check-text :source source-text))
+  (check-text data-file source-text))
 
 ; ui elements
 (def save-button
