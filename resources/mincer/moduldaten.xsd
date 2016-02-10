@@ -106,7 +106,7 @@
       <xs:attribute name="rhythm" use="required">
         <xs:simpleType>
           <xs:restriction base="xs:nonNegativeInteger">
-            <xs:enumeration value="0"/> <!-- eekly -->
+            <xs:enumeration value="0"/> <!-- Weekly -->
             <xs:enumeration value="1"/> <!-- Biweekly on even number calendar weeks. -->
             <xs:enumeration value="2"/> <!-- Biweekly on odd number calendar weeks. -->
               <xs:enumeration value="3"/> <!-- Block -->
