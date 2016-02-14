@@ -102,7 +102,7 @@
           tree (future (apply-with-error-handling tree/process @tree-file))
           db   (future (persist @tree (:modules @data) (:units @data)))]
       (if-let [file (choose-file :type :save
-                                 :dir (if-not (file-chosen?) (get-pref prefs last-output-directory)))]
+                                 :dir (get-pref prefs last-output-directory))]
         (do
           @(future (copy (as-file @db) (as-file file)))
           (set-pref prefs last-output-directory (dirname file))
