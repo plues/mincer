@@ -80,14 +80,14 @@
 
 
 ; heler functions
-(defn file-chosen? [] (boolean (and @tree-file @data-file)))
+(defn any-file-chosen? [] (boolean (or @tree-file @data-file)))
 
 (def save-button)
 (defn disable-save []
   (config! save-button :enabled? false))
 
 (defn enable-save []
-  (config! save-button :enabled? (file-chosen?)))
+  (config! save-button :enabled? (boolean (and @tree-file @data-file))))
 
 (defn check-text [id t]
   (if @id
@@ -114,7 +114,7 @@
 
 (defn meta-button-listener [e]
   (choose-file :type :open
-               :dir (if-not (file-chosen?) (get-pref prefs last-tree-directory))
+               :dir (if-not (any-file-chosen?) (get-pref prefs last-tree-directory))
                :filters [[".xml" ["xml"]]]
                :success-fn (fn [fc file]
                              (swap! tree-file (constantly file))
@@ -124,7 +124,7 @@
 
 (defn source-button-listener [e]
   (choose-file :type :open
-               :dir (if-not (file-chosen?) (get-pref prefs last-data-directory))
+               :dir (if-not (any-file-chosen?) (get-pref prefs last-data-directory))
                :filters [[".xml" ["xml"]]]
                :success-fn  (fn [fc file]
                               (swap! data-file (constantly file))
