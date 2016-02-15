@@ -11,7 +11,7 @@
   (let [ids (map #(-> % :attrs :id) (:content units))
         repeated (freqs ids)]
     (doseq [[u-id count] repeated]
-      (log/warn "Repeated unit id in <units> section:" u-id "appears" count "times"))))
+      (log/error "Repeated unit id in <units> section:" u-id "appears" count "times"))))
 
 (defmethod validate :modules [modules]
   (log/trace (:tag modules))
