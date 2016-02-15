@@ -39,14 +39,6 @@
 
 (def modules {:attrs nil :content  [module module3 module3] :tag :modules})
 
-(def course {:attrs  {:id "ba-aua-KF-2013"
-                      :title "Bachelor Anglistik und Amerikanistik Kernfach PO 2013"}
-             :content  [modules]
-             :tag :course})
-
-(def cmu {:attrs nil :content  [course] :tag :course-module-units})
-
-
 ; units/groups/sessions data
 
 (def session {:attrs {:day "tue" :duration "2" :rhythm "0" :time "1"}

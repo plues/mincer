@@ -10,13 +10,9 @@
                            :type :m
                            :semester '(1 2)})
 
-(def result-course {:type  :course
-                    :key    "BA-AUA-KF-2013"
-                    :title  "Bachelor Anglistik und Amerikanistik Kernfach PO 2013"})
 (def result-module
    (let [pordnr "1"]
      {pordnr {:title  "Module Language Skills 1"
-              :course result-course
               :pordnr pordnr
               :key "P-IAA-M-BMLS1"
               :elective-units 4
@@ -25,7 +21,6 @@
 (def result-module3
    (let [pordnr "3"]
      {pordnr {:title  "Module Language Skills II"
-              :course result-course
               :pordnr pordnr
               :key "P-IAA-M-BMLS1"
               :elective-units 5
@@ -34,36 +29,26 @@
 (def result-module4
    (let [pordnr "4"]
      {pordnr {:title "Module Language Skills II"
-              :course result-course
               :pordnr pordnr
               :key "P-IAA-M-BMLS1"
               :elective-units 0
               :abstract-units [result-abstract-unit]}}))
 
 
-(def result-modules (merge result-module result-module3))
-
-(def result-cmu {:modules result-modules})
+(def result-modules {:modules (merge result-module result-module3)})
 
 (deftest test-abstract-unit-parsing
   (is (= result-abstract-unit (tree-to-module-map abstract-unit))))
 
 (deftest test-module-parsing
   ; two testcases one with one without pordnr
-  (is (= (tree-to-module-map module result-course) result-module))
-  (is (= (tree-to-module-map module2 result-course) nil))
-  (is (= (tree-to-module-map module4 result-course) result-module4)) )
+  (is (= (tree-to-module-map module) result-module))
+  (is (= (tree-to-module-map module2) nil))
+  (is (= (tree-to-module-map module4) result-module4)) )
 
 (deftest test-modules-parsing
   ; two testcases one with one without pordnr
-  (is (= result-modules (tree-to-module-map modules result-course))))
-
-(deftest test-course-parsing
-  (is (= result-modules (tree-to-module-map course))))
-
-(deftest test-cmu-parsing
-  (is (= result-cmu (tree-to-module-map cmu))))
-
+  (is (= result-modules (tree-to-module-map modules))))
 
 ; unit parsing
 (def result-session {:type :session :day "tue" :time 1 :duration 2 :rhythm 0})

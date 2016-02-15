@@ -13,22 +13,12 @@
     (doseq [[u-id count] repeated]
       (log/error "Repeated unit id in <units> section:" u-id "appears" count "times"))))
 
-(defmethod validate :modules [modules]
-  (log/trace (:tag modules))
-  (map #(-> % :attrs :pordnr) (:content modules)))
-
-(defmethod validate :course [course]
-  (log/trace (:tag course))
-  (let [modules (:content course)]
-    (assert (= 1 (count modules)))
-    (validate (first modules))))
-
-(defmethod validate :course-module-units [cmu]
-  (log/trace (:tag cmu))
-  (let [modules (map validate (:content cmu))
-        repeated (-> modules flatten freqs) ]
+(defmethod validate :modules [node]
+  (log/trace (:tag node))
+  (let [pordnrs  (map #(-> % :attrs :pordnr) (:content node))
+        repeated (freqs pordnrs)]
     (doseq [[pordnr count] repeated]
-      (log/error "Repeated pordnr in <course-module-units> section:" pordnr "appears" count "times"))))
+      (log/error "Repeated pordnr in <modules> section:" pordnr "appears" count "times"))))
 
 (defmethod validate :default [tag]
   (log/trace (:tag tag))

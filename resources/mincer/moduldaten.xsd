@@ -3,25 +3,9 @@
   <xs:element name="data">
     <xs:complexType>
       <xs:sequence>
-        <xs:element ref="course-module-units"/>
+        <xs:element ref="modules"/>
         <xs:element ref="units"/>
       </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="course-module-units">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="1" maxOccurs="unbounded" ref="course"/>
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="course">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="1" maxOccurs="unbounded" ref="modules"/>
-      </xs:sequence>
-      <xs:attribute name="id" use="required" type="xs:NCName"/>
-      <xs:attribute name="title" use="required" type="xs:string"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="modules">
