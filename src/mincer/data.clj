@@ -87,10 +87,13 @@
 (defmethod store-child :module [{:keys [name cp id pordnr mandatory]} db-con parent-id course-id modules]
   (log/trace "Module " (get modules id))
   (if-let [module-from-db (:id (module-by-pordnr db-con pordnr))]
-    module-from-db ; module is already in the database
+    (do
+      ; module is already in database
+      ; if module is already in database we assume that this is another path to it
+      (insert! db-con :module_levels {:module_id module-from-db :level_id parent-id})
+      module-from-db)
     (let [{:keys [title abstract-units course key elective-units]} (get modules id)
-          record {:level_id       parent-id
-                  :mandatory      mandatory
+          record {:mandatory      mandatory
                   :elective_units elective-units
                   :key            key
                   :credit_points  cp; xxx this is nil for some reason
@@ -101,6 +104,7 @@
         (let [extended-record (merge record {:pordnr pordnr :title title})
               module-id (insert! db-con :modules extended-record)]
           (insert! db-con :course_modules {:course_id course-id :module_id module-id})
+          (insert! db-con :module_levels {:module_id module-id :level_id parent-id})
           (store-abstract-units db-con module-id abstract-units)
           ; return the id of the created record
           module-id)))))
