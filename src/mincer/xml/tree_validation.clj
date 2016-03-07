@@ -8,21 +8,11 @@
 
 (defmethod validate :ModulBaum [mb]
   (log/trace (:tag mb))
-  (let [pordnrs (flatten (map validate (:content mb)))
-        repeated (freqs pordnrs)]
-    (doseq [[pordnr count] repeated]
-      (log/warn "pordnr" pordnr "used" count "times"))))
+  (doall (flatten (map validate (:content mb)))))
 
 (defmethod validate :b [b]
   (log/trace (:tag b))
-  (let [pordnrs (flatten (map validate (:content b)))
-        ; repeated (freqs pordnrs)
-        ; course-name (str (-> b :attrs :name) " - " (-> b :attrs :pversion))
-        ]
-    ; (doseq [[pordnr count] repeated]
-    ;   (log/warn "pordnr" pordnr "used" count "times in module-tree"
-    ;             "of course " course-name))
-    pordnrs))
+  (flatten (map validate (:content b))))
 
 (defmethod validate :l [l]
   (log/trace (:tag l))
