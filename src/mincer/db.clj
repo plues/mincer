@@ -57,7 +57,6 @@
 
                                (jdbc/create-table-ddl :modules
                                                       [:id :integer "PRIMARY KEY" "AUTOINCREMENT"]
-                                                      [:level_id :integer "REFERENCES levels"]
                                                       [:key :string "NOT NULL"]
                                                       ; XXX consider discarding one of both
                                                       [:name :string "NOT NULL"]
@@ -69,6 +68,12 @@
                                                       ; XXX do we a direct link to the course?
                                                       [:created_at :datetime :default :current_timestamp]
                                                       [:updated_at :datetime :default :current_timestamp])
+
+                              (jdbc/create-table-ddl :module_levels
+                                                      [:module_id "NOT NULL" "REFERENCES modules"]
+                                                      [:level_id "NOT NULL" "REFERENCES levels"])
+                              "CREATE INDEX module_levels_module ON module_levels(module_id)"
+                              "CREATE INDEX module_levels_level ON module_levels(level_id)"
 
                                (jdbc/create-table-ddl :course_modules_combinations
                                                       [:course_id "REFERENCES courses"]
