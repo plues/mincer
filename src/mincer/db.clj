@@ -133,10 +133,8 @@
 
                                 (jdbc/create-table-ddl :log
                                                       [:session_id :integer "NOT NULL" "REFERENCES sessions"]
-                                                      [:src_day :string]
-                                                      [:src_time :integer]
-                                                      [:target_day :string]
-                                                      [:target_time :integer]
+                                                      [:src :string]
+                                                      [:target :string]
                                                       [:created_at :datetime :default :current_timestamp])
                                "CREATE INDEX log_session_id ON log(session_id)")
 
