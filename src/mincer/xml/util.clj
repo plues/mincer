@@ -23,7 +23,6 @@
 (defn freqs [coll]
   (into {} (filter (fn [[a b]] (> b 1)) (frequencies coll))))
 
-(defn ranges [coll]
-  (println (type (first coll)))
-  (filter (fn [sem] (some #(or (< % 1) (> % 6))
+(defn ranges [coll maxSemester]
+  (filter (fn [sem] (some #(or (< % 1) (> % maxSemester))
       (map #(Integer/parseInt %) (string/split sem #",")))) coll))
