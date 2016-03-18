@@ -1,7 +1,7 @@
 (ns mincer.xml.tree-validation
   (:gen-class)
   (:require
-    [mincer.xml.util :refer [freqs]]
+    [mincer.xml.util :refer [freqs genKey]]
     [clojure.tools.logging :as log]))
 
 (defmulti validate :tag)
