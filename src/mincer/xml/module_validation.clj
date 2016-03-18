@@ -1,7 +1,7 @@
 (ns mincer.xml.module-validation
   (:gen-class)
   (:require
-    [mincer.xml.util :refer [freqs]]
+    [mincer.xml.util :refer [freqs ranges]]
     [clojure.tools.logging :as log]))
 
 (defmulti validate :tag)
@@ -11,7 +11,11 @@
   (let [ids (map #(-> % :attrs :id) (:content units))
         repeated (freqs ids)]
     (doseq [[u-id count] repeated]
-      (log/error "Repeated unit id in <units> section:" u-id "appears" count "times"))))
+      (log/error "Repeated unit id in <units> section:" u-id "appears" count "times")))
+  (let [semesters (map #(-> % :attrs :semester) (:content units))
+        ranges (ranges semesters)]
+      (doseq [semester ranges]
+        (log/error "Semester out of range in <units> section:" semester))))
 
 (defmethod validate :modules [node]
   (log/trace (:tag node))
