@@ -13,7 +13,7 @@
     (doseq [[u-id count] repeated]
       (log/error "Repeated unit id in <units> section:" u-id "appears" count "times")))
   (let [semesters (map #(-> % :attrs :semester) (:content units))
-        ranges (ranges semesters)]
+        ranges (ranges semesters 6)]
       (doseq [semester ranges]
         (log/error "Semester out of range in <units> section:" semester))))
 
