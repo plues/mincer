@@ -13,6 +13,8 @@
   ; validate course names
   (let [course-names  (map #(-> % :attrs :name) (:content mb))]
     (doseq [[name count] (freqs course-names)]
+      (throw (IllegalArgumentException. (str "Repeated course name in <ModuleData> section: " name " appears "
+                 count " times")))
       (log/error "Repeated course name in <ModuleData> section:" name "appears"
                  count "times")))
   ; validate keys
@@ -24,7 +26,8 @@
         keys (map genKey quadruple)
         repeated (freqs keys)]
     (doseq [[key count] repeated]
-      (log/error "Repeated key in <ModuleData> section: " key "appears" count "times"))))
+      (throw (IllegalArgumentException. (str "Repeated key in <ModuleData> section: " key " appears " count " times")))
+      (log/error "Repeated key in <ModuleData> section:" key "appears" count "times"))))
 
 (defmethod validate :b [b]
   (log/trace (:tag b))
