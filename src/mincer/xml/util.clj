@@ -1,7 +1,8 @@
 (ns mincer.xml.util
   (:gen-class)
   (:require
-    [clojure.xml :as xml])
+    [clojure.xml :as xml]
+    [clojure.string :as string])
   (:import
     (javax.xml.transform.stream StreamSource)
     (javax.xml.validation SchemaFactory)
@@ -22,3 +23,7 @@
 (defn freqs [coll]
   (into {} (filter (fn [[a b]] (> b 1)) (frequencies coll))))
 
+(defn ranges [coll]
+  (println (type (first coll)))
+  (filter (fn [sem] (some #(or (< % 1) (> % 6))
+      (map #(Integer/parseInt %) (string/split sem #",")))) coll))
