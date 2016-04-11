@@ -2,19 +2,23 @@
   (:gen-class)
   (:require
     [mincer.xml.util :refer [freqs genKey]]
+    ; [mincer.xml ValidationError]
     [clojure.tools.logging :as log]))
 
 (defmulti validate :tag)
+
+(def ^:dynamic errors)
 
 (defmethod validate :ModulBaum [mb]
   (log/trace (:tag mb))
   ; validate pordnr
   (doall (flatten (map validate (:content mb))))
   ; validate course names
-  (let [course-names  (map #(-> % :attrs :name) (:content mb))]
-    (doseq [[name count] (freqs course-names)]
-      (throw (IllegalArgumentException. (str "Repeated course name in <ModuleData> section: " name " appears "
-                 count " times")))
+  (let [course-names  (map #(-> % :attrs :name) (:content mb))
+        f (freqs course-names)]
+    (if-not (empty? f)
+      (set! errors true))
+    (doseq [[name count] f]
       (log/error "Repeated course name in <ModuleData> section:" name "appears"
                  count "times")))
   ; validate keys
@@ -25,8 +29,9 @@
                           (-> % :attrs :pversion)) (:content mb))
         keys (map genKey quadruple)
         repeated (freqs keys)]
+    (if-not (empty? repeated)
+      (set! errors true))
     (doseq [[key count] repeated]
-      (throw (IllegalArgumentException. (str "Repeated key in <ModuleData> section: " key " appears " count " times")))
       (log/error "Repeated key in <ModuleData> section:" key "appears" count "times"))))
 
 (defmethod validate :b [b]
@@ -49,4 +54,8 @@
   [])
 
 (defn validate-values [xml]
-  (validate xml))
+  (binding [errors false]
+    (validate xml)
+    (if errors
+      (throw (IllegalArgumentException. "Module tree contains validation errors.")))))
+
