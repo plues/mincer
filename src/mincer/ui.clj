@@ -25,6 +25,7 @@
 (def prefs (load-prefs node-name))
 ;
 
+(defn any? [x y] (not (nil? (some #{x} y))))
 
 (defn dirname [f] (-> f as-file .getCanonicalFile .getParent))
 
@@ -55,7 +56,10 @@
             info (format "Error in file %s:\nline: %s, column: %s\nMessage: %s" file line column msg)]
         (log/info info)
         (invoke-soon (alert info)))
-        (throw e))
+      :error)
+    (catch IllegalArgumentException e
+      (invoke-soon (alert (.getMessage e)))
+      :error)
     (catch Exception e
         (invoke-soon
           (->
@@ -76,7 +80,7 @@
               :size [600 :by 600]
               :on-close :dispose)
             show!))
-        (throw e))))
+      :error)))
 
 
 ; heler functions
@@ -93,24 +97,25 @@
   (if @id
     (config! t :text (.getAbsolutePath @id))))
 
+(defn save-db [db]
+  (if-let [file (choose-file :type :save
+                             :dir (get-pref prefs last-output-directory))]
+    (do
+      @(future (copy (as-file db) (as-file file)))
+      (set-pref prefs last-output-directory (dirname file))
+      (log/info "Created database" (.getAbsolutePath file)))
+    (log/info "User canceled operation")))
+
 ; event handler
 (defn save-button-listener [e]
-  (try
-    (disable-save)
-    (clear-textarea)
-    (let [data (future (apply-with-error-handling modules/process @data-file))
-          tree (future (apply-with-error-handling tree/process @tree-file))
-          db   (future (persist @tree (:modules @data) (:units @data)))]
-      (if-let [file (choose-file :type :save
-                                 :dir (get-pref prefs last-output-directory))]
-        (do
-          @(future (copy (as-file @db) (as-file file)))
-          (set-pref prefs last-output-directory (dirname file))
-          (log/info "Created database" (.getAbsolutePath file)))
-        (log/info "User canceled operation")))
-    ; Database creation failed
-    (catch Exception e)
-    (finally (enable-save))))
+  (disable-save)
+  (clear-textarea)
+  (let [data (future (apply-with-error-handling modules/process @data-file))
+        tree (future (apply-with-error-handling tree/process @tree-file))]
+    (if-not (any? :error [@data @tree])
+      (save-db
+        (persist @tree (:modules @data) (:units @data)))))
+  (enable-save))
 
 (defn meta-button-listener [e]
   (choose-file :type :open
