@@ -108,7 +108,7 @@
           (set-pref prefs last-output-directory (dirname file))
           (log/info "Created database" (.getAbsolutePath file)))
         (log/info "User canceled operation")))
-    ; Database creating failed
+    ; Database creation failed
     (catch Exception e)
     (finally (enable-save))))
 
