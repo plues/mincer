@@ -76,6 +76,7 @@
                               "CREATE INDEX module_levels_level ON module_levels(level_id)"
 
                                (jdbc/create-table-ddl :course_modules_combinations
+                                                      [:id :integer "PRIMARY KEY" "AUTOINCREMENT"]
                                                       [:course_id "REFERENCES courses"]
                                                       [:module_id "REFERENCES modules"]
                                                       [:combination_id "INTEGER"]) ; unique for each course; represents each combination in a course
