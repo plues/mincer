@@ -4,9 +4,9 @@
     [clojure.string :refer [join upper-case]]
     [clojure.tools.logging :as log]
     [mincer.module-combinations :refer [traverse-course]]
-    [mincer.db :refer [run-on-db setup-db insert! insert-all!
-                       abstract-unit-by-key module-by-pordnr
-                       load-course-module-map]]))
+    [mincer.db :refer [ abstract-unit-by-key course-module?  insert!
+                       insert-all!  load-course-module-map module-by-pordnr
+                       run-on-db setup-db ]]))
 
 
 (declare persist-courses)
@@ -84,6 +84,16 @@
     ; return the id of the created record
     parent-id))
 
+(defn link-course-module [db-con course-id module-id]
+  ; If the module is associated to a different course we need to store that link
+  (if-not (course-module? db-con course-id module-id) ; course/module pair is
+                                                      ; not in the database yet,
+                                                      ; so store it.
+    (do
+      (log/trace "Adding existing module" module-id "to course" course-id)
+      (insert! db-con :course_modules {:course_id course-id
+                                       :module_id module-id}))))
+
 (defmethod store-child :module [{:keys [name cp id pordnr mandatory]} db-con parent-id course-id modules]
   (log/trace "Module " (get modules id))
   (if-let [module-from-db (:id (module-by-pordnr db-con pordnr))]
@@ -91,6 +101,8 @@
       ; module is already in database
       ; if module is already in database we assume that this is another path to it
       (insert! db-con :module_levels {:module_id module-from-db :level_id parent-id})
+      ; check and link course and module
+      (link-course-module db-con course-id module-from-db)
       module-from-db)
     (let [{:keys [title abstract-units course key elective-units]} (get modules id)
           record {:mandatory      mandatory
