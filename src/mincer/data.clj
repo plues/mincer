@@ -99,7 +99,7 @@
                   :credit_points  cp; xxx this is nil for some reason
                   :name           name}]
       (log/trace "Title type " (type title))
-      (if-not (nil? title) ; NOTE: or use something else to detect a vaild record
+      (if-not (nil? title) ; NOTE: or use something else to detect a valid record
         ; merge both module records
         (let [extended-record (merge record {:pordnr pordnr :title title})
               module-id (insert! db-con :modules extended-record)]
