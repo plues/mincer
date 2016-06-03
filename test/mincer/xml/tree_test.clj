@@ -53,7 +53,7 @@
                                :children [result-module]}
                               ]})
 
-(def result-course {:type :course
+(def result-course  {:type :course
                     :degree "bk"
                     :kzfa "H"
                     :name "Kernfach Philosophie"
@@ -74,7 +74,7 @@
          (parse-tree b-tag))))
 
 (deftest test-parse-modulbaum
-  (is (= [result-course]
+  (is (= {:info nil :levels [result-course]}
          (parse-tree modulbaum-tag))))
 
 (deftest test-ignored-tags-in-b

@@ -76,7 +76,7 @@
          (parse-tree b-cp-tag))))
 
 (deftest test-parse-modulbaum
-  (is (= [result-course]
+  (is (= {:info nil :levels [result-course]}
          (parse-tree modulbaum-cp-tag))))
 
 (deftest test-ignored-tags-in-b
