@@ -44,8 +44,8 @@
        :cp (when-not (nil? cp) (Integer/parseInt cp))
        :children levels})))
 
-(defmethod parse-tree :ModulBaum [{:keys [content]}]
-  (filterv #(not (nil? %)) (pmap parse-tree content)))
+(defmethod parse-tree :ModulBaum [{:keys [content attrs]}]
+  {:info attrs :levels (filterv #(not (nil? %)) (pmap parse-tree content))})
 
                                         ; known but ignored tags
 (defmethod parse-tree :regeln [node] (log/debug "Ignoring node regeln"))

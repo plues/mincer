@@ -45,9 +45,14 @@
   (doseq [u units]
     (store-unit db-con u)))
 
+(defn persist-metadata [db-con md]
+  (doseq [[k v] md]
+    (insert! db-con :info  {:key (name k) :value v})))
+
 (defn store-stuff [db-con levels modules units]
   (persist-courses db-con levels modules)
-  (persist-units db-con units))
+  (persist-units db-con units)
+  (persist-metadata db-con (:info levels)))
 
 (defn store-abstract-unit [db-con module-id {:keys [id title type semester]}]
   (let [record {:key id
@@ -162,7 +167,7 @@
     (store-course-module-combinations db-con c parent-id)))
 
 (defn persist-courses [db-con levels modules]
-  (doseq [l levels]
+  (doseq [l (:levels levels)]
     (store-course db-con l modules)))
 
 (defn persist [levels modules units]
