@@ -139,7 +139,7 @@
                                                       [:created_at :datetime :default :current_timestamp])
                                "CREATE INDEX log_session_id ON log(session_id)")
 
-  (jdbc/insert! db-con :info {:key "schema_version"
+  (jdbc/insert! db-con :info {:key "schema-version"
                               :value (str "v3.0")})
   (jdbc/insert! db-con :info {:key "generator"
                               :value (str "mincer" "-" mincer-version)}))
