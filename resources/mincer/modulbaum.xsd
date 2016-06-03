@@ -5,6 +5,8 @@
       <xs:sequence>
         <xs:element minOccurs="1" maxOccurs="unbounded" ref="b"/>
       </xs:sequence>
+      <xs:attribute name="name" type="xs:string" use="optional"/>
+      <xs:attribute name="short-name" type="xs:string" use="optional"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="b">
