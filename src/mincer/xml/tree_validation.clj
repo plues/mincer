@@ -3,6 +3,7 @@
   (:require
     [mincer.xml.util :refer [freqs genKey]]
     ; [mincer.xml ValidationError]
+    [clojure.set :refer [subset?]]
     [clojure.tools.logging :as log]))
 
 (defmulti validate :tag)
@@ -41,6 +42,12 @@
 (defmethod validate :l [l]
   (log/trace (:tag l))
   (log/trace l)
+  ; validate mixed l and m tags in levels
+  ; checking if content containts l and m tags 
+  (if (subset? #{:l :m} (set (map :tag (:content l))))
+    (do
+      (set! errors true)
+      (log/error "level containts l and m tags as children in level " (-> l :attrs :name))))
   (flatten (map validate (:content l))))
 
 (defmethod validate :m [m]
