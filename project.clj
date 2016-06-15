@@ -1,6 +1,6 @@
 (defproject mincer "0.1.0-SNAPSHOT"
-  :description "FIXME: write description"
-  :url "http://example.com/FIXME"
+  :description "Tool to create a SQLite database from PlüS module tree and data XML files."
+  :url "https://github.com/plues/mincer"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.8.0"]
