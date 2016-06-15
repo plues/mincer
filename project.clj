@@ -13,4 +13,5 @@
                  [org.xerial/sqlite-jdbc "3.8.11.2"]
                  [seesaw "1.4.5"]]
   :plugins [[lein-launch4j "0.1.2"]]
+  :launch4j-config-file "config.xml"
   :main mincer.core)
