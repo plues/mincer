@@ -12,4 +12,5 @@
                  [org.slf4j/slf4j-log4j12 "1.7.14"]
                  [org.xerial/sqlite-jdbc "3.8.11.2"]
                  [seesaw "1.4.5"]]
+  :plugins [[lein-launch4j "0.1.2"]]
   :main mincer.core)
