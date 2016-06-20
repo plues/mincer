@@ -20,7 +20,7 @@
     (if-not (empty? f)
       (set! errors true))
     (doseq [[name count] f]
-      (log/error "Repeated course name in <ModuleData> section:" name "appears"
+      (log/error "Repeated course name in <ModulBaum> section:" name "appears"
                  count "times")))
   ; validate keys
   (let [quadruple (map #(vector
