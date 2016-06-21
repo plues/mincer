@@ -1,9 +1,10 @@
 (ns mincer.xml.module-validation
   (:gen-class)
   (:require
-    [mincer.xml.util :refer [freqs ranges]]
-    ; [mincer.xml ValidationError]
-    [clojure.tools.logging :as log]))
+    [clojure.set :refer [difference]]
+    [clojure.tools.logging :as log]
+    [clojure.walk :refer [prewalk]]
+    [mincer.xml.util :refer [freqs ranges]]))
 
 (def ^:dynamic errors)
 
@@ -38,8 +39,38 @@
   (doseq [c (:content tag)]
     (validate c)))
 
+
+
+(defn collect-abstract-units [n]
+  (let [walk-fn (fn  [node]
+                  (if (= :abstract-unit (:tag node))
+                    ; we found a abstract-unit node, fetch id
+                    (-> node :attrs :id)
+                    ; continue traversing the tree
+                    (:content node)))
+        content (prewalk walk-fn n)]
+    (set (filter #(-> % nil? not) (flatten content)))))
+
+(defmulti validate-abstract-units :tag)
+
+(defmethod validate-abstract-units :units [node]
+  {:units (collect-abstract-units node)})
+
+(defmethod validate-abstract-units :modules [node]
+  {:modules (collect-abstract-units node)})
+
+(defmethod validate-abstract-units :data [node]
+  (let [{:keys [units modules]} (apply merge (map
+                                               validate-abstract-units
+                                               (:content node)))]
+    (log/trace "UNITS" units)
+    (log/trace "MODULES" modules)
+    (doseq [au (difference modules units)]
+      (log/warn "Abstract-Unit with ID:" au "has no units associated to it and will be ignored."))))
+
 (defn validate-values [xml]
   (binding [errors false]
     (validate xml)
+    (validate-abstract-units xml)
     (if errors
       (throw (IllegalArgumentException. "Module data contains validation errors")))))
