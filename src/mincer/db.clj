@@ -144,7 +144,7 @@
                                "CREATE INDEX log_session_id ON log(session_id)"])
 
   (jdbc/insert! db-con :info {:key "schema_version"
-                              :value (str "v3.0")})
+                              :value (str "v4.0")})
   (jdbc/insert! db-con :info {:key "generator"
                               :value (str "mincer" "-" mincer-version)}))
 
