@@ -98,12 +98,16 @@
                                "CREATE INDEX modules_abstract_units_semesters_au_id ON modules_abstract_units_semesters(abstract_unit_id)"
                                "CREATE INDEX modules_abstract_units_semesters_module_id ON modules_abstract_units_semesters(module_id)"
 
-                               (jdbc/create-table-ddl :unit_abstract_unit_semester
+                               (jdbc/create-table-ddl :unit_abstract_unit
                                                       [[:unit_id :int "NOT NULL" "REFERENCES unit"]
-                                                       [:abstract_unit_id :int "NOT NULL" "REFERENCES abstract_unit"]
+                                                       [:abstract_unit_id :int "NOT NULL" "REFERENCES abstract_unit"]])
+                               "CREATE INDEX unit_abstract_unit_unit_id ON unit_abstract_unit(unit_id)"
+                               "CREATE INDEX unit_abstract_unit_abstract_unit_id ON unit_abstract_unit(abstract_unit_id)"
+
+                               (jdbc/create-table-ddl :unit_semester
+                                                      [[:unit_id :int "NOT NULL" "REFERENCES unit"]
                                                        [:semester :int "NOT NULL"]])
-                               "CREATE INDEX unit_abstract_unit_semester_unit_id ON unit_abstract_unit_semester(unit_id)"
-                               "CREATE INDEX unit_abstract_unit_semester_abstract_unit_id ON unit_abstract_unit_semester(abstract_unit_id)"
+                               "CREATE INDEX unit_semester_unit_id ON unit_semester(unit_id)"
 
                                (jdbc/create-table-ddl :units
                                                       [[:id :integer "PRIMARY KEY" "AUTOINCREMENT"]
@@ -140,7 +144,7 @@
                                "CREATE INDEX log_session_id ON log(session_id)"])
 
   (jdbc/insert! db-con :info {:key "schema_version"
-                              :value (str "v3.0")})
+                              :value (str "v4.0")})
   (jdbc/insert! db-con :info {:key "generator"
                               :value (str "mincer" "-" mincer-version)}))
 

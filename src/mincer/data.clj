@@ -10,18 +10,21 @@
 
 
 (declare persist-courses)
-(defn store-unit-abstract-unit-semester [db-con unit-id semesters abstract-unit-ref]
+(defn store-unit-abstract-unit [db-con unit-id abstract-unit-ref]
   (let [{:keys [id]} (abstract-unit-by-key db-con (:id abstract-unit-ref))]
     (if-not (nil? id)
-      (doseq [s semesters]
-        (insert! db-con :unit_abstract_unit_semester {:unit_id unit-id
-                                                      :abstract_unit_id id
-                                                      :semester s})))
-      (log/trace "No au for " (:id  abstract-unit-ref))))
+      (insert! db-con :unit_abstract_unit {:unit_id unit-id
+                                           :abstract_unit_id id})
+      (log/trace "No au for " (:id  abstract-unit-ref)))))
 
-(defn store-refs [db-con unit-id refs semesters]
+(defn store-refs [db-con unit-id refs]
   (doseq [r refs]
-    (store-unit-abstract-unit-semester db-con unit-id semesters r)))
+    (store-unit-abstract-unit db-con unit-id r)))
+
+(defn store-semesters [db-con unit-id semesters]
+  (doseq [s semesters]
+    (insert! db-con :unit_semester {:unit_id unit-id
+                                    :semester s})))
 
 (defn session-record [group-id session]
   (assert (= :session (:type session)))
@@ -39,7 +42,8 @@
         unit-id (insert! db-con :units record)]
     (doseq [g groups]
       (store-group db-con unit-id g))
-    (store-refs db-con unit-id refs semester)))
+    (store-refs db-con unit-id refs)
+    (store-semesters db-con unit-id semester)))
 
 (defn persist-units [db-con units]
   (doseq [u units]
