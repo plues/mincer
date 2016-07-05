@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+  <xs:element name="data">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="modules"/>
+        <xs:element ref="units"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="modules">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="1" maxOccurs="unbounded" ref="module"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="module">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="1" maxOccurs="unbounded" ref="abstract-unit"/>
+      </xs:sequence>
+      <xs:attribute name="elective-units" use="required" type="xs:nonNegativeInteger"/>
+      <xs:attribute name="id" use="required" type="xs:NCName"/>
+      <xs:attribute name="pordnr" use="required" type="xs:nonNegativeInteger"/>
+      <xs:attribute name="title" use="required" type="xs:normalizedString"/>
+      <!-- allowed but ignored -->
+      <xs:attribute name="type" use="optional">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+              <xs:enumeration value="m"/>
+              <xs:enumeration value="e"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+      <xs:attribute name="cp" use="optional" type="xs:nonNegativeInteger"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="units">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="1" maxOccurs="unbounded" ref="unit"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="unit">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="1" maxOccurs="unbounded" ref="group"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="abstract-unit"/>
+      </xs:sequence>
+      <xs:attribute name="id" use="required" type="xs:string"/>
+      <xs:attribute name="semester" use="required" type="xs:normalizedString"/>
+      <xs:attribute name="title" use="required" type="xs:normalizedString"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="group">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="session"/>
+      </xs:sequence>
+      <xs:attribute name="half-semester" use="optional">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+              <xs:enumeration value="first"/>
+              <xs:enumeration value="second"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="session">
+    <xs:complexType>
+      <xs:attribute name="day" use="required">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+              <xs:enumeration value="mon"/>
+              <xs:enumeration value="tue"/>
+              <xs:enumeration value="wed"/>
+              <xs:enumeration value="thu"/>
+              <xs:enumeration value="fri"/>
+              <!-- you never know -->
+              <xs:enumeration value="sat"/>
+              <xs:enumeration value="sun"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+
+      <xs:attribute name="duration" use="required" type="xs:positiveInteger" />
+      <xs:attribute name="rhythm" use="required">
+        <xs:simpleType>
+          <xs:restriction base="xs:nonNegativeInteger">
+            <xs:enumeration value="0"/> <!-- Weekly -->
+            <xs:enumeration value="1"/> <!-- Biweekly on even number calendar weeks. -->
+            <xs:enumeration value="2"/> <!-- Biweekly on odd number calendar weeks. -->
+              <xs:enumeration value="3"/> <!-- Block -->
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+      <xs:attribute name="time" use="required" type="xs:positiveInteger"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="abstract-unit">
+    <xs:complexType>
+      <xs:attribute name="id" use="required"/>
+      <xs:attribute name="semester" type="xs:normalizedString" />
+      <xs:attribute name="title" type="xs:normalizedString" />
+      <xs:attribute name="type" type="xs:normalizedString" />
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
