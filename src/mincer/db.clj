@@ -7,7 +7,7 @@
     [clojure.tools.logging :as log]
     [mincer.module-combinations :refer [traverse-course]]))
 
-(def mincer-version "0.1.0-SNAPSHOT") ; updated with bumpversion
+(def mincer-version "0.1.0") ; updated with bumpversion
 
 (defn setup-db [db-con]
   ; maybe use DDL for schema
