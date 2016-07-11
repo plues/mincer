@@ -15,9 +15,28 @@
   <jre>
     <path></path>
     <bundledJre64Bit>false</bundledJre64Bit>
+    <bundledJreAsFallback>false</bundledJreAsFallback>
     <minVersion>1.8.0</minVersion>
     <maxVersion></maxVersion>
     <jdkPreference>preferJre</jdkPreference>
     <runtimeBits>64/32</runtimeBits>
   </jre>
+  <versionInfo>
+    <fileVersion>0.0.0.1</fileVersion>
+    <txtFileVersion>1.0.0-dev</txtFileVersion>
+    <fileDescription>mincer</fileDescription>
+    <copyright>ISC</copyright>
+    <productVersion>0.0.0.1</productVersion>
+    <txtProductVersion>1.0.0-dev</txtProductVersion>
+    <productName>mincer</productName>
+    <companyName></companyName>
+    <internalName>mincer</internalName>
+    <originalFilename>mincer-1.0.0-SNAPSHOT.exe</originalFilename>
+  </versionInfo>
+  <messages>
+    <startupErr>Startup Error</startupErr>
+    <bundledJreErr>Bundled JRE Error</bundledJreErr>
+    <jreVersionErr>JRE Version Error</jreVersionErr>
+    <launcherErr>Launch Error</launcherErr>
+  </messages>
 </launch4jConfig>
