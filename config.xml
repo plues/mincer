@@ -2,7 +2,7 @@
 <launch4jConfig>
   <dontWrapJar>false</dontWrapJar>
   <headerType>gui</headerType>
-  <jar>target/mincer-1.0.0-SNAPSHOT.jar</jar>
+  <jar>target/mincer-1.0.0-SNAPSHOT-standalone.jar</jar>
   <outfile>target/mincer-1.0.0-SNAPSHOT.exe</outfile>
   <errTitle></errTitle>
   <priority>normal</priority>
