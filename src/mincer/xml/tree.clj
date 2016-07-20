@@ -33,7 +33,8 @@
 
 (defmethod parse-tree :b [{{:keys [abschl ignored stg cp pversion kzfa name]} :attrs content :content}]
   (log/debug {:tag :b :stg stg :pversion pversion :kzfa kzfa :name name :abschl abschl})
-  (when-not (= "true" ignored)
+  (if (= "true" ignored)
+    (log/info (str "Course '" name "' marked as ignored"))
     (let [levels  (remove nil? (pmap parse-tree content))]
       {:type     :course
        :degree   abschl
