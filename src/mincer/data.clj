@@ -58,22 +58,25 @@
   (persist-units db-con units)
   (persist-metadata db-con (:info levels)))
 
-(defn store-abstract-unit [db-con module-id {:keys [id title type semester]}]
+(defn store-abstract-unit [db-con module-id {:keys [id title type]}]
   (let [record {:key id
                 :title title
-                :type (name type)
-                }
-        au-id (insert! db-con :abstract_units record)
-        merge-table-fn (fn [sem]
-                         (insert! db-con :modules_abstract_units_semesters {:abstract_unit_id au-id
-                                                                            :module_id module-id
-                                                                            :semester sem}))]
-    (doseq [s semester] (merge-table-fn s))))
+                :type (name type)}]
+        (insert! db-con :abstract_units record)))
 
 (defn store-abstract-units [db-con module-id abstract-units]
   (doseq [au abstract-units]
-    (when (nil? (abstract-unit-by-key db-con (:id au))) ; abstract unit not yet in the database
-      (store-abstract-unit db-con module-id au))))
+    (let [au-rec (abstract-unit-by-key db-con (:id au))
+          au-id (if (nil? au-rec)
+                  (store-abstract-unit db-con module-id au) ; abstract unit not yet in the database 
+                  (:id au-rec)); abstract unit in the database
+          merge-table-fn (fn [sem]
+                         (insert! db-con :modules_abstract_units_semesters {:abstract_unit_id au-id
+                                                                            :module_id module-id
+                                                                            :semester sem}))]
+      ; link au with module and semester
+      (doseq [s (:semester au)]
+        (merge-table-fn s)))))
 
 (defmulti store-child (fn [child & args] (:type child)))
 
