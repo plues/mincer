@@ -60,23 +60,24 @@
 
 (defn store-abstract-unit [db-con module-id {:keys [id title type]}]
   (let [record {:key id
-                :title title
-                :type (name type)}]
+                :title title}]
         (insert! db-con :abstract_units record)))
 
 (defn store-abstract-units [db-con module-id abstract-units]
   (doseq [au abstract-units]
     (let [au-rec (abstract-unit-by-key db-con (:id au))
           au-id (if (nil? au-rec)
-                  (store-abstract-unit db-con module-id au) ; abstract unit not yet in the database 
-                  (:id au-rec)); abstract unit in the database
-          merge-table-fn (fn [sem]
-                         (insert! db-con :modules_abstract_units_semesters {:abstract_unit_id au-id
-                                                                            :module_id module-id
-                                                                            :semester sem}))]
+                  (store-abstract-unit db-con module-id au) ; abstract unit not yet in the database
+                  (:id au-rec))] ; abstract unit in the database
       ; link au with module and semester
       (doseq [s (:semester au)]
-        (merge-table-fn s)))))
+        (insert! db-con :modules_abstract_units_semesters {:abstract_unit_id au-id
+                                                           :module_id module-id
+                                                           :semester s}))
+      ; link au with module and type
+      (insert! db-con :modules_abstract_units_types {:abstract_unit_id au-id
+                                                     :module_id module-id
+                                                     :type (-> au :type name)}))))
 
 (defmulti store-child (fn [child & args] (:type child)))
 
