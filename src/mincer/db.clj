@@ -3,9 +3,7 @@
   (:require
     [clojure.java.jdbc :as jdbc]
     [clojure.java.jdbc :refer [with-db-transaction]]
-    [clojure.string :refer [join upper-case]]
-    [clojure.tools.logging :as log]
-    [mincer.module-combinations :refer [traverse-course]]))
+    [clojure.tools.logging :as log]))
 
 (def mincer-version "1.0.0-SNAPSHOT") ; updated with bumpversion
 
