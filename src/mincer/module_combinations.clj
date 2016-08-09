@@ -1,6 +1,7 @@
 (ns mincer.module-combinations
-  (:require  [clojure.math.combinatorics :refer [subsets cartesian-product combinations]]
-             [clojure.set :refer [difference]]))
+  (:require [clojure.math.combinatorics :refer [subsets cartesian-product combinations]]
+            [clojure.tools.logging :as log]
+            [clojure.set :refer [difference]]))
 
 (defn cp-sum [ms] (apply + (map :cp ms)))
 
@@ -37,12 +38,14 @@
         elective-modules  (seq (difference modules mandatory-modules))
         mandatory-count   (count mandatory-modules)
         min-count         (max (- (:min level) mandatory-count) 0) ; minimum number of modules left to choose
-        max-count         (max (- (:max level) mandatory-count) 0) ; maximum number of modules left to choose
-        sizes             (range min-count (inc max-count))
-        candidates        (apply concat (map (partial combinations elective-modules) sizes))
-        ]
-    ; all combinations of mandatory-modules and an element of candidates are valid solutions
-    (map #(concat mandatory-modules %) candidates)))
+        max-count         (- (:max level) mandatory-count)] ; maximum number of modules left to choose
+    (if (< max-count 0)
+      ((log/error (str "Level " (:name level) " has more mandatory modules than max allowed for level"))
+       (set [])) ; no solutions for this level
+      (let [sizes             (range min-count (inc max-count))
+            candidates        (apply concat (map (partial combinations elective-modules) sizes)) ]
+         ; all combinations of mandatory-modules and an element of candidates are valid solutions
+         (map #(concat mandatory-modules %) candidates)))))
 
 (defn layer-filter-by-count [level ms]
   (and
