@@ -33,7 +33,7 @@
 
 (defn filter-by-count [level]
   (let [modules           (set (:children level))
-        mandatory-modules (filter #(:mandatory %) modules)
+        mandatory-modules (filter :mandatory modules)
         elective-modules  (seq (difference modules mandatory-modules))
         mandatory-count   (count mandatory-modules)
         min-count         (max (- (:min level) mandatory-count) 0) ; minimum number of modules left to choose
