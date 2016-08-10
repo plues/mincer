@@ -51,8 +51,7 @@
     (store-unit db-con u)))
 
 (defn persist-metadata [db-con md]
-  (doseq [[k v] md]
-    (insert! db-con :info  {:key (name k) :value v})))
+  (insert-all! db-con :info (map (fn [[k v]] {:key (name k) :value v}) md)))
 
 (defn store-stuff [db-con levels modules units]
   (persist-courses db-con levels modules)
@@ -71,10 +70,12 @@
                   (store-abstract-unit db-con module-id au) ; abstract unit not yet in the database
                   (:id au-rec))] ; abstract unit in the database
       ; link au with module and semester
-      (doseq [s (:semester au)]
-        (insert! db-con :modules_abstract_units_semesters {:abstract_unit_id au-id
-                                                           :module_id module-id
-                                                           :semester s}))
+      (insert-all! db-con
+                   :modules_abstract_units_semesters
+                   (map (fn [s] {:abstract_unit_id au-id
+                           :module_id module-id
+                           :semester s})
+                        (:semester au)))
       ; link au with module and type
       (insert! db-con :modules_abstract_units_types {:abstract_unit_id au-id
                                                      :module_id module-id
