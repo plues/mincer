@@ -61,7 +61,8 @@
       (:help options) (usage summary)
       errors (error-msg errors)
       (not-any? nil? [module-tree module-data output]) (start-cli module-tree module-data output)
-      true (start-gui))))
+      true (start-gui))
+    (shutdown-agents)))
 
 
 (defn process-data []
