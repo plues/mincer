@@ -13,19 +13,19 @@
 (declare persist-courses)
 (defn store-unit-abstract-unit [db-con unit-id abstract-unit-ref]
   (let [{:keys [id]} (abstract-unit-by-key db-con (:id abstract-unit-ref))]
-    (if-not (nil? id)
-      (insert! db-con :unit_abstract_unit {:unit_id unit-id
-                                           :abstract_unit_id id})
-      (log/trace "No au for " (:id  abstract-unit-ref)))))
+    (if (nil? id)
+      (log/trace "No au for " (:id  abstract-unit-ref))
+      {:unit_id unit-id :abstract_unit_id id})))
 
 (defn store-refs [db-con unit-id refs]
-  (doseq [r refs]
-    (store-unit-abstract-unit db-con unit-id r)))
+  (insert-all! db-con :unit_abstract_unit
+               (filter #(not (nil? %))
+                       (map #(store-unit-abstract-unit db-con unit-id %) refs))))
 
 (defn store-semesters [db-con unit-id semesters]
-  (doseq [s semesters]
-    (insert! db-con :unit_semester {:unit_id unit-id
-                                    :semester s})))
+  (insert-all! db-con :unit_semester (map
+                                       (fn [s] {:unit_id unit-id :semester s})
+                                       semesters)))
 
 (defn session-record [group-id session]
   (assert (= :session (:type session)))
