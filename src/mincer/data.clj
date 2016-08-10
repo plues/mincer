@@ -4,7 +4,7 @@
     [clojure.string :refer [join upper-case]]
     [clojure.tools.logging :as log]
     [mincer.module-combinations :refer [traverse-course]]
-    [mincer.bitvector :refer [bitvector set-bit! bytes get-bit]]
+    [mincer.bitvector :refer [bitvector set-bit! get-bytes get-bit]]
     [mincer.db :refer [ abstract-unit-by-key course-module?  insert!
                        insert-all!  load-course-module-map module-by-pordnr
                        run-on-db setup-db ]]))
@@ -149,7 +149,7 @@
         (set-bit! bv idx)))
     (insert!
       db-con :course_modules_combinations {:course_id course-id
-                                           :combination (bytes bv)})))
+                                           :combination (get-bytes bv)})))
 
 
 (defn store-course-module-combination [db-con course-id

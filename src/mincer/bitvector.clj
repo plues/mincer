@@ -17,4 +17,4 @@
 
 (defn get-bit [bv b] (.get bv b))
 
-(defn bytes [bv] (.toByteArray bv))
+(defn get-bytes [bv] (.toByteArray bv))
