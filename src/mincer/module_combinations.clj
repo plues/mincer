@@ -25,7 +25,7 @@
 (defn layer-filter-by-cp [layer ms]
   (and
     (< 0 (count ms))
-    (apply distinct? ms) ; all different TODO: maybe map to pordnr before applying distinct?
+    (apply distinct?  ms)
     (let [sum (cp-sum ms)]
       (case (:type layer)
         :course (= (:cp layer)) sum
@@ -43,14 +43,14 @@
       ((log/error (str "Level " (:name level) " has more mandatory modules than max allowed for level"))
        (set [])) ; no solutions for this level
       (let [sizes             (range min-count (inc max-count))
-            candidates        (apply concat (map (partial combinations elective-modules) sizes)) ]
+            candidates        (apply concat (map #(combinations elective-modules %) sizes)) ]
          ; all combinations of mandatory-modules and an element of candidates are valid solutions
          (map #(concat mandatory-modules %) candidates)))))
 
 (defn layer-filter-by-count [level ms]
   (and
     (< 0 (count ms))
-    (apply distinct? ms) ; all different TODO: maybe map to pordnr before applying distinct?
+    (apply distinct? ms)
     (case (:type level)
       :level (let [cc (count ms)] (<= (:min level) cc (:max level)))
       :course true)))
@@ -62,7 +62,7 @@
   (let [children     (:children level)
         modules      (pmap #(traverse-level % level-filter-fn module-filter-fn) children) ; collect all lists of module combinations from sub-levels
         combinations (pmap flatten (apply cartesian-product modules))] ; build all combinations of possible choices
-    (filter (partial level-filter-fn level) combinations)))
+    (filter #(level-filter-fn level %) combinations)))
 
 (defn traverse-level [level level-filter-fn module-filter-fn]
   (let [children (:children level)]

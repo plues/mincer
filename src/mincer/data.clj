@@ -34,7 +34,7 @@
 (defn store-group [db-con unit-id {:keys [half-semester type sessions]}]
   (assert (= :group type) type)
   (let [group-id (insert! db-con :groups {:unit_id unit-id :half_semester half-semester})
-        session-records (map (partial session-record group-id) sessions)]
+        session-records (map #(session-record group-id %) sessions)]
     (insert-all! db-con :sessions session-records)))
 
 (defn store-unit [db-con {:keys [type id title semester groups refs]}]
