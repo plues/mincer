@@ -76,7 +76,6 @@
                                (jdbc/create-table-ddl :course_modules_combinations
                                                       [[:id :integer "PRIMARY KEY" "AUTOINCREMENT"]
                                                        [:course_id "REFERENCES courses"]
-                                                       [:combination_id "INTEGER"]   ; unique for each course; represents each combination in a course
                                                        [:combination "BLOB"]])
                                "CREATE INDEX course_modules_combinations_course ON course_modules_combinations(course_id)"
 

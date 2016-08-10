@@ -139,30 +139,27 @@
   (throw  (IllegalArgumentException. (str (:type child)))))
 
 
-(defn store-single-module-combination [db-con course-id combination-id
+(defn store-single-module-combination [db-con course-id
                                        course-module-map modules]
-  (log/debug "mc:" combination-id)
   (let [bv (bitvector)]
     (doseq [m modules]
       (let [idx (get course-module-map m)]
         (when (get-bit bv idx)
           (log/error "Bit" idx "was already set"))
-        (set-bit! bv idx)
-        (log/trace "Setting bit" (course-module-map m) "for mc " combination-id)))
+        (set-bit! bv idx)))
     (insert!
       db-con :course_modules_combinations {:course_id course-id
-                                           :combination_id combination-id
                                            :combination (bytes bv)})))
 
 
-(defn store-course-module-combination [db-con course-id course-module-map
-                                       module-combination-id module-combination] 
+(defn store-course-module-combination [db-con course-id
+                                       course-module-map module-combination] 
   ; discard module-combinations that have "empty" modules (i.e. modules without actual units)
   (let [modules (map #(Integer/parseInt (:pordnr %)) module-combination)]
     (if (every? identity (map (fn [m] (contains? course-module-map m)) modules))
 
-      (store-single-module-combination
-        db-con course-id module-combination-id course-module-map modules)
+      (store-single-module-combination db-con course-id course-module-map modules)
+
       (log/trace "Discarding module combination for course " course-id modules))))
 
 
@@ -173,7 +170,7 @@
       ; compute module combinations for course and store them to
       ; the course_module_combinations table
       (doall
-        (map-indexed
+        (pmap
           (partial store-course-module-combination db-con course-id course-module-map)
           (traverse-course course)))))
 
