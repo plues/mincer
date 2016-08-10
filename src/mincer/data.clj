@@ -188,8 +188,10 @@
         levels (map (fn [l] (store-child l db-con nil parent-id modules)) children)]
     (log/trace {:kzfa kzfa :degree degree :course course :name name :po po})
     ; insert course-level/parent-id pairs into course_level table
-    (doseq [l levels]
-      (insert! db-con :course_levels {:course_id parent-id :level_id l}))
+    (insert-all! db-con :course_levels
+                 (map
+                   (fn [l] {:course_id parent-id :level_id l})
+                   levels))
     (store-course-module-combinations db-con c parent-id)))
 
 (defn persist-courses [db-con levels modules]
