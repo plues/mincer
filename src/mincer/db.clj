@@ -76,10 +76,9 @@
                                (jdbc/create-table-ddl :course_modules_combinations
                                                       [[:id :integer "PRIMARY KEY" "AUTOINCREMENT"]
                                                        [:course_id "REFERENCES courses"]
-                                                       [:module_id "REFERENCES modules"]
-                                                       [:combination_id "INTEGER"]]) ; unique for each course; represents each combination in a course
+                                                       [:combination_id "INTEGER"]   ; unique for each course; represents each combination in a course
+                                                       [:combination "BLOB"]])
                                "CREATE INDEX course_modules_combinations_course ON course_modules_combinations(course_id)"
-                               "CREATE INDEX course_modules_combinations_module ON course_modules_combinations(module_id)"
 
                                (jdbc/create-table-ddl :abstract_units
                                                       [[:id :integer "PRIMARY KEY" "AUTOINCREMENT"]
@@ -149,7 +148,7 @@
                                "CREATE INDEX log_session_id ON log(session_id)"])
 
   (jdbc/insert! db-con :info {:key "schema_version"
-                              :value (str "v5.0")})
+                              :value (str "v6.0")})
   (jdbc/insert! db-con :info {:key "generator"
                               :value (str "mincer" "-" mincer-version)}))
 

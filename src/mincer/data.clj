@@ -4,6 +4,7 @@
     [clojure.string :refer [join upper-case]]
     [clojure.tools.logging :as log]
     [mincer.module-combinations :refer [traverse-course]]
+    [mincer.bitvector :refer [bitvector set-bit! bytes get-bit]]
     [mincer.db :refer [ abstract-unit-by-key course-module?  insert!
                        insert-all!  load-course-module-map module-by-pordnr
                        run-on-db setup-db ]]))
@@ -138,20 +139,39 @@
   (throw  (IllegalArgumentException. (str (:type child)))))
 
 
-(defn store-course-module-combination [db-con course-id course-module-map module-combination-id module-combination] ; discard module-combinations that have "empty" modules (i.e. modules without actual units)
+(defn store-single-module-combination [db-con course-id combination-id
+                                       course-module-map modules]
+  (log/debug "mc:" combination-id)
+  (let [bv (bitvector)]
+    (doseq [m modules]
+      (let [idx (get course-module-map m)]
+        (when (get-bit bv idx)
+          (log/error "Bit" idx "was already set"))
+        (set-bit! bv idx)
+        (log/trace "Setting bit" (course-module-map m) "for mc " combination-id)))
+    (insert!
+      db-con :course_modules_combinations {:course_id course-id
+                                           :combination_id combination-id
+                                           :combination (bytes bv)})))
+
+
+(defn store-course-module-combination [db-con course-id course-module-map
+                                       module-combination-id module-combination] 
+  ; discard module-combinations that have "empty" modules (i.e. modules without actual units)
   (let [modules (map #(Integer/parseInt (:pordnr %)) module-combination)]
     (if (every? identity (map (fn [m] (contains? course-module-map m)) modules))
-      (doseq [m modules]
-             (let [record {:course_id course-id
-                           :combination_id module-combination-id
-                           :module_id (get course-module-map m)}]
-               (insert! db-con :course_modules_combinations record)))
+
+      (store-single-module-combination
+        db-con course-id module-combination-id course-module-map modules)
       (log/trace "Discarding module combination for course " course-id modules))))
 
+
 (defn store-course-module-combinations [db-con course course-id]
-    (let [course-module-map (load-course-module-map db-con course-id)]
+    (let [; course-module-map maps from module pordnr to database id for all
+          ; modules in a course
+          course-module-map (load-course-module-map db-con course-id)]
       ; compute module combinations for course and store them to
-      ; course_module_combinations
+      ; the course_module_combinations table
       (doall
         (map-indexed
           (partial store-course-module-combination db-con course-id course-module-map)
