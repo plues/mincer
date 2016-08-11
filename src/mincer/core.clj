@@ -62,6 +62,7 @@
       errors (error-msg errors)
       (not-any? nil? [module-tree module-data output]) (start-cli module-tree module-data output)
       true (start-gui))
+    (log/debug "Shutting down agents")
     (shutdown-agents)))
 
 

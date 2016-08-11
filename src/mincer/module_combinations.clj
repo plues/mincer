@@ -73,10 +73,14 @@
     :else (filter-children level level-filter-fn module-filter-fn))))
 
 (defn traverse-course-cp [course]
-  (filter-children course layer-filter-by-cp filter-by-cp))
+  (let [result (filter-children course layer-filter-by-cp filter-by-cp)]
+    (log/info (str "Done with " (:name course)))
+    result))
 
 (defn traverse-course-count [course]
-  (filter-children course layer-filter-by-count filter-by-count))
+  (let [result  (filter-children course layer-filter-by-count filter-by-count)]
+    (log/info (str "Done with " (:name course)))
+    result))
 
 (defn traverse-course [course]
   (set (map set ((if-not (nil? (:cp course))
