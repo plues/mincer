@@ -74,12 +74,12 @@
 
 (defn traverse-course-cp [course]
   (let [result (filter-children course layer-filter-by-cp filter-by-cp)]
-    (log/info (str "Done with " (:name course)))
+    (log/debug (str "Done with " (:name course)))
     result))
 
 (defn traverse-course-count [course]
   (let [result  (filter-children course layer-filter-by-count filter-by-count)]
-    (log/info (str "Done with " (:name course)))
+    (log/debug (str "Done with " (:name course)))
     result))
 
 (defn traverse-course [course]
