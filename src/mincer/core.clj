@@ -61,10 +61,13 @@
     (cond
       (:help options) (usage summary)
       errors (error-msg errors)
-      (not-any? nil? [module-tree module-data output]) (start-cli module-tree module-data output)
+      (not-any? nil? [module-tree module-data output])
+        (do
+          (start-cli module-tree module-data output)
+          (log/debug "Shutting down agents")
+          (shutdown-agents))
       true (start-gui))
-    (log/debug "Shutting down agents")
-    (shutdown-agents)))
+    ))
 
 
 (defn process-data []
