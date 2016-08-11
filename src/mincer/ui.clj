@@ -203,5 +203,5 @@
 (defn start-ui []
   (native!)
   (setup-logger)
-  (invoke-later
-    (-> my-frame show!)))
+  (invoke-now
+    (show! my-frame)))
