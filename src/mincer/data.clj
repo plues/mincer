@@ -171,8 +171,8 @@
       ; compute module combinations for course and store them to
       ; the course_module_combinations table
       (doall
-        (pmap
-          (partial store-course-module-combination db-con course-id course-module-map)
+        (map
+          #(store-course-module-combination db-con course-id course-module-map %)
           (traverse-course course)))))
 
 (defn store-course [db-con c modules]
