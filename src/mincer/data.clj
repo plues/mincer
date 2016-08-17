@@ -10,18 +10,21 @@
 
 
 (declare persist-courses)
-(defn store-unit-abstract-unit-semester [db-con unit-id semesters abstract-unit-ref]
+(defn store-unit-abstract-unit [db-con unit-id abstract-unit-ref]
   (let [{:keys [id]} (abstract-unit-by-key db-con (:id abstract-unit-ref))]
     (if-not (nil? id)
-      (doseq [s semesters]
-        (insert! db-con :unit_abstract_unit_semester {:unit_id unit-id
-                                                      :abstract_unit_id id
-                                                      :semester s})))
-      (log/trace "No au for " (:id  abstract-unit-ref))))
+      (insert! db-con :unit_abstract_unit {:unit_id unit-id
+                                           :abstract_unit_id id})
+      (log/trace "No au for " (:id  abstract-unit-ref)))))
 
-(defn store-refs [db-con unit-id refs semesters]
+(defn store-refs [db-con unit-id refs]
   (doseq [r refs]
-    (store-unit-abstract-unit-semester db-con unit-id semesters r)))
+    (store-unit-abstract-unit db-con unit-id r)))
+
+(defn store-semesters [db-con unit-id semesters]
+  (doseq [s semesters]
+    (insert! db-con :unit_semester {:unit_id unit-id
+                                    :semester s})))
 
 (defn session-record [group-id session]
   (assert (= :session (:type session)))
@@ -30,8 +33,8 @@
 (defn store-group [db-con unit-id {:keys [half-semester type sessions]}]
   (assert (= :group type) type)
   (let [group-id (insert! db-con :groups {:unit_id unit-id :half_semester half-semester})
-        session-recoreds (map (partial session-record group-id) sessions)]
-    (insert-all! db-con :sessions session-recoreds)))
+        session-records (map (partial session-record group-id) sessions)]
+    (insert-all! db-con :sessions session-records)))
 
 (defn store-unit [db-con {:keys [type id title semester groups refs]}]
   (assert (= :unit type))
@@ -39,7 +42,8 @@
         unit-id (insert! db-con :units record)]
     (doseq [g groups]
       (store-group db-con unit-id g))
-    (store-refs db-con unit-id refs semester)))
+    (store-refs db-con unit-id refs)
+    (store-semesters db-con unit-id semester)))
 
 (defn persist-units [db-con units]
   (doseq [u units]
@@ -54,22 +58,26 @@
   (persist-units db-con units)
   (persist-metadata db-con (:info levels)))
 
-(defn store-abstract-unit [db-con module-id {:keys [id title type semester]}]
+(defn store-abstract-unit [db-con module-id {:keys [id title type]}]
   (let [record {:key id
-                :title title
-                :type (name type)
-                }
-        au-id (insert! db-con :abstract_units record)
-        merge-table-fn (fn [sem]
-                         (insert! db-con :modules_abstract_units_semesters {:abstract_unit_id au-id
-                                                                            :module_id module-id
-                                                                            :semester sem}))]
-    (doseq [s semester] (merge-table-fn s))))
+                :title title}]
+        (insert! db-con :abstract_units record)))
 
 (defn store-abstract-units [db-con module-id abstract-units]
   (doseq [au abstract-units]
-    (when (nil? (abstract-unit-by-key db-con (:id au))) ; abstract unit not yet in the database
-      (store-abstract-unit db-con module-id au))))
+    (let [au-rec (abstract-unit-by-key db-con (:id au))
+          au-id (if (nil? au-rec)
+                  (store-abstract-unit db-con module-id au) ; abstract unit not yet in the database
+                  (:id au-rec))] ; abstract unit in the database
+      ; link au with module and semester
+      (doseq [s (:semester au)]
+        (insert! db-con :modules_abstract_units_semesters {:abstract_unit_id au-id
+                                                           :module_id module-id
+                                                           :semester s}))
+      ; link au with module and type
+      (insert! db-con :modules_abstract_units_types {:abstract_unit_id au-id
+                                                     :module_id module-id
+                                                     :type (-> au :type name)}))))
 
 (defmulti store-child (fn [child & args] (:type child)))
 

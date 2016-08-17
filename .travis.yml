@@ -24,7 +24,7 @@ script:
   - lein launch4j
 
 after_success:
-- travis-custom-deploy sftp target/mincer-0.1.1-standalone.jar target/mincer-0.1.1.exe
+- travis-custom-deploy sftp target/mincer-1.0.0-standalone.jar target/mincer-1.0.0.exe
 env:
   global:
   - DISPLAY=:99.0

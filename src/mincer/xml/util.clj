@@ -8,11 +8,7 @@
     (javax.xml.validation SchemaFactory)
     (javax.xml XMLConstants)))
 
-(defn get-xml [filename]
-  (xml/parse
-    (java.io.ByteArrayInputStream.
-      (.getBytes
-        (slurp filename)))))
+(defn get-xml [filename] (xml/parse filename))
 
 (defn validate [schema-file xml-file]
   (let [sf (SchemaFactory/newInstance XMLConstants/W3C_XML_SCHEMA_NS_URI)
