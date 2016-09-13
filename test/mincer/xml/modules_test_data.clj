@@ -49,8 +49,12 @@
               :content nil
               :tag :session})
 
+(def session3 {:attrs {:day "mon" :duration "1" :rhythm "3" :time "3"}
+              :content nil
+              :tag :session})
+
 (def group {:attrs {:half-semester "second"}
-            :content  [session session2]
+            :content  [session session2 session3]
             :tag :group})
 
 (def abstract-unit-ref  {:attrs  {:id "P-Phil-L-BPPKb"} :content nil :tag :abstract-unit})

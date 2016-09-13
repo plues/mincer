@@ -93,7 +93,7 @@
             <xs:enumeration value="0"/> <!-- Weekly -->
             <xs:enumeration value="1"/> <!-- Biweekly on even number calendar weeks. -->
             <xs:enumeration value="2"/> <!-- Biweekly on odd number calendar weeks. -->
-              <xs:enumeration value="3"/> <!-- Block -->
+            <xs:enumeration value="3"/> <!-- Block -->
           </xs:restriction>
         </xs:simpleType>
       </xs:attribute>
