@@ -12,7 +12,9 @@
                  [org.slf4j/slf4j-log4j12 "1.7.21"]
                  [org.xerial/sqlite-jdbc "3.14.2"]
                  [seesaw "1.4.5"]]
-  :plugins [[lein-launch4j "0.1.2"]]
+  :plugins [[jonase/eastwood "0.2.3"]
+            [lein-kibit "0.1.2"]
+            [lein-launch4j "0.1.2"]]
   :launch4j-config-file "config.xml"
   :launch4j-install-dir ~(System/getenv "LAUNCH4J_INSTALL_DIR")
   :main mincer.core
