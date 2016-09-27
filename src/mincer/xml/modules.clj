@@ -21,12 +21,13 @@
 
 (defmulti tree-to-unit-map :tag)
 
-(defmethod tree-to-unit-map :session [{{:keys [day time duration rhythm]} :attrs}]
-  {:type     :session
-   :day      day
-   :time     (Integer/parseInt time)
-   :duration (Integer/parseInt duration)
-   :rhythm   (Integer/parseInt rhythm)})
+(defmethod tree-to-unit-map :session [{{:keys [day time duration rhythm tentative]} :attrs}]
+  {:type      :session
+   :day       day
+   :time      (Integer/parseInt time)
+   :duration  (Integer/parseInt duration)
+   :rhythm    (Integer/parseInt rhythm)
+   :tentative (boolean tentative)})
 
 (defmethod tree-to-unit-map :group [{{:keys [half-semester]} :attrs content :content}]
   {:type          :group

@@ -51,9 +51,9 @@
   (is (= result-modules (tree-to-module-map modules))))
 
 ; unit parsing
-(def result-session {:type :session :day "tue" :time 1 :duration 2 :rhythm 0})
-(def result-session2 {:type :session :day "mon" :time 3 :duration 1 :rhythm 2})
-(def result-session3 {:type :session :day "mon" :time 3 :duration 1 :rhythm 3})
+(def result-session {:type :session :day "tue" :time 1 :duration 2 :rhythm 0 :tentative false})
+(def result-session2 {:type :session :day "mon" :time 3 :duration 1 :rhythm 2 :tentative false})
+(def result-session3 {:type :session :day "mon" :time 3 :duration 1 :rhythm 3 :tentative false})
 (def result-group {:type :group
                    :half-semester 2
                    :sessions [result-session result-session2 result-session3]})
