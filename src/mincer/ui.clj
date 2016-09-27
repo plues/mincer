@@ -62,7 +62,7 @@
       :error)
     (catch Exception e
         (invoke-soon
-          (->
+          (show!
             (frame
               :title "Error!"
               :content (scrollable
@@ -71,15 +71,14 @@
                     (let [sw (new java.io.StringWriter)
                           pw (new java.io.PrintWriter sw)]
                       (.printStackTrace e pw)
-                      (.toString sw))
+                      (str sw))
                   :multi-line? true
                   :wrap-lines? true
                   :tab-size 4
                   :rows 20
                   :editable? false))
               :size [600 :by 600]
-              :on-close :dispose)
-            show!))
+              :on-close :dispose)))
       :error)))
 
 

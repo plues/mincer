@@ -19,8 +19,7 @@
 
 (defn store-refs [db-con unit-id refs]
   (insert-all! db-con :unit_abstract_unit
-               (filter #(not (nil? %))
-                       (map #(store-unit-abstract-unit db-con unit-id %) refs))))
+               (remove nil? (map #(store-unit-abstract-unit db-con unit-id %) refs))))
 
 (defn store-semesters [db-con unit-id semesters]
   (insert-all! db-con :unit_semester (map
@@ -101,13 +100,12 @@
 
 (defn link-course-module [db-con course-id module-id]
   ; If the module is associated to a different course we need to store that link
-  (if-not (course-module? db-con course-id module-id) ; course/module pair is
-                                                      ; not in the database yet,
-                                                      ; so store it.
-    (do
+  (when-not (course-module? db-con course-id module-id) ; course/module pair is
+                                                        ; not in the database yet,
+                                                        ; so store it.
       (log/trace "Adding existing module" module-id "to course" course-id)
       (insert! db-con :course_modules {:course_id course-id
-                                       :module_id module-id}))))
+                                       :module_id module-id})))
 
 (defmethod store-child :module [{:keys [name cp id pordnr mandatory]} db-con parent-id course-id modules]
   (log/trace "Module " (get modules id))

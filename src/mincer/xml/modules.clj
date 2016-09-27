@@ -40,7 +40,7 @@
 (defmethod tree-to-unit-map :unit [{{:keys [id title semester]} :attrs content :content}]
   (let [children (map tree-to-unit-map content)
         group-filter (fn [x] (= :group (:type x)))
-        {:keys [group abstract-unit-ref]} (group-by #(:type %) children)]
+        {:keys [group abstract-unit-ref]} (group-by :type children)]
     {:type          :unit
      :id            (upper-case id)
      :title         title

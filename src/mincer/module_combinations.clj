@@ -7,7 +7,7 @@
 
 (defn filter-by-cp [level]
   (let [modules           (set (:children level))
-        mandatory-modules (filter #(:mandatory %) modules)
+        mandatory-modules (filter :mandatory modules)
         elective-modules  (seq (difference modules mandatory-modules)) ; has to be a seq type for subsets below
         mandatory-cp      (cp-sum mandatory-modules)
         ; mandatory-cp plus the sum of the chosen elective cp must be between
@@ -24,8 +24,8 @@
 
 (defn layer-filter-by-cp [layer ms]
   (and
-    (< 0 (count ms))
-    (apply distinct?  ms)
+    (pos? (count ms))
+    (apply distinct? ms)
     (let [sum (cp-sum ms)]
       (case (:type layer)
         :course (= (:cp layer) sum)
@@ -39,17 +39,17 @@
         mandatory-count   (count mandatory-modules)
         min-count         (max (- (:min level) mandatory-count) 0) ; minimum number of modules left to choose
         max-count         (- (:max level) mandatory-count)] ; maximum number of modules left to choose
-    (if (< max-count 0)
+    (if (neg? max-count)
       ((log/error (str "Level " (:name level) " has more mandatory modules than max allowed for level"))
        (set [])) ; no solutions for this level
       (let [sizes             (range min-count (inc max-count))
-            candidates        (apply concat (map #(combinations elective-modules %) sizes)) ]
+            candidates        (mapcat #(combinations elective-modules %) sizes) ]
          ; all combinations of mandatory-modules and an element of candidates are valid solutions
          (map #(concat mandatory-modules %) candidates)))))
 
 (defn layer-filter-by-count [level ms]
   (and
-    (< 0 (count ms))
+    (pos? (count ms))
     (apply distinct? ms)
     (case (:type level)
       :level (let [cc (count ms)] (<= (:min level) cc (:max level)))
@@ -67,7 +67,7 @@
 (defn traverse-level [level level-filter-fn module-filter-fn]
   (let [children (:children level)]
   (cond
-    (= 0 (count children )) '()
+    (zero? (count children )) '()
     (= :module (:type (first children))) (module-filter-fn level)
     ; inner node
     :else (filter-children level level-filter-fn module-filter-fn))))

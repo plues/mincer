@@ -185,7 +185,7 @@
 (defn course-module? [db-con course-id module-id]
   (let [records (jdbc/query db-con ["SELECT * FROM course_modules WHERE
                                     module_id = ? AND course_id = ?" course-id module-id])]
-    (> 0 (count records))))
+    (pos? (count records)))) ; true if we have a link between course and module
 
 (defn load-course-module-map [db-con course-id]
   (let [sql "SELECT modules.pordnr, modules.id FROM course_modules JOIN modules ON course_modules.module_id WHERE course_id = ?;"
