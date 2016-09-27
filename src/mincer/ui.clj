@@ -86,7 +86,7 @@
 ; heler functions
 (defn any-file-chosen? [] (boolean (or @tree-file @data-file)))
 
-(def save-button)
+(declare save-button)
 (defn disable-save []
   (config! save-button :enabled? false))
 

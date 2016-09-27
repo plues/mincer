@@ -15,7 +15,7 @@
         filter-fn         (fn [sum] (<= (:min-cp level) (+ sum mandatory-cp) (:max-cp level)))]
     ; all combinations of mandatory-modules and a result of the filter below
     ; compose a valid solution
-    (assert (not (nil? mandatory-cp))("Expected mandatory-cp to not be nil"))
+    (assert (not (nil? mandatory-cp)) "Expected mandatory-cp to not be nil")
     (map #(concat mandatory-modules %)
          ; find all subsets of elective-modules that satisfy filter-fn, i.e.
          ; sum of cp + mandatory-modules is in min-cp, max-cp for level
@@ -28,7 +28,7 @@
     (apply distinct?  ms)
     (let [sum (cp-sum ms)]
       (case (:type layer)
-        :course (= (:cp layer)) sum
+        :course (= (:cp layer) sum)
         :level  (<= (:min-cp layer) sum (:max-cp layer))))))
 
 

@@ -13,7 +13,7 @@
 (defmethod validate :ModulBaum [mb]
   (log/trace (:tag mb))
   ; validate pordnr
-  (doall (flatten (map validate (:content mb))))
+  (dorun (flatten (map validate (:content mb))))
   ; validate course names
   (let [course-names  (map #(-> % :attrs :name) (:content mb))
         f (freqs course-names)]
