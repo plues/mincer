@@ -77,3 +77,7 @@
 (deftest test-parse-abstract-unit-ref (is (= result-abstract-unit-ref (tree-to-unit-map abstract-unit-ref))))
 (deftest test-parse-unit (is (= result-unit (tree-to-unit-map unit))))
 (deftest test-parse-unit2 (is (= result-unit2 (tree-to-unit-map unit2))))
+
+
+(def tentative-session {:type :session :day "mon" :time 3 :duration 1 :rhythm 3 :tentative true})
+(deftest test-parse-tentative-session (is (= tentative-session (tree-to-unit-map session4))))

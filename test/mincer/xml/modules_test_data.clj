@@ -53,6 +53,10 @@
               :content nil
               :tag :session})
 
+(def session4 {:attrs {:day "mon" :duration "1" :rhythm "3" :time "3" :tentative "true"}
+              :content nil
+              :tag :session})
+
 (def group {:attrs {:half-semester "second"}
             :content  [session session2 session3]
             :tag :group})
