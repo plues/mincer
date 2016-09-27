@@ -68,9 +68,30 @@
     (doseq [au (difference modules units)]
       (log/warn "Abstract-Unit with ID:" au "has no units associated to it and will be ignored."))))
 
+
+(defmulti validate-modules :tag)
+
+(defmethod validate-modules :units [node])
+(defmethod validate-modules :default [node]
+  (doseq [n (:content node)]
+    (validate-modules n)))
+
+(defmethod validate-modules :module [node]
+  (let [n-elective (count
+                     (filter #(= "e" (-> % :attrs :type)) (:content node)))
+        module (:attrs node)
+        required-elective (Integer/parseInt (:elective-units module))]
+    (log/trace "MODULE" node)
+    (when (< n-elective required-elective)
+      (log/error "Module with ID:" (:id module)
+                 "and PORDNR:" (:pordnr module)
+                 "has fewer elective abstract-units" n-elective
+                 "than the required" (:elective-units module)))))
+
 (defn validate-values [xml]
   (binding [errors false]
     (validate xml)
+    (validate-modules xml)
     (validate-abstract-units xml)
     (if errors
       (throw (IllegalArgumentException. "Module data contains validation errors")))))
