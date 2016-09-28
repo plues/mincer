@@ -40,7 +40,7 @@
        :degree   abschl
        :course   stg
        :po       (when-not (nil? pversion) (Integer/parseInt pversion))
-       :kzfa     kzfa ; XXX find out what this means
+       :kzfa     (upper-case kzfa) ; XXX find out what this means
        :name     name
        :cp (when-not (nil? cp) (Integer/parseInt cp))
        :children levels})))
