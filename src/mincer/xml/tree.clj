@@ -2,7 +2,7 @@
   (:gen-class)
   (:require [clojure.java.io :as io]
             [clojure.tools.logging :as log]
-            [clojure.string :refer [trim trim-newline]]
+            [clojure.string :refer [trim trim-newline upper-case]]
             [mincer.xml.util :refer [get-xml validate]]
             [mincer.xml.tree-validation :refer [validate-values]]))
 
