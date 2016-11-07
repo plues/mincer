@@ -2,7 +2,7 @@
   (:gen-class)
   (:require [clojure.java.io :as io]
             [clojure.tools.logging :as log]
-            [clojure.string :refer [trim trim-newline]]
+            [clojure.string :refer [trim trim-newline upper-case]]
             [mincer.xml.util :refer [get-xml validate]]
             [mincer.xml.tree-validation :refer [validate-values]]))
 
@@ -40,7 +40,7 @@
        :degree   abschl
        :course   stg
        :po       (when-not (nil? pversion) (Integer/parseInt pversion))
-       :kzfa     kzfa ; XXX find out what this means
+       :kzfa     (upper-case kzfa) ; XXX find out what this means
        :name     name
        :cp (when-not (nil? cp) (Integer/parseInt cp))
        :children levels})))

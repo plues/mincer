@@ -4,6 +4,7 @@
     [clojure.string :refer [join upper-case]]
     [clojure.tools.logging :as log]
     [mincer.module-combinations :refer [traverse-course]]
+    [mincer.bitvector :refer [bitvector set-bit! get-bytes get-bit]]
     [mincer.db :refer [ abstract-unit-by-key course-module?  insert!
                        insert-all!  load-course-module-map module-by-pordnr
                        run-on-db setup-db ]]))
@@ -12,19 +13,18 @@
 (declare persist-courses)
 (defn store-unit-abstract-unit [db-con unit-id abstract-unit-ref]
   (let [{:keys [id]} (abstract-unit-by-key db-con (:id abstract-unit-ref))]
-    (if-not (nil? id)
-      (insert! db-con :unit_abstract_unit {:unit_id unit-id
-                                           :abstract_unit_id id})
-      (log/trace "No au for " (:id  abstract-unit-ref)))))
+    (if (nil? id)
+      (log/trace "No au for " (:id  abstract-unit-ref))
+      {:unit_id unit-id :abstract_unit_id id})))
 
 (defn store-refs [db-con unit-id refs]
-  (doseq [r refs]
-    (store-unit-abstract-unit db-con unit-id r)))
+  (insert-all! db-con :unit_abstract_unit
+               (remove nil? (map #(store-unit-abstract-unit db-con unit-id %) refs))))
 
 (defn store-semesters [db-con unit-id semesters]
-  (doseq [s semesters]
-    (insert! db-con :unit_semester {:unit_id unit-id
-                                    :semester s})))
+  (insert-all! db-con :unit_semester (map
+                                       (fn [s] {:unit_id unit-id :semester s})
+                                       semesters)))
 
 (defn session-record [group-id session]
   (assert (= :session (:type session)))
@@ -33,7 +33,7 @@
 (defn store-group [db-con unit-id {:keys [half-semester type sessions]}]
   (assert (= :group type) type)
   (let [group-id (insert! db-con :groups {:unit_id unit-id :half_semester half-semester})
-        session-records (map (partial session-record group-id) sessions)]
+        session-records (map #(session-record group-id %) sessions)]
     (insert-all! db-con :sessions session-records)))
 
 (defn store-unit [db-con {:keys [type id title semester groups refs]}]
@@ -50,8 +50,7 @@
     (store-unit db-con u)))
 
 (defn persist-metadata [db-con md]
-  (doseq [[k v] md]
-    (insert! db-con :info  {:key (name k) :value v})))
+  (insert-all! db-con :info (map (fn [[k v]] {:key (name k) :value v}) md)))
 
 (defn store-stuff [db-con levels modules units]
   (persist-courses db-con levels modules)
@@ -70,10 +69,12 @@
                   (store-abstract-unit db-con module-id au) ; abstract unit not yet in the database
                   (:id au-rec))] ; abstract unit in the database
       ; link au with module and semester
-      (doseq [s (:semester au)]
-        (insert! db-con :modules_abstract_units_semesters {:abstract_unit_id au-id
-                                                           :module_id module-id
-                                                           :semester s}))
+      (insert-all! db-con
+                   :modules_abstract_units_semesters
+                   (map (fn [s] {:abstract_unit_id au-id
+                           :module_id module-id
+                           :semester s})
+                        (:semester au)))
       ; link au with module and type
       (insert! db-con :modules_abstract_units_types {:abstract_unit_id au-id
                                                      :module_id module-id
@@ -81,8 +82,8 @@
 
 (defmulti store-child (fn [child & args] (:type child)))
 
+; "Insert node into level table in db-con. Returns id of created record."
 (defmethod store-child :level [{:keys [min max min-cp max-cp name tm art children]} db-con parent-id course-id modules]
-  "Insert node into level table in db-con. Returns id of created record."
   (let [record {:parent_id         parent-id
                 :min               min
                 :max               max
@@ -99,13 +100,12 @@
 
 (defn link-course-module [db-con course-id module-id]
   ; If the module is associated to a different course we need to store that link
-  (if-not (course-module? db-con course-id module-id) ; course/module pair is
-                                                      ; not in the database yet,
-                                                      ; so store it.
-    (do
+  (when-not (course-module? db-con course-id module-id) ; course/module pair is
+                                                        ; not in the database yet,
+                                                        ; so store it.
       (log/trace "Adding existing module" module-id "to course" course-id)
       (insert! db-con :course_modules {:course_id course-id
-                                       :module_id module-id}))))
+                                       :module_id module-id})))
 
 (defmethod store-child :module [{:keys [name cp id pordnr mandatory]} db-con parent-id course-id modules]
   (log/trace "Module " (get modules id))
@@ -138,23 +138,39 @@
   (throw  (IllegalArgumentException. (str (:type child)))))
 
 
-(defn store-course-module-combination [db-con course-id course-module-map module-combination-id module-combination] ; discard module-combinations that have "empty" modules (i.e. modules without actual units)
+(defn store-single-module-combination [db-con course-id
+                                       course-module-map modules]
+  (let [bv (bitvector)]
+    (doseq [m modules]
+      (let [idx (get course-module-map m)]
+        (when (get-bit bv idx)
+          (log/error "Bit" idx "was already set"))
+        (set-bit! bv idx)))
+    (insert!
+      db-con :course_modules_combinations {:course_id course-id
+                                           :combination (get-bytes bv)})))
+
+
+(defn store-course-module-combination [db-con course-id
+                                       course-module-map module-combination] 
+  ; discard module-combinations that have "empty" modules (i.e. modules without actual units)
   (let [modules (map #(Integer/parseInt (:pordnr %)) module-combination)]
     (if (every? identity (map (fn [m] (contains? course-module-map m)) modules))
-      (doseq [m modules]
-             (let [record {:course_id course-id
-                           :combination_id module-combination-id
-                           :module_id (get course-module-map m)}]
-               (insert! db-con :course_modules_combinations record)))
+
+      (store-single-module-combination db-con course-id course-module-map modules)
+
       (log/trace "Discarding module combination for course " course-id modules))))
 
+
 (defn store-course-module-combinations [db-con course course-id]
-    (let [course-module-map (load-course-module-map db-con course-id)]
+    (let [; course-module-map maps from module pordnr to database id for all
+          ; modules in a course
+          course-module-map (load-course-module-map db-con course-id)]
       ; compute module combinations for course and store them to
-      ; course_module_combinations
+      ; the course_module_combinations table
       (doall
-        (map-indexed
-          (partial store-course-module-combination db-con course-id course-module-map)
+        (map
+          #(store-course-module-combination db-con course-id course-module-map %)
           (traverse-course course)))))
 
 (defn store-course [db-con c modules]
@@ -170,8 +186,10 @@
         levels (map (fn [l] (store-child l db-con nil parent-id modules)) children)]
     (log/trace {:kzfa kzfa :degree degree :course course :name name :po po})
     ; insert course-level/parent-id pairs into course_level table
-    (doseq [l levels]
-      (insert! db-con :course_levels {:course_id parent-id :level_id l}))
+    (dorun (insert-all! db-con :course_levels
+                        (map
+                          (fn [l] {:course_id parent-id :level_id l})
+                          levels)))
     (store-course-module-combinations db-con c parent-id)))
 
 (defn persist-courses [db-con levels modules]

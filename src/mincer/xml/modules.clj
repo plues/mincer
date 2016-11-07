@@ -21,12 +21,13 @@
 
 (defmulti tree-to-unit-map :tag)
 
-(defmethod tree-to-unit-map :session [{{:keys [day time duration rhythm]} :attrs}]
-  {:type     :session
-   :day      day
-   :time     (Integer/parseInt time)
-   :duration (Integer/parseInt duration)
-   :rhythm   (Integer/parseInt rhythm)})
+(defmethod tree-to-unit-map :session [{{:keys [day time duration rhythm tentative]} :attrs}]
+  {:type      :session
+   :day       day
+   :time      (Integer/parseInt time)
+   :duration  (Integer/parseInt duration)
+   :rhythm    (Integer/parseInt rhythm)
+   :tentative (boolean tentative)})
 
 (defmethod tree-to-unit-map :group [{{:keys [half-semester]} :attrs content :content}]
   {:type          :group
@@ -40,7 +41,7 @@
 (defmethod tree-to-unit-map :unit [{{:keys [id title semester]} :attrs content :content}]
   (let [children (map tree-to-unit-map content)
         group-filter (fn [x] (= :group (:type x)))
-        {:keys [group abstract-unit-ref]} (group-by #(:type %) children)]
+        {:keys [group abstract-unit-ref]} (group-by :type children)]
     {:type          :unit
      :id            (upper-case id)
      :title         title

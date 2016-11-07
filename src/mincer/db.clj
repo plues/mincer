@@ -5,7 +5,7 @@
     [clojure.java.jdbc :refer [with-db-transaction]]
     [clojure.tools.logging :as log]))
 
-(def mincer-version "1.0.0") ; updated with bumpversion
+(def mincer-version "2.0.0-SNAPSHOT") ; updated with bumpversion
 
 (defn setup-db [db-con]
   ; maybe use DDL for schema
@@ -76,10 +76,8 @@
                                (jdbc/create-table-ddl :course_modules_combinations
                                                       [[:id :integer "PRIMARY KEY" "AUTOINCREMENT"]
                                                        [:course_id "REFERENCES courses"]
-                                                       [:module_id "REFERENCES modules"]
-                                                       [:combination_id "INTEGER"]]) ; unique for each course; represents each combination in a course
+                                                       [:combination "BLOB"]])
                                "CREATE INDEX course_modules_combinations_course ON course_modules_combinations(course_id)"
-                               "CREATE INDEX course_modules_combinations_module ON course_modules_combinations(module_id)"
 
                                (jdbc/create-table-ddl :abstract_units
                                                       [[:id :integer "PRIMARY KEY" "AUTOINCREMENT"]
@@ -137,6 +135,7 @@
                                                        [:time :integer "NOT NULL"]
                                                        [:duration :integer "NOT NULL"]
                                                        [:rhythm :integer "NOT NULL"]
+                                                       [:tentative :integer "NOT NULL DEFAULT 0"]
                                                        [:created_at :datetime :default :current_timestamp]
                                                        [:updated_at :datetime :default :current_timestamp]])
                                "CREATE INDEX session_group_id ON sessions(group_id)"
@@ -149,7 +148,7 @@
                                "CREATE INDEX log_session_id ON log(session_id)"])
 
   (jdbc/insert! db-con :info {:key "schema_version"
-                              :value (str "v5.0")})
+                              :value (str "v6.1")})
   (jdbc/insert! db-con :info {:key "generator"
                               :value (str "mincer" "-" mincer-version)}))
 
@@ -187,7 +186,7 @@
 (defn course-module? [db-con course-id module-id]
   (let [records (jdbc/query db-con ["SELECT * FROM course_modules WHERE
                                     module_id = ? AND course_id = ?" course-id module-id])]
-    (> 0 (count records))))
+    (pos? (count records)))) ; true if we have a link between course and module
 
 (defn load-course-module-map [db-con course-id]
   (let [sql "SELECT modules.pordnr, modules.id FROM course_modules JOIN modules ON course_modules.module_id WHERE course_id = ?;"

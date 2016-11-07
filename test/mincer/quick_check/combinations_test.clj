@@ -136,7 +136,9 @@
   (create-course "Major 5" 15 "maj5" [level-8]))
 
 (deftest test-tree-5
-    (is (= (traverse-course course-5)
-      #{#{module-9 module-10} #{module-7 module-9 module-10} #{module-8 module-9 module-10}
-      #{module-7 module-8 module-9} #{module-7 module-8 module-10} #{module-8 module-10}
-      #{module-8 module-9} #{module-7 module-10} #{module-7 module-9}})))
+    (is (=
+      #{#{module-7 module-9 module-10}
+        #{module-8 module-9 module-10}
+        #{module-7 module-8 module-9}
+        #{module-7 module-8 module-10}}
+      (traverse-course course-5))))

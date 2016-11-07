@@ -62,7 +62,7 @@
       :error)
     (catch Exception e
         (invoke-soon
-          (->
+          (show!
             (frame
               :title "Error!"
               :content (scrollable
@@ -71,22 +71,21 @@
                     (let [sw (new java.io.StringWriter)
                           pw (new java.io.PrintWriter sw)]
                       (.printStackTrace e pw)
-                      (.toString sw))
+                      (str sw))
                   :multi-line? true
                   :wrap-lines? true
                   :tab-size 4
                   :rows 20
                   :editable? false))
               :size [600 :by 600]
-              :on-close :dispose)
-            show!))
+              :on-close :dispose)))
       :error)))
 
 
 ; heler functions
 (defn any-file-chosen? [] (boolean (or @tree-file @data-file)))
 
-(def save-button)
+(declare save-button)
 (defn disable-save []
   (config! save-button :enabled? false))
 
@@ -163,14 +162,16 @@
     :title ::frame-title,
     :content (top-bottom-split
                (grid-panel
-                 :rows 4
-                 :size [600 :by 320]
+                 :rows 5
+                 :size [600 :by 400]
                  :columns 2
-                 :hgap 10
-                 :vgap 10
+                 :hgap 0
+                 :vgap 0
                  :items
-                   [(label ::file-select)
+                   [(label ::mincer)
                     (label :icon logo)
+                    (label ::file-select)
+                    (label "2.0.0-SNAPSHOT") ; managed by bumpversion
                     meta-button
                     meta-text
                     source-button
@@ -180,7 +181,7 @@
                ; bottom logging textarea
                (scrollable textarea :size [600 :by 250]))
     :on-close :exit
-    :size [600 :by 570]
+    :size [600 :by 650]
     :resizable? false))
 
 (defn log-message [ev]
@@ -203,5 +204,5 @@
 (defn start-ui []
   (native!)
   (setup-logger)
-  (invoke-later
-    (-> my-frame show!)))
+  (invoke-now
+    (show! my-frame)))

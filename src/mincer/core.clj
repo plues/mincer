@@ -42,7 +42,8 @@
   (let [data (modules/process module-data)
         tree (tree/process module-tree)
         db (persist tree (:modules data) (:units data))]
-    (copy (as-file db) (as-file target))
+    (dorun
+      (copy (as-file db) (as-file target)))
     (log/info "Created database" (str target))))
 
 (defn start-gui []
@@ -60,8 +61,13 @@
     (cond
       (:help options) (usage summary)
       errors (error-msg errors)
-      (not-any? nil? [module-tree module-data output]) (start-cli module-tree module-data output)
-      true (start-gui))))
+      (not-any? nil? [module-tree module-data output])
+        (do
+          (start-cli module-tree module-data output)
+          (log/debug "Shutting down agents")
+          (shutdown-agents))
+      true (start-gui))
+    ))
 
 
 (defn process-data []

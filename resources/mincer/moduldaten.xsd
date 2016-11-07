@@ -93,11 +93,12 @@
             <xs:enumeration value="0"/> <!-- Weekly -->
             <xs:enumeration value="1"/> <!-- Biweekly on even number calendar weeks. -->
             <xs:enumeration value="2"/> <!-- Biweekly on odd number calendar weeks. -->
-              <xs:enumeration value="3"/> <!-- Block -->
+            <xs:enumeration value="3"/> <!-- Block -->
           </xs:restriction>
         </xs:simpleType>
       </xs:attribute>
       <xs:attribute name="time" use="required" type="xs:positiveInteger"/>
+      <xs:attribute name="tentative" use="optional" type="xs:boolean" />
     </xs:complexType>
   </xs:element>
   <xs:element name="abstract-unit">
