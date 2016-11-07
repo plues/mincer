@@ -5,7 +5,7 @@
     [clojure.java.jdbc :refer [with-db-transaction]]
     [clojure.tools.logging :as log]))
 
-(def mincer-version "2.0.0") ; updated with bumpversion
+(def mincer-version "2.1.0-SNAPSHOT") ; updated with bumpversion
 
 (defn setup-db [db-con]
   ; maybe use DDL for schema
