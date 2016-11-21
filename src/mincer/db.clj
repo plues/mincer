@@ -7,6 +7,8 @@
 
 (def mincer-version "2.1.0-SNAPSHOT") ; updated with bumpversion
 
+(defn now [] (new java.util.Date))
+
 (defn setup-db [db-con]
   ; maybe use DDL for schema
   (jdbc/db-do-commands  db-con [(jdbc/create-table-ddl :info
@@ -150,7 +152,9 @@
   (jdbc/insert! db-con :info {:key "schema_version"
                               :value (str "v6.1")})
   (jdbc/insert! db-con :info {:key "generator"
-                              :value (str "mincer" "-" mincer-version)}))
+                              :value (str "mincer" "-" mincer-version)})
+  (jdbc/insert! db-con :info {:key "generated"
+                              :value (str (now))}))
 
 (defn insert! [db-con table rec]
   (log/debug "Saving to" table rec)
