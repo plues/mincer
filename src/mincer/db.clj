@@ -5,7 +5,9 @@
     [clojure.java.jdbc :refer [with-db-transaction]]
     [clojure.tools.logging :as log]))
 
-(def mincer-version "2.0.0") ; updated with bumpversion
+(def mincer-version "2.1.0") ; updated with bumpversion
+
+(defn now [] (new java.util.Date))
 
 (defn setup-db [db-con]
   ; maybe use DDL for schema
@@ -150,7 +152,9 @@
   (jdbc/insert! db-con :info {:key "schema_version"
                               :value (str "v6.1")})
   (jdbc/insert! db-con :info {:key "generator"
-                              :value (str "mincer" "-" mincer-version)}))
+                              :value (str "mincer" "-" mincer-version)})
+  (jdbc/insert! db-con :info {:key "generated"
+                              :value (str (now))}))
 
 (defn insert! [db-con table rec]
   (log/debug "Saving to" table rec)
