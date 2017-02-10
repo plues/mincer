@@ -100,10 +100,11 @@
 
 (defn link-course-module [db-con course-id module-id]
   ; If the module is associated to a different course we need to store that link
+  (log/trace "link-course-module course-id: "course-id " module-id: " module-id)
   (when-not (course-module? db-con course-id module-id) ; course/module pair is
                                                         ; not in the database yet,
                                                         ; so store it.
-      (log/trace "Adding existing module" module-id "to course" course-id)
+      (log/debug "Adding existing module" module-id "to course" course-id)
       (insert! db-con :course_modules {:course_id course-id
                                        :module_id module-id})))
 
@@ -111,6 +112,7 @@
   (log/trace "Module " (get modules id))
   (if-let [module-from-db (:id (module-by-pordnr db-con pordnr))]
     (do
+      (log/debug "Module " pordnr "already in the database (ID: " module-from-db ")")
       ; module is already in database
       ; if module is already in database we assume that this is another path to it
       (insert! db-con :module_levels {:module_id module-from-db :level_id parent-id})
