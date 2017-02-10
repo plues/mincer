@@ -5,7 +5,7 @@
     [clojure.java.jdbc :refer [with-db-transaction]]
     [clojure.tools.logging :as log]))
 
-(def mincer-version "2.1.0") ; updated with bumpversion
+(def mincer-version "2.1.1") ; updated with bumpversion
 
 (defn now [] (new java.util.Date))
 
@@ -189,7 +189,8 @@
 
 (defn course-module? [db-con course-id module-id]
   (let [records (jdbc/query db-con ["SELECT * FROM course_modules WHERE
-                                    module_id = ? AND course_id = ?" course-id module-id])]
+                                    course_id = ? AND module_id = ?" course-id module-id])]
+    (log/debug records)
     (pos? (count records)))) ; true if we have a link between course and module
 
 (defn load-course-module-map [db-con course-id]
