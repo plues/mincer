@@ -60,9 +60,19 @@
   (log/trace "Ignoring" tag)
   [])
 
+(defn validate-modules [xml]
+  (let [modules (group-by (fn [node] (-> node :attrs :pordnr)) 
+                          (filter (fn [node] (= :m (:tag node)))
+                                  (tree-seq (fn [node] (not (= :m (:tag node))))
+                                  (fn [node] (:content node))
+                                  xml)))]
+      (doseq [[pordnr values] modules]
+        (when (not (apply = values))
+          (set! errors true)
+          (log/error "Attributes of modules with pordnr" pordnr "differ (maybe a copy-paste error?)")))))
 (defn validate-values [xml]
   (binding [errors false]
     (validate xml)
+    (validate-modules xml)
     (if errors
       (throw (IllegalArgumentException. "Module tree contains validation errors.")))))
-
