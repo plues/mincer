@@ -67,7 +67,7 @@
                                   (fn [node] (:content node))
                                   xml)))]
       (doseq [[pordnr values] modules]
-        (when (not (apply = values))
+        (when (not (apply = (map #(:name %) (map #(:attrs %) values))))
           (set! errors true)
           (log/error "Attributes of modules with pordnr" pordnr "differ (maybe a copy-paste error?)")))))
 (defn validate-values [xml]
