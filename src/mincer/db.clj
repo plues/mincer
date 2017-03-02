@@ -51,7 +51,9 @@
 
                                (jdbc/create-table-ddl :course_modules
                                                       [[:course_id "NOT NULL" "REFERENCES courses"]
-                                                       [:module_id "NOT NULL" "REFERENCES modules"]])
+                                                       [:module_id "NOT NULL" "REFERENCES modules"]
+                                                       [:mandatory :boolean]
+                                                       [:credit_points :integer :default "NULL"]])
                                "CREATE INDEX course_module_course ON course_modules(course_id)"
                                "CREATE INDEX course_module_module ON course_modules(module_id)"
 
@@ -62,9 +64,7 @@
                                                        [:name :string "NOT NULL"] ; from module tree
                                                        [:title  :string]          ; from moduel data
                                                        [:pordnr :integer "UNIQUE"]
-                                                       [:mandatory :boolean]
                                                        [:elective_units :integer]
-                                                       [:credit_points :integer :default "NULL"]
                                                        [:created_at :datetime :default :current_timestamp]
                                                        [:updated_at :datetime :default :current_timestamp]])
 
@@ -151,7 +151,7 @@
                                "CREATE INDEX log_session_id ON log(session_id)"])
 
   (jdbc/insert! db-con :info {:key "schema_version"
-                              :value (str "v6.2")})
+                              :value (str "v7.0")})
   (jdbc/insert! db-con :info {:key "generator"
                               :value (str "mincer" "-" mincer-version)})
   (jdbc/insert! db-con :info {:key "generated"
