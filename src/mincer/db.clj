@@ -59,13 +59,12 @@
                                                       [[:id :integer "PRIMARY KEY" "AUTOINCREMENT"]
                                                        [:key :string "NOT NULL"]
                                                        ; XXX consider discarding one of both
-                                                       [:name :string "NOT NULL"]
-                                                       [:title  :string]
+                                                       [:name :string "NOT NULL"] ; from module tree
+                                                       [:title  :string]          ; from moduel data
                                                        [:pordnr :integer "UNIQUE"]
                                                        [:mandatory :boolean]
                                                        [:elective_units :integer]
                                                        [:credit_points :integer :default "NULL"]
-                                                       ; XXX do we a direct link to the course?
                                                        [:created_at :datetime :default :current_timestamp]
                                                        [:updated_at :datetime :default :current_timestamp]])
 
