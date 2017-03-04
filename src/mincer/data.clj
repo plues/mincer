@@ -98,7 +98,7 @@
     ; return the id of the created record
     parent-id))
 
-(defn link-course-module [db-con course-id module-id]
+(defn link-course-module [db-con course-id module-id mandatory credit-points]
   ; If the module is associated to a different course we need to store that link
   (log/trace "link-course-module course-id: "course-id " module-id: " module-id)
   (when-not (course-module? db-con course-id module-id) ; course/module pair is
@@ -106,7 +106,9 @@
                                                         ; so store it.
       (log/debug "Adding existing module" module-id "to course" course-id)
       (insert! db-con :course_modules {:course_id course-id
-                                       :module_id module-id})))
+                                       :module_id module-id
+                                       :mandatory mandatory
+                                       :credit_points credit-points})))
 
 (defmethod store-child :module [{:keys [name cp id pordnr mandatory]} db-con parent-id course-id modules]
   (log/trace "Module " (get modules id))
@@ -117,20 +119,22 @@
       ; if module is already in database we assume that this is another path to it
       (insert! db-con :module_levels {:module_id module-from-db :level_id parent-id})
       ; check and link course and module
-      (link-course-module db-con course-id module-from-db)
+      (link-course-module db-con course-id module-from-db mandatory cp)
       module-from-db)
     (let [{:keys [title abstract-units course key elective-units]} (get modules id)
-          record {:mandatory      mandatory
-                  :elective_units elective-units
+          record {:elective_units elective-units
                   :key            key
-                  :credit_points  cp; xxx this is nil for some reason
                   :name           name}]
       (log/trace "Title type " (type title))
       (if-not (nil? title) ; NOTE: or use something else to detect a valid record
         ; merge both module records
         (let [extended-record (merge record {:pordnr pordnr :title title})
               module-id (insert! db-con :modules extended-record)]
-          (insert! db-con :course_modules {:course_id course-id :module_id module-id})
+          (insert! db-con :course_modules {:course_id course-id
+                                           :module_id module-id
+                                           :mandatory mandatory
+                                           ; xxx this is nil for some reason})
+                                           :credit_points  cp})
           (insert! db-con :module_levels {:module_id module-id :level_id parent-id})
           (store-abstract-units db-con module-id abstract-units)
           ; return the id of the created record
