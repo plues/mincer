@@ -189,6 +189,6 @@
       (first records))))
 
 (defn load-course-module-map [db-con course-id]
-  (let [sql "SELECT modules.pordnr, modules.id FROM module_levels JOIN modules ON module_levels.module_id WHERE course_id = ?;"
+  (let [sql "SELECT DISTINCT modules.pordnr, modules.id FROM module_levels JOIN modules ON module_levels.module_id WHERE course_id = ?;"
         res (jdbc/query db-con [sql course-id])]
     (into {} (map (fn [{:keys [pordnr id]}] [pordnr id]) res))))
