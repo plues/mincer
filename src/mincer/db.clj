@@ -48,29 +48,29 @@
                                                        [:level_id "NOT NULL" "REFERENCES levels"]])
                                "CREATE INDEX course_level_course ON course_levels(course_id)"
                                "CREATE INDEX course_level_level ON course_levels(level_id)"
-
-                               (jdbc/create-table-ddl :course_modules
-                                                      [[:course_id "NOT NULL" "REFERENCES courses"]
-                                                       [:module_id "NOT NULL" "REFERENCES modules"]
-                                                       [:mandatory :boolean]
-                                                       [:credit_points :integer :default "NULL"]])
-                               "CREATE INDEX course_module_course ON course_modules(course_id)"
-                               "CREATE INDEX course_module_module ON course_modules(module_id)"
+                               
 
                                (jdbc/create-table-ddl :modules
                                                       [[:id :integer "PRIMARY KEY" "AUTOINCREMENT"]
                                                        [:key :string "NOT NULL"]
                                                        ; XXX consider discarding one of both
-                                                       [:name :string "NOT NULL"] ; from module tree
-                                                       [:title  :string]          ; from moduel data
+                                                       [:title  :string]          ; from module data
                                                        [:pordnr :integer "UNIQUE"]
                                                        [:elective_units :integer]
                                                        [:created_at :datetime :default :current_timestamp]
                                                        [:updated_at :datetime :default :current_timestamp]])
 
                               (jdbc/create-table-ddl :module_levels
-                                                      [[:module_id "NOT NULL" "REFERENCES modules"]
-                                                       [:level_id "NOT NULL" "REFERENCES levels"]])
+                                                      [[:id :integer "PRIMARY KEY" "AUTOINCREMENT"]
+                                                       [:module_id "NOT NULL" "REFERENCES modules"]
+                                                       [:level_id "NOT NULL" "REFERENCES levels"]
+                                                       [:course_id "NOT NULL" "REFERENCES courses"] ; link to root
+                                                       [:name :string "NOT NULL"] ; from module tree
+                                                       [:mandatory :boolean]
+                                                       [:credit_points :integer :default "NULL"]
+                                                       [:created_at :datetime :default :current_timestamp]
+                                                       [:updated_at :datetime :default :current_timestamp]])
+                                                       
                               "CREATE INDEX module_levels_module ON module_levels(module_id)"
                               "CREATE INDEX module_levels_level ON module_levels(level_id)"
 
@@ -188,13 +188,7 @@
     (when (= 1 (count records))
       (first records))))
 
-(defn course-module? [db-con course-id module-id]
-  (let [records (jdbc/query db-con ["SELECT * FROM course_modules WHERE
-                                    course_id = ? AND module_id = ?" course-id module-id])]
-    (log/debug records)
-    (pos? (count records)))) ; true if we have a link between course and module
-
 (defn load-course-module-map [db-con course-id]
-  (let [sql "SELECT modules.pordnr, modules.id FROM course_modules JOIN modules ON course_modules.module_id WHERE course_id = ?;"
+  (let [sql "SELECT modules.pordnr, modules.id FROM module_levels JOIN modules ON module_levels.module_id WHERE course_id = ?;"
         res (jdbc/query db-con [sql course-id])]
     (into {} (map (fn [{:keys [pordnr id]}] [pordnr id]) res))))
