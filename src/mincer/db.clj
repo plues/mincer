@@ -5,7 +5,7 @@
     [clojure.java.jdbc :refer [with-db-transaction]]
     [clojure.tools.logging :as log]))
 
-(def mincer-version "2.1.1") ; updated with bumpversion
+(def mincer-version "2.2.0") ; updated with bumpversion
 
 (defn now [] (new java.util.Date))
 
@@ -59,13 +59,12 @@
                                                       [[:id :integer "PRIMARY KEY" "AUTOINCREMENT"]
                                                        [:key :string "NOT NULL"]
                                                        ; XXX consider discarding one of both
-                                                       [:name :string "NOT NULL"]
-                                                       [:title  :string]
+                                                       [:name :string "NOT NULL"] ; from module tree
+                                                       [:title  :string]          ; from moduel data
                                                        [:pordnr :integer "UNIQUE"]
                                                        [:mandatory :boolean]
                                                        [:elective_units :integer]
                                                        [:credit_points :integer :default "NULL"]
-                                                       ; XXX do we a direct link to the course?
                                                        [:created_at :datetime :default :current_timestamp]
                                                        [:updated_at :datetime :default :current_timestamp]])
 
@@ -144,13 +143,15 @@
 
                                 (jdbc/create-table-ddl :log
                                                       [[:session_id :integer "NOT NULL" "REFERENCES sessions"]
-                                                       [:src :string]
-                                                       [:target :string]
+                                                       [:srcDay :string]
+                                                       [:srcTime :integer]
+                                                       [:targetDay :string]
+                                                       [:targetTime :integer]
                                                        [:created_at :datetime :default :current_timestamp]])
                                "CREATE INDEX log_session_id ON log(session_id)"])
 
   (jdbc/insert! db-con :info {:key "schema_version"
-                              :value (str "v6.1")})
+                              :value (str "v6.2")})
   (jdbc/insert! db-con :info {:key "generator"
                               :value (str "mincer" "-" mincer-version)})
   (jdbc/insert! db-con :info {:key "generated"
