@@ -10,7 +10,7 @@ notification:
 language: clojure
 lein: lein
 before_install:
-- rvm install 2.2.0
+- rvm install 2.3.0-SNAPSHOT
 - gem install travis-custom-deploy
 before_script:
 - sh -e /etc/init.d/xvfb start
@@ -24,7 +24,7 @@ script:
   - lein launch4j
 
 after_success:
-- travis-custom-deploy sftp target/mincer-2.2.0-standalone.jar target/mincer-2.2.0.exe
+- travis-custom-deploy sftp target/mincer-2.3.0-SNAPSHOT-standalone.jar target/mincer-2.3.0-SNAPSHOT.exe
 env:
   global:
   - DISPLAY=:99.0
