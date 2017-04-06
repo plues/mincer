@@ -142,7 +142,8 @@
                                "CREATE INDEX session_group_id ON sessions(group_id)"
 
                                 (jdbc/create-table-ddl :log
-                                                      [[:session_id :integer "NOT NULL" "REFERENCES sessions"]
+                                                      [[:id :integer "PRIMARY KEY" "AUTOINCREMENT"]
+                                                       [:session_id :integer "NOT NULL" "REFERENCES sessions"]
                                                        [:srcDay :string]
                                                        [:srcTime :integer]
                                                        [:targetDay :string]
