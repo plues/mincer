@@ -5,7 +5,7 @@
     [clojure.java.jdbc :refer [with-db-transaction]]
     [clojure.tools.logging :as log]))
 
-(def mincer-version "2.3.0-SNAPSHOT") ; updated with bumpversion
+(def mincer-version "2.3.0") ; updated with bumpversion
 
 (defn now [] (new java.util.Date))
 
