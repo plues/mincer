@@ -5,7 +5,7 @@
     [clojure.tools.logging :as log]
     [mincer.module-combinations :refer [traverse-course]]
     [mincer.bitvector :refer [bitvector set-bit! get-bytes get-bit]]
-    [mincer.db :refer [ abstract-unit-by-key course-module?  insert!
+    [mincer.db :refer [abstract-unit-by-key insert!
                        insert-all!  load-course-module-map module-by-pordnr
                        run-on-db setup-db ]]))
 
@@ -97,44 +97,42 @@
       (store-child l db-con parent-id course-id modules))
     ; return the id of the created record
     parent-id))
-
-(defn link-course-module [db-con course-id module-id]
-  ; If the module is associated to a different course we need to store that link
-  (log/trace "link-course-module course-id: "course-id " module-id: " module-id)
-  (when-not (course-module? db-con course-id module-id) ; course/module pair is
-                                                        ; not in the database yet,
-                                                        ; so store it.
-      (log/debug "Adding existing module" module-id "to course" course-id)
-      (insert! db-con :course_modules {:course_id course-id
-                                       :module_id module-id})))
-
+    
+    
+(defn store-module [db-con modules id pordnr]
+  (let [{:keys [title abstract-units course key elective-units]} (get modules id)
+        record {:elective_units elective-units
+                :key            key}]
+    (log/trace "Title type " (type title))
+    (if-not (nil? title) ; NOTE: or use something else to detect a valid record
+      ; merge both module records
+      (let [extended-record (merge record {:pordnr pordnr :title title})
+            module-id (insert! db-con :modules extended-record)]
+        (store-abstract-units db-con module-id abstract-units)
+        ; return the id of the created record
+        module-id))))
+  
+    
 (defmethod store-child :module [{:keys [name cp id pordnr mandatory]} db-con parent-id course-id modules]
   (log/trace "Module " (get modules id))
-  (if-let [module-from-db (:id (module-by-pordnr db-con pordnr))]
-    (do
-      (log/debug "Module " pordnr "already in the database (ID: " module-from-db ")")
-      ; module is already in database
-      ; if module is already in database we assume that this is another path to it
-      (insert! db-con :module_levels {:module_id module-from-db :level_id parent-id})
-      ; check and link course and module
-      (link-course-module db-con course-id module-from-db)
-      module-from-db)
-    (let [{:keys [title abstract-units course key elective-units]} (get modules id)
-          record {:mandatory      mandatory
-                  :elective_units elective-units
-                  :key            key
-                  :credit_points  cp; xxx this is nil for some reason
-                  :name           name}]
-      (log/trace "Title type " (type title))
-      (if-not (nil? title) ; NOTE: or use something else to detect a valid record
-        ; merge both module records
-        (let [extended-record (merge record {:pordnr pordnr :title title})
-              module-id (insert! db-con :modules extended-record)]
-          (insert! db-con :course_modules {:course_id course-id :module_id module-id})
-          (insert! db-con :module_levels {:module_id module-id :level_id parent-id})
-          (store-abstract-units db-con module-id abstract-units)
-          ; return the id of the created record
-          module-id)))))
+  ; if module is already in database we assume that this is another path to it
+  (let [module-id (if-let [module-from-db (module-by-pordnr db-con pordnr)]
+                            (:id module-from-db) 
+                            (store-module db-con modules id pordnr))]
+    ; if the module exists (was found or was created)
+    (when-not (nil? module-id) 
+      ; create module level entry 
+      ; link module and tree
+      (log/trace "store-child :module module-id: " module-id " course-id: " course-id)
+      (insert! db-con :module_levels {:module_id     module-id    
+                                      :level_id      parent-id
+                                      :course_id     course-id ; shortcut to the tree's root
+                                      :mandatory     mandatory
+                                      :name          name
+                                      :credit_points cp}))
+      ; return the id of the created record
+      module-id))
+  
 
 (defmethod store-child :default [child & args]
   (throw  (IllegalArgumentException. (str (:type child)))))
