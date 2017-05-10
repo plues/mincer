@@ -18,4 +18,4 @@
   :launch4j-config-file "config.xml"
   :launch4j-install-dir ~(System/getenv "LAUNCH4J_INSTALL_DIR")
   :main mincer.core
-  :aot [mincer.core])
+  :aot :all)
