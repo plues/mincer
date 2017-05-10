@@ -10,7 +10,7 @@ notification:
 language: clojure
 lein: lein
 before_install:
-- rvm install 2.5.0-SNAPSHOT
+- rvm install 2.4.1
 - gem install travis-custom-deploy
 before_script:
 - sh -e /etc/init.d/xvfb start
