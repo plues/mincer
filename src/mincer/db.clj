@@ -5,7 +5,7 @@
     [clojure.java.jdbc :refer [with-db-transaction]]
     [clojure.tools.logging :as log]))
 
-(def mincer-version "2.3.0") ; updated with bumpversion
+(def mincer-version "2.4.0") ; updated with bumpversion
 
 (defn now [] (new java.util.Date))
 
@@ -142,7 +142,8 @@
                                "CREATE INDEX session_group_id ON sessions(group_id)"
 
                                 (jdbc/create-table-ddl :log
-                                                      [[:session_id :integer "NOT NULL" "REFERENCES sessions"]
+                                                      [[:id :integer "PRIMARY KEY" "AUTOINCREMENT"]
+                                                       [:session_id :integer "NOT NULL" "REFERENCES sessions"]
                                                        [:srcDay :string]
                                                        [:srcTime :integer]
                                                        [:targetDay :string]
@@ -151,7 +152,7 @@
                                "CREATE INDEX log_session_id ON log(session_id)"])
 
   (jdbc/insert! db-con :info {:key "schema_version"
-                              :value (str "v7.0")})
+                              :value (str "v7.1")})
   (jdbc/insert! db-con :info {:key "generator"
                               :value (str "mincer" "-" mincer-version)})
   (jdbc/insert! db-con :info {:key "generated"

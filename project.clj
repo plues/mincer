@@ -1,4 +1,4 @@
-(defproject mincer "2.3.0"
+(defproject mincer "2.4.0"
   :description "Tool to create a SQLite database from PlüS module tree and data XML files."
   :url "https://github.com/plues/mincer"
   :license {:name "Eclipse Public License"
@@ -17,5 +17,5 @@
             [lein-launch4j "0.1.2"]]
   :launch4j-config-file "config.xml"
   :launch4j-install-dir ~(System/getenv "LAUNCH4J_INSTALL_DIR")
-  :main mincer.core
-  :aot [mincer.core])
+  :profiles {:uberjar {:aot :all}}
+  :main mincer.core)
