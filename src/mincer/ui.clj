@@ -171,7 +171,7 @@
                    [(label ::mincer)
                     (label :icon logo)
                     (label ::file-select)
-                    (label "2.4.0") ; managed by bumpversion
+                    (label "2.5.0-SNAPSHOT") ; managed by bumpversion
                     meta-button
                     meta-text
                     source-button
