@@ -48,7 +48,7 @@
                                                        [:level_id "NOT NULL" "REFERENCES levels"]])
                                "CREATE INDEX course_level_course ON course_levels(course_id)"
                                "CREATE INDEX course_level_level ON course_levels(level_id)"
-                               
+
 
                                (jdbc/create-table-ddl :modules
                                                       [[:id :integer "PRIMARY KEY" "AUTOINCREMENT"]
@@ -70,7 +70,7 @@
                                                        [:credit_points :integer :default "NULL"]
                                                        [:created_at :datetime :default :current_timestamp]
                                                        [:updated_at :datetime :default :current_timestamp]])
-                                                       
+
                               "CREATE INDEX module_levels_module ON module_levels(module_id)"
                               "CREATE INDEX module_levels_level ON module_levels(level_id)"
 
@@ -152,7 +152,7 @@
                                "CREATE INDEX log_session_id ON log(session_id)"])
 
   (jdbc/insert! db-con :info {:key "schema_version"
-                              :value (str "v7.1")})
+                              :value (str "8")}) ; NOTE: make sure this stays an integer
   (jdbc/insert! db-con :info {:key "generator"
                               :value (str "mincer" "-" mincer-version)})
   (jdbc/insert! db-con :info {:key "generated"
