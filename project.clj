@@ -17,5 +17,4 @@
             [lein-launch4j "0.1.2"]]
   :launch4j-config-file "config.xml"
   :launch4j-install-dir ~(System/getenv "LAUNCH4J_INSTALL_DIR")
-  :main mincer.core
-  :aot :all)
+  :main mincer.core)
