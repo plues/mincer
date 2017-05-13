@@ -31,12 +31,12 @@
      :art      ART
      :children children}))
 
-(defmethod parse-tree :minors [{{:keys [TM ART]} :attrs content :content}]
+(defmethod parse-tree :minors [{content :content}]
   (let [children  (remove nil? (pmap parse-tree content))]
     {:type     :minors
      :children children}))
 
-(defmethod parse-tree :minor [{{:keys [stg kzfa TM ART]} :attrs content :content}]
+(defmethod parse-tree :minor [{{:keys [stg kzfa]} :attrs content :content}]
     {:type :minor
      :stg  stg
      :kzfa kzfa})
