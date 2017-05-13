@@ -131,7 +131,7 @@
 
                                  (jdbc/create-table-ddl :sessions
                                                       [[:id :integer "PRIMARY KEY" "AUTOINCREMENT"]
-                                                       [:group_id :integer "NOT NULL" "REFERENCES groups"]
+                                                       [:group_id :integer "NOT NULL" "REFERENCES courses"]
                                                        [:day :string "NOT NULL"]
                                                        [:time :integer "NOT NULL"]
                                                        [:duration :integer "NOT NULL"]
@@ -140,6 +140,15 @@
                                                        [:created_at :datetime :default :current_timestamp]
                                                        [:updated_at :datetime :default :current_timestamp]])
                                "CREATE INDEX session_group_id ON sessions(group_id)"
+
+                                 (jdbc/create-table-ddl :minors
+                                                      [[:id :integer "PRIMARY KEY" "AUTOINCREMENT"]
+                                                       [:course_id :integer "NOT NULL" "REFERENCES courses"]
+                                                       [:stg :string "NOT NULL"]
+                                                       [:kzfa :string "NOT NULL"]
+                                                       [:created_at :datetime :default :current_timestamp]
+                                                       [:updated_at :datetime :default :current_timestamp]])
+                               "CREATE INDEX minor_course_id ON minors(course_id)"
 
                                 (jdbc/create-table-ddl :log
                                                       [[:id :integer "PRIMARY KEY" "AUTOINCREMENT"]
