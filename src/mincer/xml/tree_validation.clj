@@ -44,16 +44,31 @@
   (log/trace l)
   ; validate mixed l and m tags in levels
   ; checking if content containts l and m tags 
-  (if (subset? #{:l :m} (set (map :tag (:content l))))
+  (if (clojure.set/subset? #{:l :m} (set (map :tag (:content l))))
     (do
       (set! errors true)
       (log/error "level containts l and m tags as children in level " (-> l :attrs :name))))
   (flatten (map validate (:content l))))
 
+(defmethod validate :minors [minors]
+  (log/trace (:tag minors))
+  ; only minor tags
+  (if (not (= #{:minor} (set (map :tag (:content minors)))))
+    (log/error "Tag 'minors' can only contain minor-Tags."))
+  (flatten (map validate (:content minors))))
+
+(defmethod validate :minor [minor]
+  (log/trace (:tag minor))
+  (let [stg (-> minor :attrs :stg)
+        kzfa (-> minor :attrs :kzfa)]
+    (do (when (nil? stg) (log/error "Missing 'stg' in minor tag."))
+        (when (nil? kzfa) (log/error "Missing 'kzfa' in minor tag."))
+        (when (not (= kzfa "N")) (log/error "Attribute 'kzfa' in minor tag has to be 'N'.")))))
+
 (defmethod validate :m [m]
   (log/trace (:tag m))
   (let [pordnr (-> m :attrs :pordnr)]
-    (when (nil? pordnr) (log/warn "pordnr missing " (-> m :attrs :name)))
+    (when (nil? pordnr) (log/error "pordnr missing " (-> m :attrs :name)))
     pordnr))
 
 (defmethod validate :default [tag]
