@@ -1,7 +1,8 @@
 (ns mincer.xml.tree-test
   (:require [clojure.test :refer :all]
             [mincer.xml.tree-test-data :refer :all]
-            [mincer.xml.tree :refer :all]))
+            [mincer.xml.tree :refer :all]
+            [mincer.xml.tree-validation :refer :all]))
 
 (def result-module {:type :module
                     :name "Logik I"
@@ -86,8 +87,8 @@
 (deftest test-validate-b-tag-with-minors
   (validate b-tag-with-minors)
   (validate {:tag :minors, :attrs nil, :content [{:tag :minor, :attrs {:kzfa "N", :stg "phy"}, :content nil} {:tag :minor, :attrs {:kzfa "N", :stg "bio"}, :content nil} {:tag :minor, :attrs {:kzfa "N", :stg "che"}, :content nil} {:tag :minor, :attrs {:kzfa "N", :stg "mat"}, :content nil} {:tag :minor, :attrs {:kzfa "N", :stg "psy"}, :content nil}]})
-  (not (validate {:tag :minors, :attrs nil, :content [{:tag :minor, :attrs {:kzfa "N", :stg "phy"}, :content nil} {:tag :minor, :attrs {:kzfa "N", :stg "bio"}, :content nil} {:tag :minor, :attrs {:kzfa "H", :stg "che"}, :content nil} {:tag :minor, :attrs {:kzfa "N", :stg "mat"}, :content nil} {:tag :minor, :attrs {:kzfa "N", :stg "psy"}, :content nil}]})))
-  (not (validate {:tag :minors, :attrs nil, :content [{:tag :minor, :attrs {:kzfa "N"}, :content nil} {:tag :minor, :attrs {:stg "bio"}, :content nil} {:tag :minor, :attrs {:kzfa "N", :stg "che"}, :content nil} {:tag :minor, :attrs {:kzfa "N", :stg "mat"}, :content nil} {:tag :minor, :attrs {:kzfa "H", :stg "psy"}, :content nil}]})))
+  (not (validate {:tag :minors, :attrs nil, :content [{:tag :minor, :attrs {:kzfa "N", :stg "phy"}, :content nil} {:tag :minor, :attrs {:kzfa "N", :stg "bio"}, :content nil} {:tag :minor, :attrs {:kzfa "H", :stg "che"}, :content nil} {:tag :minor, :attrs {:kzfa "N", :stg "mat"}, :content nil} {:tag :minor, :attrs {:kzfa "N", :stg "psy"}, :content nil}]}))
+  (not (validate {:tag :minors, :attrs nil, :content [{:tag :minor, :attrs {:kzfa "N"}, :content nil} {:tag :minor, :attrs {:stg "bio"}, :content nil} {:tag :minor, :attrs {:kzfa "N", :stg "che"}, :content nil} {:tag :minor, :attrs {:kzfa "N", :stg "mat"}, :content nil} {:tag :minor, :attrs {:kzfa "H", :stg "psy"}, :content nil}]}))
   (not (validate {:tag :minors, :attrs nil, :content [{:tag :minor, :attrs {:kzfa "N" :stg "phy"}, :content nil} {:tag :minor, :attrs {}, :content nil} ]})))
 
 (deftest test-validate-b-tag
