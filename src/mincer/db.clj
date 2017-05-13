@@ -161,7 +161,7 @@
                                "CREATE INDEX log_session_id ON log(session_id)"])
 
   (jdbc/insert! db-con :info {:key "schema_version"
-                              :value (str "8")}) ; NOTE: make sure this stays an integer
+                              :value (str "9")}) ; NOTE: make sure this stays an integer
   (jdbc/insert! db-con :info {:key "generator"
                               :value (str "mincer" "-" mincer-version)})
   (jdbc/insert! db-con :info {:key "generated"
