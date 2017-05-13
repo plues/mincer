@@ -131,7 +131,7 @@
 
                                  (jdbc/create-table-ddl :sessions
                                                       [[:id :integer "PRIMARY KEY" "AUTOINCREMENT"]
-                                                       [:group_id :integer "NOT NULL" "REFERENCES courses"]
+                                                       [:group_id :integer "NOT NULL" "REFERENCES groups"]
                                                        [:day :string "NOT NULL"]
                                                        [:time :integer "NOT NULL"]
                                                        [:duration :integer "NOT NULL"]
