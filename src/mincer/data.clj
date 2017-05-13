@@ -97,8 +97,7 @@
       (store-child l db-con parent-id course-id modules))
     ; return the id of the created record
     parent-id))
-    
-    
+
 (defn store-module [db-con modules id pordnr]
   (let [{:keys [title abstract-units course key elective-units]} (get modules id)
         record {:elective_units elective-units
@@ -137,6 +136,15 @@
 (defmethod store-child :default [child & args]
   (throw  (IllegalArgumentException. (str (:type child)))))
 
+; store minor courses for a major course
+(defn store-minors [minors db-con course-id modules]
+  (if (= :minors (minors :type))              ; tag is minors, recursive call to children
+    (doseq [l (minors :children)]
+      (store-minors l db-con course-id modules))
+    (let [record {:stg       (minors :stg)    ; base case: tag is minor, insert to table 
+                  :kzfa      (minors :kzfa)
+                  :course_id course-id}]
+      (insert! db-con :minors record))))
 
 (defn store-single-module-combination [db-con course-id
                                        course-module-map modules]
@@ -183,8 +191,11 @@
                 :credit_points cp
                 :po            po}
         parent-id (insert! db-con :courses params)
-        levels (map (fn [l] (store-child l db-con nil parent-id modules)) children)]
+        minors (first (filter #(= :minors (% :type)) children)) ; filter minors tag
+        levels (map (fn [l] (store-child l db-con nil parent-id modules)) (filter #(not (= :minors (% :type))) children))]
     (log/trace {:kzfa kzfa :degree degree :course course :name name :po po})
+    ; insert minors for major course if defined
+    (when minors (store-minors minors db-con parent-id modules))
     ; insert course-level/parent-id pairs into course_level table
     (dorun (insert-all! db-con :course_levels
                         (map
