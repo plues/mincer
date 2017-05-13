@@ -11,10 +11,11 @@
   </xs:element>
   <xs:element name="b">
     <xs:complexType mixed="true">
-      <xs:choice minOccurs="1" maxOccurs="unbounded">
-        <xs:element ref="l"/>
-        <xs:element ref="regeln"/>
-      </xs:choice>
+      <xs:sequence>
+        <xs:element ref="minors" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="l" minOccurs="1" maxOccurs="unbounded"/>
+        <xs:element ref="regeln" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
       <xs:attribute name="abschl" use="required" type="xs:NCName"/>
       <xs:attribute name="ignored" type="xs:boolean"/>
       <xs:attribute name="kzfa" use="required" type="xs:NCName"/>
@@ -22,6 +23,17 @@
       <xs:attribute name="pversion" use="required" type="xs:integer"/>
       <xs:attribute name="stg" use="required" type="xs:NCName"/>
       <xs:attribute name="cp" use="optional" type="xs:integer"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="minors">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="1" maxOccurs="unbounded">
+        <xs:element ref="minor"/>
+      </xs:choice>
+      <xs:attribute name="ART" type="xs:NCName"/>
+      <xs:attribute name="FACH" type="xs:NCName"/>
+      <xs:attribute name="PART" type="xs:NCName"/>
+      <xs:attribute name="TM" type="xs:NCName"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="regeln">
@@ -50,6 +62,15 @@
     </xs:complexType>
   </xs:element>
   <xs:element name="i" type="xs:string"/>
+  <xs:element name="minor">
+    <xs:complexType>
+      <xs:attribute name="PART" type="xs:NCName"/>
+      <xs:attribute name="ART" type="xs:NCName"/>
+      <xs:attribute name="TM" type="xs:NCName"/>
+      <xs:attribute name="stg" type="xs:NCName" use="required"/>
+      <xs:attribute name="kzfa" type="xs:NCName" use="required"/>
+    </xs:complexType>
+  </xs:element>
   <xs:element name="m">
     <xs:complexType>
       <xs:attribute name="PART" type="xs:NCName"/>
