@@ -99,8 +99,9 @@
     parent-id))
 
 (defn store-module [db-con modules id pordnr]
-  (let [{:keys [title abstract-units course key elective-units]} (get modules id)
+  (let [{:keys [title abstract-units course key elective-units bundled]} (get modules id)
         record {:elective_units elective-units
+                :bundled        bundled
                 :key            key}]
     (log/trace "Title type " (type title))
     (if-not (nil? title) ; NOTE: or use something else to detect a valid record
