@@ -27,7 +27,7 @@
    :time      (Integer/parseInt time)
    :duration  (Integer/parseInt duration)
    :rhythm    (Integer/parseInt rhythm)
-   :tentative (boolean tentative)})
+   :tentative (= tentative "true")})
 
 (defmethod tree-to-unit-map :group [{{:keys [half-semester]} :attrs content :content}]
   {:type          :group
