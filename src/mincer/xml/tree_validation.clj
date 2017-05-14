@@ -44,7 +44,7 @@
   (log/trace l)
   ; validate mixed l and m tags in levels
   ; checking if content containts l and m tags 
-  (if (clojure.set/subset? #{:l :m} (set (map :tag (:content l))))
+  (if (subset? #{:l :m} (set (map :tag (:content l))))
     (do
       (set! errors true)
       (log/error "level containts l and m tags as children in level " (-> l :attrs :name))))

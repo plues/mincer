@@ -65,13 +65,14 @@
    :type (keyword type)
    :semester (extract-semesters semester)})
 
-(defmethod tree-to-module-map :module [{{:keys [id pordnr title elective-units]} :attrs content :content}]
+(defmethod tree-to-module-map :module [{{:keys [id pordnr title elective-units bundled]} :attrs content :content}]
   (log/debug (str "MODULE id:" id " title: '" title "' pordnr " pordnr))
   (when pordnr
-    {pordnr {:title  title
-             :key (upper-case id)
-             :pordnr pordnr
+    {pordnr {:title          title
+             :key            (upper-case id)
+             :pordnr         pordnr
              :elective-units (Integer/parseInt (or elective-units "0"))
+             :bundled        (= bundled "true")
              :abstract-units (map tree-to-module-map content)}}))
 
 (defmethod tree-to-module-map :modules [{content :content}]
