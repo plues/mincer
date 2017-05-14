@@ -57,6 +57,7 @@
                                                        [:title  :string]          ; from module data
                                                        [:pordnr :integer "UNIQUE"]
                                                        [:elective_units :integer]
+                                                       [:bundled :boolean]
                                                        [:created_at :datetime :default :current_timestamp]
                                                        [:updated_at :datetime :default :current_timestamp]])
 
