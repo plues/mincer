@@ -6,9 +6,8 @@
     [mincer.module-combinations :refer [traverse-course]]
     [mincer.bitvector :refer [bitvector set-bit! get-bytes get-bit]]
     [mincer.db :refer [abstract-unit-by-key insert!
-                       insert-all!  load-course-module-map module-by-pordnr
+                       insert-all! query load-course-module-map module-by-pordnr
                        run-on-db setup-db ]]))
-
 
 (declare persist-courses)
 (defn store-unit-abstract-unit [db-con unit-id abstract-unit-ref]
@@ -52,10 +51,24 @@
 (defn persist-metadata [db-con md]
   (insert-all! db-con :info (map (fn [[k v]] {:key (name k) :value v}) md)))
 
+(defn store-major-minor-pairs [db-con minor-dict major-course-id]
+  (let [record {:course_id       major-course-id
+                :minor_course_id ((first (query db-con ["SELECT id FROM courses WHERE kzfa=? AND short_name=? AND po=?" (minor-dict :kzfa) (minor-dict :stg) (minor-dict :po)])) :id)}]
+    (insert! db-con :minors record)))
+
+(defn store-minors [db-con dict]
+  (doseq [major dict]
+      (let [major-course-id ((first (query db-con ["SELECT id FROM courses WHERE kzfa=? AND short_name=? AND po=?" (major :kzfa) (major :short_name) (major :po)])) :id)
+            minor-dict (major :minors)
+            minors (if-not (nil? minor-dict) (minor-dict :children) nil)]
+      (when (not (nil? minors)) (doall (map #(store-major-minor-pairs db-con % major-course-id) minors))))))
+
 (defn store-stuff [db-con levels modules units]
-  (persist-courses db-con levels modules)
-  (persist-units db-con units)
-  (persist-metadata db-con (:info levels)))
+  (let [minors-to-be-stored (persist-courses db-con levels modules)]
+    (persist-units db-con units)
+    (persist-metadata db-con (:info levels))
+    ; afterwards insert major/minor course pairs to :minors database table (we need the course ids)
+    (store-minors db-con minors-to-be-stored)))
 
 (defn store-abstract-unit [db-con module-id {:keys [id title type]}]
   (let [record {:key id
@@ -111,8 +124,8 @@
         (store-abstract-units db-con module-id abstract-units)
         ; return the id of the created record
         module-id))))
-  
-    
+
+
 (defmethod store-child :module [{:keys [name cp id pordnr mandatory]} db-con parent-id course-id modules]
   (log/trace "Module " (get modules id))
   ; if module is already in database we assume that this is another path to it
@@ -132,20 +145,10 @@
                                       :credit_points cp}))
       ; return the id of the created record
       module-id))
-  
+
 
 (defmethod store-child :default [child & args]
   (throw  (IllegalArgumentException. (str (:type child)))))
-
-; store minor courses for a major course
-(defn store-minors [minors db-con course-id modules]
-  (if (= :minors (minors :type))              ; tag is minors, recursive call to children
-    (doseq [l (minors :children)]
-      (store-minors l db-con course-id modules))
-    (let [record {:stg       (minors :stg)    ; base case: tag is minor, insert to table 
-                  :kzfa      (minors :kzfa)
-                  :course_id course-id}]
-      (insert! db-con :minors record))))
 
 (defn store-single-module-combination [db-con course-id
                                        course-module-map modules]
@@ -182,6 +185,7 @@
           #(store-course-module-combination db-con course-id course-module-map %)
           (traverse-course course)))))
 
+; store courses and return a dict of minor courses if given
 (defn store-course [db-con c modules]
   (let [{:keys  [kzfa cp degree course name po children]} c
         params {:degree        degree
@@ -195,18 +199,18 @@
         minors (first (filter #(= :minors (% :type)) children)) ; filter minors tag
         levels (map (fn [l] (store-child l db-con nil parent-id modules)) (filter #(not (= :minors (% :type))) children))]
     (log/trace {:kzfa kzfa :degree degree :course course :name name :po po})
-    ; insert minors for major course if defined
-    (when minors (store-minors minors db-con parent-id modules))
     ; insert course-level/parent-id pairs into course_level table
     (dorun (insert-all! db-con :course_levels
                         (map
                           (fn [l] {:course_id parent-id :level_id l})
                           levels)))
-    (store-course-module-combinations db-con c parent-id)))
+    (store-course-module-combinations db-con c parent-id)
+    ; return dict of major course with its minor courses to insert them afterwards
+    {:type :major :short_name course :kzfa kzfa :po po :minors minors}))
 
+; store the courses and return all minor courses defined by minors-Tag
 (defn persist-courses [db-con levels modules]
-  (doseq [l (:levels levels)]
-    (store-course db-con l modules)))
+  (doall (for [l (:levels levels)] (store-course db-con l modules))))
 
 (defn persist [levels modules units]
   (run-on-db #(store-stuff % levels modules units)))
