@@ -145,8 +145,7 @@
                                  (jdbc/create-table-ddl :minors
                                                       [[:id :integer "PRIMARY KEY" "AUTOINCREMENT"]
                                                        [:course_id :integer "NOT NULL" "REFERENCES courses"]
-                                                       [:stg :string "NOT NULL"]
-                                                       [:kzfa :string "NOT NULL"]
+                                                       [:minor_course_id :integer "NOT NULL" "REFERENCES courses"]
                                                        [:created_at :datetime :default :current_timestamp]
                                                        [:updated_at :datetime :default :current_timestamp]])
                                "CREATE INDEX minor_course_id ON minors(course_id)"
@@ -168,8 +167,12 @@
   (jdbc/insert! db-con :info {:key "generated"
                               :value (str (now))}))
 
+(defn query [db-con query]
+  (log/debug "Query database " query)
+  (jdbc/query db-con query))
+
 (defn insert! [db-con table rec]
-  (log/debug "Saving to" table rec)
+  (log/debug "Saving to " table rec)
   ((keyword "last_insert_rowid()")
    (first (jdbc/insert! db-con table rec))))
 
