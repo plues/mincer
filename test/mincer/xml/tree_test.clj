@@ -84,12 +84,20 @@
     (is (= 1 (count children)))
     (is (not-any? nil? children))))
 
+; tree validation
 (deftest test-validate-b-tag-with-minors
   (validate b-tag-with-minors)
-  (validate {:tag :minors, :attrs nil, :content [{:tag :minor, :attrs {:kzfa "N", :stg "phy"}, :content nil} {:tag :minor, :attrs {:kzfa "N", :stg "bio"}, :content nil} {:tag :minor, :attrs {:kzfa "N", :stg "che"}, :content nil} {:tag :minor, :attrs {:kzfa "N", :stg "mat"}, :content nil} {:tag :minor, :attrs {:kzfa "N", :stg "psy"}, :content nil}]})
-  (not (validate {:tag :minors, :attrs nil, :content [{:tag :minor, :attrs {:kzfa "N", :stg "phy"}, :content nil} {:tag :minor, :attrs {:kzfa "N", :stg "bio"}, :content nil} {:tag :minor, :attrs {:kzfa "H", :stg "che"}, :content nil} {:tag :minor, :attrs {:kzfa "N", :stg "mat"}, :content nil} {:tag :minor, :attrs {:kzfa "N", :stg "psy"}, :content nil}]}))
-  (not (validate {:tag :minors, :attrs nil, :content [{:tag :minor, :attrs {:kzfa "N"}, :content nil} {:tag :minor, :attrs {:stg "bio"}, :content nil} {:tag :minor, :attrs {:kzfa "N", :stg "che"}, :content nil} {:tag :minor, :attrs {:kzfa "N", :stg "mat"}, :content nil} {:tag :minor, :attrs {:kzfa "H", :stg "psy"}, :content nil}]}))
-  (not (validate {:tag :minors, :attrs nil, :content [{:tag :minor, :attrs {:kzfa "N" :stg "phy"}, :content nil} {:tag :minor, :attrs {}, :content nil} ]})))
+  (validate {:tag :minors, :attrs nil, :content [{:tag :minor, :attrs {:kzfa "N", :stg "phy", :po 2013}, :content nil} {:tag :minor, :attrs {:kzfa "N", :stg "bio", :po 2013}, :content nil} {:tag :minor, :attrs {:kzfa "N", :stg "che", :po 2013}, :content nil} {:tag :minor, :attrs {:kzfa "N", :stg "mat", :po 2013} :content nil} {:tag :minor, :attrs {:kzfa "N", :stg "psy", :po 2013}, :content nil}]})
+  ; missing po definition
+  (not (validate {:tag :minors, :attrs nil, :content [{:tag :minor, :attrs {:kzfa "N", :stg "phy"}, :content nil} {:tag :minor, :attrs {:kzfa "N", :stg "bio", :po 2013}, :content nil} {:tag :minor, :attrs {:kzfa "N", :stg "che", :po 2013}, :content nil} {:tag :minor, :attrs {:kzfa "N", :stg "mat", :po 2013} :content nil} {:tag :minor, :attrs {:kzfa "N", :stg "psy", :po 2013}, :content nil}]}))
+  ; one minor course is a major course, i.e. kzfa is 'H'
+  (not (validate {:tag :minors, :attrs nil, :content [{:tag :minor, :attrs {:kzfa "N", :stg "phy", :po 2013}, :content nil} {:tag :minor, :attrs {:kzfa "N", :stg "bio", :po 2013}, :content nil} {:tag :minor, :attrs {:kzfa "H", :stg "che", :po 2013}, :content nil} {:tag :minor, :attrs {:kzfa "N", :stg "mat", :po 2013}, :content nil} {:tag :minor, :attrs {:kzfa "N", :stg "psy", :po 2013}, :content nil}]}))
+  ; mixed: missing and wrong attributes
+  (not (validate {:tag :minors, :attrs nil, :content [{:tag :minor, :attrs {:kzfa "N"}, :content nil} {:tag :minor, :attrs {:stg "bio", :po 2013}, :content nil} {:tag :minor, :attrs {:kzfa "N", :stg "che", :po 2013}, :content nil} {:tag :minor, :attrs {:kzfa "N", :stg "mat", :po 2013}, :content nil} {:tag :minor, :attrs {:kzfa "H", :stg "psy", :po 2013}, :content nil}]}))
+  ; no attributes in minor tag
+  (not (validate {:tag :minors, :attrs nil, :content [{:tag :minor, :attrs {:kzfa "N", :stg "phy", :po 2013}, :content nil} {:tag :minor, :attrs {}, :content nil} ]}))
+  ; minors tag has no minor tags
+  (not (validate {:tag :minors, :attrs nil, :content []})))
 
 (deftest test-validate-b-tag
   (validate b-tag)
