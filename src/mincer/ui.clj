@@ -158,31 +158,38 @@
     :listen [:action source-button-listener]))
 
 (def my-frame
-  (frame
-    :title ::frame-title,
-    :content (top-bottom-split
-               (grid-panel
-                 :rows 5
-                 :size [600 :by 400]
-                 :columns 2
-                 :hgap 0
-                 :vgap 0
-                 :items
-                   [(label ::mincer)
-                    (label :icon logo)
-                    (label ::file-select)
-                    (label "2.5.0-SNAPSHOT") ; managed by bumpversion
-                    meta-button
-                    meta-text
-                    source-button
-                    source-text
-                    (label ::save)
-                    save-button])
-               ; bottom logging textarea
-               (scrollable textarea :size [600 :by 250]))
-    :on-close :exit
-    :size [600 :by 650]
-    :resizable? false))
+  (let [lbl-mincer      (label ::mincer)
+        lbl-icon        (label :icon logo)
+        lbl-file-select (label ::file-select)
+        lbl-version     (label "2.5.0-SNAPSHOT") ; managed by bumpversion
+        lbl-save        (label ::save)]
+    (doall (map #(config! % :border 10) [lbl-mincer lbl-file-select lbl-version lbl-icon]))
+    (config! lbl-save :halign :center)
+    (frame
+      :title ::frame-title,
+      :content (top-bottom-split
+                 (grid-panel
+                   :rows 5
+                   :size [600 :by 400]
+                   :columns 2
+                   :hgap 0
+                   :vgap 0
+                   :items
+                     [lbl-mincer
+                      lbl-icon
+                      lbl-file-select
+                      lbl-version
+                      meta-button
+                      meta-text
+                      source-button
+                      source-text
+                      lbl-save
+                      save-button])
+                 ; bottom logging textarea
+                 (scrollable textarea :size [600 :by 250]))
+      :on-close :exit
+      :size [600 :by 650]
+      :resizable? false)))
 
 (defn log-message [ev]
   (let [level (.getLevel ev)
