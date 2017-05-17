@@ -10,6 +10,9 @@
 
 (def ^:dynamic errors)
 
+(defn log_error [error_message]
+  (do (binding [errors errors] (set! errors true)) (log/error error_message)))
+
 (defmethod validate :ModulBaum [mb]
   (log/trace (:tag mb))
   ; validate pordnr
@@ -59,11 +62,14 @@
 
 (defmethod validate :minor [minor]
   (log/trace (:tag minor))
-  (let [stg (-> minor :attrs :stg)
-        kzfa (-> minor :attrs :kzfa)]
-    (do (when (nil? stg) (log/error "Missing 'stg' in minor tag."))
-        (when (nil? kzfa) (log/error "Missing 'kzfa' in minor tag."))
-        (when (not (= kzfa "N")) (log/error "Attribute 'kzfa' in minor tag has to be 'N'.")))))
+  (let [stg  (-> minor :attrs :stg)
+        kzfa (-> minor :attrs :kzfa)
+        po   (-> minor :attrs :pversion)]
+    (do (when (nil? stg) (log_error "Missing 'stg' in minor tag."))
+        (when (nil? kzfa) (log_error "Missing 'kzfa' in minor tag."))
+        (when (nil? po) (log_error "Missing 'pversion' in minor tag."))
+        (try (Integer/parseInt po) (catch NumberFormatException e (log_error "Attribute 'pversion' has to be an integer.")))
+        (when (not (= kzfa "N")) (log_error "Attribute 'kzfa' in minor tag has to be 'N'.")))))
 
 (defmethod validate :m [m]
   (log/trace (:tag m))
