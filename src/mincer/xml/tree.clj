@@ -36,10 +36,11 @@
     {:type     :minors
      :children children}))
 
-(defmethod parse-tree :minor [{{:keys [stg kzfa]} :attrs content :content}]
+(defmethod parse-tree :minor [{{:keys [stg kzfa pversion]} :attrs content :content}]
     {:type :minor
      :stg  stg
-     :kzfa kzfa})
+     :kzfa kzfa
+     :po (Integer/parseInt pversion)})
 
 (defmethod parse-tree :b [{{:keys [abschl ignored stg cp pversion kzfa name]} :attrs content :content}]
   (log/debug {:tag :b :stg stg :pversion pversion :kzfa kzfa :name name :abschl abschl})
