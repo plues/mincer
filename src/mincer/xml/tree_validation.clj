@@ -11,7 +11,7 @@
 (def ^:dynamic errors)
 
 (defn log_error [error_message]
-  (do (binding [errors errors] (set! errors true)) (log/error error_message)))
+  (do (alter-var-root #'errors (constantly true)) (log/error error_message)))
 
 (defmethod validate :ModulBaum [mb]
   (log/trace (:tag mb))
