@@ -63,13 +63,10 @@
 (defmethod validate :minor [minor]
   (log/trace (:tag minor))
   (let [stg  (-> minor :attrs :stg)
-        kzfa (-> minor :attrs :kzfa)
         po   (-> minor :attrs :pversion)]
     (do (when (nil? stg) (log_error "Missing 'stg' in minor tag."))
-        (when (nil? kzfa) (log_error "Missing 'kzfa' in minor tag."))
         (when (nil? po) (log_error "Missing 'pversion' in minor tag."))
-        (try (Integer/parseInt po) (catch NumberFormatException e (log_error "Attribute 'pversion' has to be an integer.")))
-        (when (not (= kzfa "N")) (log_error "Attribute 'kzfa' in minor tag has to be 'N'.")))))
+        (try (Integer/parseInt po) (catch NumberFormatException e (log_error "Attribute 'pversion' has to be an integer."))))))
 
 (defmethod validate :m [m]
   (log/trace (:tag m))

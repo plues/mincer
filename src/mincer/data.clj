@@ -6,7 +6,7 @@
     [mincer.module-combinations :refer [traverse-course]]
     [mincer.bitvector :refer [bitvector set-bit! get-bytes get-bit]]
     [mincer.db :refer [abstract-unit-by-key insert!
-                       insert-all! query load-course-module-map module-by-pordnr
+                       insert-all! query-course load-course-module-map module-by-pordnr
                        run-on-db setup-db ]]))
 
 (declare persist-courses)
@@ -53,18 +53,22 @@
 
 (defn store-major-minor-pairs [db-con minor-dict major-course-id]
   (let [record {:course_id       major-course-id
-                :minor_course_id ((first (query db-con ["SELECT id FROM courses WHERE kzfa=? AND short_name=? AND po=?" (minor-dict :kzfa) (minor-dict :stg) (minor-dict :po)])) :id)}]
-    (insert! db-con :minors record)))
+                :minor_course_id (query-course db-con minor-dict "N")}]
+    (if (nil? (record :minor_course_id)) 
+      (log/warn "Minor course does not exist with attributes " minor-dict) 
+      (insert! db-con :minors record))))
 
 (defn store-minors [db-con dict]
-  (doseq [major dict]
-      (let [major-course-id ((first (query db-con ["SELECT id FROM courses WHERE kzfa=? AND short_name=? AND po=?" (major :kzfa) (major :short_name) (major :po)])) :id)
-            minor-dict (major :minors)
-            minors (if-not (nil? minor-dict) (minor-dict :children) nil)]
-      (when (not (nil? minors)) (doall (map #(store-major-minor-pairs db-con % major-course-id) minors))))))
+  (doseq [major-dict dict]
+    (let [major-course-id   (query-course db-con major-dict "H")
+          minor-dict        (major-dict :minors)
+          minors            (if-not (nil? minor-dict) (minor-dict :children) nil)]
+      (if (nil? major-course-id) 
+        (log/warn "Major course does not exist with attributes " major-dict)
+        (when (not (nil? minors)) (doall (map #(store-major-minor-pairs db-con % major-course-id) minors)))))))
 
 (defn store-stuff [db-con levels modules units]
-  (let [minors-to-be-stored (persist-courses db-con levels modules)]
+  (let [minors-to-be-stored (remove nil? (persist-courses db-con levels modules))]
     (persist-units db-con units)
     (persist-metadata db-con (:info levels))
     ; afterwards insert major/minor course pairs to :minors database table (we need the course ids)
@@ -206,7 +210,7 @@
                           levels)))
     (store-course-module-combinations db-con c parent-id)
     ; return dict of major course with its minor courses to insert them afterwards
-    {:type :major :short_name course :kzfa kzfa :po po :minors minors}))
+    (when (= kzfa "H") {:type :major :short_name course :po po :minors minors})))
 
 ; store the courses and return all minor courses defined by minors-Tag
 (defn persist-courses [db-con levels modules]
