@@ -59,7 +59,7 @@
 (declare traverse-level)
 
 (defn filter-children [level level-filter-fn module-filter-fn]
-  (let [children     (:children level)
+  (let [children     (filter #(not (= (:type %) :minors))  (:children level))
         modules      (pmap #(traverse-level % level-filter-fn module-filter-fn) children) ; collect all lists of module combinations from sub-levels
         combinations (pmap flatten (apply cartesian-product modules))] ; build all combinations of possible choices
     (filter #(level-filter-fn level %) combinations)))
