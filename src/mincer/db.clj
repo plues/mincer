@@ -167,9 +167,10 @@
   (jdbc/insert! db-con :info {:key "generated"
                               :value (str (now))}))
 
-(defn query [db-con query]
-  (log/debug "Query database " query)
-  (jdbc/query db-con query))
+(defn query-course [db-con dict kzfa]
+  (log/debug "Query course from database table 'courses' using the dictionary " dict " and kzfa " kzfa)
+  (let [db-entry (first (jdbc/query db-con ["SELECT id FROM courses WHERE kzfa=? AND short_name=? AND po=?" kzfa (dict :short_name) (dict :po)]))]
+    (if (nil? db-entry) nil (db-entry :id))))
 
 (defn insert! [db-con table rec]
   (log/debug "Saving to " table rec)
