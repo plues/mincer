@@ -24,6 +24,7 @@
       <xs:attribute name="id" use="required" type="xs:NCName"/>
       <xs:attribute name="pordnr" use="required" type="xs:nonNegativeInteger"/>
       <xs:attribute name="title" use="required" type="xs:normalizedString"/>
+      <xs:attribute name="bundled" use="optional" type="xs:boolean"/>
       <!-- allowed but ignored -->
       <xs:attribute name="type" use="optional">
         <xs:simpleType>

@@ -16,6 +16,7 @@
               :pordnr pordnr
               :key "P-IAA-M-BMLS1"
               :elective-units 4
+              :bundled false
               :abstract-units [result-abstract-unit]}}))
 
 (def result-module3
@@ -24,6 +25,7 @@
               :pordnr pordnr
               :key "P-IAA-M-BMLS1"
               :elective-units 5
+              :bundled false
               :abstract-units [result-abstract-unit]}}))
 
 (def result-module4
@@ -32,6 +34,7 @@
               :pordnr pordnr
               :key "P-IAA-M-BMLS1"
               :elective-units 0
+              :bundled false
               :abstract-units [result-abstract-unit]}}))
 
 

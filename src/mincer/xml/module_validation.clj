@@ -39,8 +39,6 @@
   (doseq [c (:content tag)]
     (validate c)))
 
-
-
 (defn collect-abstract-units [n]
   (let [walk-fn (fn  [node]
                   (if (= :abstract-unit (:tag node))
@@ -80,13 +78,16 @@
   (let [n-elective (count
                      (filter #(= "e" (-> % :attrs :type)) (:content node)))
         module (:attrs node)
+        bundled (:bundled module)
         required-elective (Integer/parseInt (:elective-units module))]
     (log/trace "MODULE" node)
     (when (< n-elective required-elective)
       (log/error "Module with ID:" (:id module)
                  "and PORDNR:" (:pordnr module)
                  "has fewer elective abstract-units" n-elective
-                 "than the required" (:elective-units module)))))
+                 "than the required" (:elective-units module)))
+    (when (and (not (nil? bundled)) (not (contains? #{"true" "false"} bundled)))
+      (do (set! errors true) (log/error "Tag bundled has to be either \"true\" or \"false\".")))))
 ; --------------
 ; check for missing attributes in abstract-unit nodes in the modules subtree
 (defmulti validate-module-abstract-units :tag)

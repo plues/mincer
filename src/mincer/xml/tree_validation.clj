@@ -10,6 +10,9 @@
 
 (def ^:dynamic errors)
 
+(defn log_error [error_message]
+  (do (alter-var-root #'errors (constantly true)) (log/error error_message)))
+
 (defmethod validate :ModulBaum [mb]
   (log/trace (:tag mb))
   ; validate pordnr
@@ -50,10 +53,25 @@
       (log/error "level containts l and m tags as children in level " (-> l :attrs :name))))
   (flatten (map validate (:content l))))
 
+(defmethod validate :minors [minors]
+  (log/trace (:tag minors))
+  ; only minor tags
+  (if (not (= #{:minor} (set (map :tag (:content minors)))))
+    (log/error "Tag 'minors' can only contain minor-Tags."))
+  (flatten (map validate (:content minors))))
+
+(defmethod validate :minor [minor]
+  (log/trace (:tag minor))
+  (let [stg  (-> minor :attrs :stg)
+        po   (-> minor :attrs :pversion)]
+    (do (when (nil? stg) (log_error "Missing 'stg' in minor tag."))
+        (when (nil? po) (log_error "Missing 'pversion' in minor tag."))
+        (try (Integer/parseInt po) (catch NumberFormatException e (log_error "Attribute 'pversion' has to be an integer."))))))
+
 (defmethod validate :m [m]
   (log/trace (:tag m))
   (let [pordnr (-> m :attrs :pordnr)]
-    (when (nil? pordnr) (log/warn "pordnr missing " (-> m :attrs :name)))
+    (when (nil? pordnr) (log/error "pordnr missing " (-> m :attrs :name)))
     pordnr))
 
 (defmethod validate :default [tag]

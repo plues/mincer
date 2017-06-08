@@ -1,4 +1,4 @@
-(defproject mincer "2.4.0"
+(defproject mincer "3.0.0"
   :description "Tool to create a SQLite database from PlüS module tree and data XML files."
   :url "https://github.com/plues/mincer"
   :license {:name "Eclipse Public License"
@@ -8,9 +8,9 @@
                  [org.clojure/math.combinatorics "0.1.4"]
                  [org.clojure/test.check "0.9.0"]
                  [org.clojure/tools.cli "0.3.5"]
-                 [org.clojure/tools.logging "0.3.1"]
+                 [org.clojure/tools.logging "0.4.0"]
                  [org.slf4j/slf4j-log4j12 "1.7.25"]
-                 [org.xerial/sqlite-jdbc "3.16.1"]
+                 [org.xerial/sqlite-jdbc "3.18.0"]
                  [seesaw "1.4.5"]]
   :plugins [[jonase/eastwood "0.2.3"]
             [lein-kibit "0.1.2"]

@@ -31,6 +31,16 @@
      :art      ART
      :children children}))
 
+(defmethod parse-tree :minors [{content :content}]
+  (let [children  (remove nil? (pmap parse-tree content))]
+    {:type     :minors
+     :children children}))
+
+(defmethod parse-tree :minor [{{:keys [stg pversion]} :attrs content :content}]
+    {:type :minor
+     :short_name  stg
+     :po (Integer/parseInt pversion)})
+
 (defmethod parse-tree :b [{{:keys [abschl ignored stg cp pversion kzfa name]} :attrs content :content}]
   (log/debug {:tag :b :stg stg :pversion pversion :kzfa kzfa :name name :abschl abschl})
   (if (= "true" ignored)

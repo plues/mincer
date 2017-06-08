@@ -1,7 +1,8 @@
 (ns mincer.xml.tree-test
   (:require [clojure.test :refer :all]
             [mincer.xml.tree-test-data :refer :all]
-            [mincer.xml.tree :refer :all]))
+            [mincer.xml.tree :refer :all]
+            [mincer.xml.tree-validation :refer :all]))
 
 (def result-module {:type :module
                     :name "Logik I"
@@ -82,3 +83,22 @@
         children (:children course)]
     (is (= 1 (count children)))
     (is (not-any? nil? children))))
+
+; tree validation
+(deftest test-validate-b-tag-with-minors
+  (validate b-tag-with-minors)
+  (validate {:tag :minors, :attrs nil, :content [{:tag :minor, :attrs {:kzfa "N", :stg "phy", :po 2013}, :content nil} {:tag :minor, :attrs {:kzfa "N", :stg "bio", :po 2013}, :content nil} {:tag :minor, :attrs {:kzfa "N", :stg "che", :po 2013}, :content nil} {:tag :minor, :attrs {:kzfa "N", :stg "mat", :po 2013} :content nil} {:tag :minor, :attrs {:kzfa "N", :stg "psy", :po 2013}, :content nil}]})
+  ; missing po definition
+  (not (validate {:tag :minors, :attrs nil, :content [{:tag :minor, :attrs {:kzfa "N", :stg "phy"}, :content nil} {:tag :minor, :attrs {:kzfa "N", :stg "bio", :po 2013}, :content nil} {:tag :minor, :attrs {:kzfa "N", :stg "che", :po 2013}, :content nil} {:tag :minor, :attrs {:kzfa "N", :stg "mat", :po 2013} :content nil} {:tag :minor, :attrs {:kzfa "N", :stg "psy", :po 2013}, :content nil}]}))
+  ; one minor course is a major course, i.e. kzfa is 'H'
+  (not (validate {:tag :minors, :attrs nil, :content [{:tag :minor, :attrs {:kzfa "N", :stg "phy", :po 2013}, :content nil} {:tag :minor, :attrs {:kzfa "N", :stg "bio", :po 2013}, :content nil} {:tag :minor, :attrs {:kzfa "H", :stg "che", :po 2013}, :content nil} {:tag :minor, :attrs {:kzfa "N", :stg "mat", :po 2013}, :content nil} {:tag :minor, :attrs {:kzfa "N", :stg "psy", :po 2013}, :content nil}]}))
+  ; mixed: missing and wrong attributes
+  (not (validate {:tag :minors, :attrs nil, :content [{:tag :minor, :attrs {:kzfa "N"}, :content nil} {:tag :minor, :attrs {:stg "bio", :po 2013}, :content nil} {:tag :minor, :attrs {:kzfa "N", :stg "che", :po 2013}, :content nil} {:tag :minor, :attrs {:kzfa "N", :stg "mat", :po 2013}, :content nil} {:tag :minor, :attrs {:kzfa "H", :stg "psy", :po 2013}, :content nil}]}))
+  ; no attributes in minor tag
+  (not (validate {:tag :minors, :attrs nil, :content [{:tag :minor, :attrs {:kzfa "N", :stg "phy", :po 2013}, :content nil} {:tag :minor, :attrs {}, :content nil} ]}))
+  ; minors tag has no minor tags
+  (not (validate {:tag :minors, :attrs nil, :content []})))
+
+(deftest test-validate-b-tag
+  (validate b-tag)
+  (validate b-tag-with-regeln))

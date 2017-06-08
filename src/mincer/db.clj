@@ -5,7 +5,7 @@
     [clojure.java.jdbc :refer [with-db-transaction]]
     [clojure.tools.logging :as log]))
 
-(def mincer-version "2.4.0") ; updated with bumpversion
+(def mincer-version "3.0.0") ; updated with bumpversion
 
 (defn now [] (new java.util.Date))
 
@@ -48,7 +48,7 @@
                                                        [:level_id "NOT NULL" "REFERENCES levels"]])
                                "CREATE INDEX course_level_course ON course_levels(course_id)"
                                "CREATE INDEX course_level_level ON course_levels(level_id)"
-                               
+
 
                                (jdbc/create-table-ddl :modules
                                                       [[:id :integer "PRIMARY KEY" "AUTOINCREMENT"]
@@ -57,6 +57,7 @@
                                                        [:title  :string]          ; from module data
                                                        [:pordnr :integer "UNIQUE"]
                                                        [:elective_units :integer]
+                                                       [:bundled :boolean]
                                                        [:created_at :datetime :default :current_timestamp]
                                                        [:updated_at :datetime :default :current_timestamp]])
 
@@ -70,7 +71,7 @@
                                                        [:credit_points :integer :default "NULL"]
                                                        [:created_at :datetime :default :current_timestamp]
                                                        [:updated_at :datetime :default :current_timestamp]])
-                                                       
+
                               "CREATE INDEX module_levels_module ON module_levels(module_id)"
                               "CREATE INDEX module_levels_level ON module_levels(level_id)"
 
@@ -141,6 +142,14 @@
                                                        [:updated_at :datetime :default :current_timestamp]])
                                "CREATE INDEX session_group_id ON sessions(group_id)"
 
+                                 (jdbc/create-table-ddl :minors
+                                                      [[:id :integer "PRIMARY KEY" "AUTOINCREMENT"]
+                                                       [:course_id :integer "NOT NULL" "REFERENCES courses"]
+                                                       [:minor_course_id :integer "NOT NULL" "REFERENCES courses"]
+                                                       [:created_at :datetime :default :current_timestamp]
+                                                       [:updated_at :datetime :default :current_timestamp]])
+                               "CREATE INDEX minor_course_id ON minors(course_id)"
+
                                 (jdbc/create-table-ddl :log
                                                       [[:id :integer "PRIMARY KEY" "AUTOINCREMENT"]
                                                        [:session_id :integer "NOT NULL" "REFERENCES sessions"]
@@ -152,14 +161,19 @@
                                "CREATE INDEX log_session_id ON log(session_id)"])
 
   (jdbc/insert! db-con :info {:key "schema_version"
-                              :value (str "v7.1")})
+                              :value (str "9")}) ; NOTE: make sure this stays an integer
   (jdbc/insert! db-con :info {:key "generator"
                               :value (str "mincer" "-" mincer-version)})
   (jdbc/insert! db-con :info {:key "generated"
                               :value (str (now))}))
 
+(defn query-course [db-con dict kzfa]
+  (log/debug "Query course from database table 'courses' using the dictionary " dict " and kzfa " kzfa)
+  (let [db-entry (first (jdbc/query db-con ["SELECT id FROM courses WHERE kzfa=? AND short_name=? AND po=?" kzfa (dict :short_name) (dict :po)]))]
+    (if (nil? db-entry) nil (db-entry :id))))
+
 (defn insert! [db-con table rec]
-  (log/debug "Saving to" table rec)
+  (log/debug "Saving to " table rec)
   ((keyword "last_insert_rowid()")
    (first (jdbc/insert! db-con table rec))))
 

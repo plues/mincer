@@ -14,6 +14,18 @@
                               :tag :l}]
                    :tag :l})
 
+(def nested-minors-tag {:attrs nil
+                        :content [{:attrs {:stg "phy" :kzfa "N"}
+                                   :content nil
+                                   :tag :minor}
+                                  {:attrs {:stg "bio" :kzfa "N"}
+                                   :content nil
+                                   :tag :minor}
+                                  {:attrs {:stg "mat" :kzfa "N"}
+                                   :content nil
+                                   :tag :minor}]
+                        :tag :minors})
+
 (def b-tag {:attrs {:abschl "bk"
                     :kzfa "H"
                     :name "Kernfach Philosophie"
@@ -21,6 +33,14 @@
                     :stg "phi"}
             :content [nested-l-tag]
             :tag :b})
+
+(def b-tag-with-minors {:attrs {:abschl "bk"
+                                :kzfa "H"
+                                :name "Bachelor Informatik"
+                                :pversion "2013"
+                                :stg "cs"}
+                        :content [nested-minors-tag nested-l-tag]
+                        :tag :b})
 
 (def b-tag-with-regeln {:attrs {:abschl "bk"
                                 :kzfa "H"
