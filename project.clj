@@ -1,4 +1,4 @@
-(defproject mincer "3.0.0"
+(defproject mincer "3.1.0-SNAPSHOT"
   :description "Tool to create a SQLite database from PlüS module tree and data XML files."
   :url "https://github.com/plues/mincer"
   :license {:name "Eclipse Public License"
