@@ -161,7 +161,7 @@
   (let [lbl-mincer      (label ::mincer)
         lbl-icon        (label :icon logo)
         lbl-file-select (label ::file-select)
-        lbl-version     (label "3.1.0-SNAPSHOT") ; managed by bumpversion
+        lbl-version     (label "3.1.0") ; managed by bumpversion
         lbl-save        (label ::save)]
     (doall (map #(config! % :border 10) [lbl-mincer lbl-file-select lbl-version lbl-icon]))
     (config! lbl-save :halign :center)
