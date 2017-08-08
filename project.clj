@@ -10,7 +10,7 @@
                  [org.clojure/tools.cli "0.3.5"]
                  [org.clojure/tools.logging "0.4.0"]
                  [org.slf4j/slf4j-log4j12 "1.7.25"]
-                 [org.xerial/sqlite-jdbc "3.19.3"]
+                 [org.xerial/sqlite-jdbc "3.20.0"]
                  [seesaw "1.4.5"]]
   :plugins [[jonase/eastwood "0.2.3"]
             [lein-kibit "0.1.2"]
