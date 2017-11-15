@@ -1,6 +1,7 @@
 (ns mincer.xml.tree-test-cp
   (:require [clojure.test :refer :all]
             [mincer.xml.tree-cp-test-data :refer :all]
+            [mincer.xml.tree-validation :refer :all]
             [mincer.xml.tree :refer :all]))
 
 (def result-cp-module {:type :module
@@ -84,3 +85,8 @@
         children (:children course)]
     (is (= 1 (count children)))
     (is (not-any? nil? children))))
+
+(deftest test-validate-cp-based-level-with-missing-cp-data
+  (binding [errors false]
+    (validate-cp l-cp-tag-missing-data)
+    (is errors)))
