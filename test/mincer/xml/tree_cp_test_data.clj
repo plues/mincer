@@ -14,6 +14,9 @@
                               :content [m-cp-tag]
                               :tag :l}]
                    :tag :l})
+(def l-cp-tag-missing-data {:attrs {:name "Wahlpflichtmodule"}
+                   :content []
+                   :tag :l})
 
 (def b-cp-tag {:attrs {:abschl "bk"
                     :kzfa "H"

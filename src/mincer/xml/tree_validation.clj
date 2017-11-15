@@ -7,6 +7,7 @@
     [clojure.tools.logging :as log]))
 
 (defmulti validate :tag)
+(defmulti validate-cp :tag)
 
 (def ^:dynamic errors)
 
@@ -40,7 +41,10 @@
 
 (defmethod validate :b [b]
   (log/trace (:tag b))
-  (flatten (map validate (:content b))))
+  ; if b tag has cp field
+  
+  (let [validation-fn (if (contains? (:attrs b) :cp) validate-cp validate)]
+    (flatten (map validation-fn (:content b)))))
 
 (defmethod validate :l [l]
   (log/trace (:tag l))
@@ -75,6 +79,47 @@
     pordnr))
 
 (defmethod validate :default [tag]
+  (log/trace "Ignoring" tag)
+  [])
+
+(defmethod validate-cp :l [l]
+  (log/trace (:tag l))
+  (log/trace l)
+  ; validate that l has min-cp and max-cp attrs
+  (if (not (subset? #{:min-cp :max-cp} (-> l :attrs keys set)))
+    (do
+      (set! errors true)
+      (log/error "l (level) tag for a cp based course does not contain min-cp and max-cp attributes" (-> l :attrs :name))))
+  ; validate mixed l and m tags in levels
+  ; checking if content containts l and m tags 
+  (if (subset? #{:l :m} (set (map :tag (:content l))))
+    (do
+      (set! errors true)
+      (log/error "level containts l and m tags as children in level " (-> l :attrs :name))))
+  (flatten (map validate-cp (:content l))))
+
+(defmethod validate-cp :minors [minors]
+  (log/trace (:tag minors))
+  ; only minor tags
+  (if (not (= #{:minor} (set (map :tag (:content minors)))))
+    (log/error "Tag 'minors' can only contain minor-Tags."))
+  (flatten (map validate-cp (:content minors))))
+
+(defmethod validate-cp :minor [minor]
+  (log/trace (:tag minor))
+  (let [stg  (-> minor :attrs :stg)
+        po   (-> minor :attrs :pversion)]
+    (do (when (nil? stg) (log_error "Missing 'stg' in minor tag."))
+        (when (nil? po) (log_error "Missing 'pversion' in minor tag."))
+        (try (Integer/parseInt po) (catch NumberFormatException e (log_error "Attribute 'pversion' has to be an integer."))))))
+
+(defmethod validate-cp :m [m]
+  (log/trace (:tag m))
+  (let [pordnr (-> m :attrs :pordnr)]
+    (when (nil? pordnr) (log/error "pordnr missing " (-> m :attrs :name)))
+    pordnr))
+
+(defmethod validate-cp :default [tag]
   (log/trace "Ignoring" tag)
   [])
 
