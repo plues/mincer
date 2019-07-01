@@ -100,7 +100,15 @@
     (log/trace "abstract-unit" id)
     (log/error "Abstract-Unit with ID:" id
                "has is missing one or"
-               "more attributes (title, type, semester).")))
+               "more attributes (title, type, semester)."))
+  (if-not (nil? semester)
+    (let [ranges (ranges [semester] 6)]
+      (if-not (empty? ranges)
+        (set! errors true))
+      (doseq [semester ranges]
+        (log/error "Semester out of range in abstract-unit with id:" id
+                   "value:" semester "in section <modules>")))))
+
 (defmethod validate-module-abstract-units :default [node]
   (doseq [v  (:content node)]
     (validate-module-abstract-units v)))
