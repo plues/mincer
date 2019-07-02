@@ -13,15 +13,14 @@ before_install:
 - rvm install 2.4.1
 - gem install travis-custom-deploy
 before_script:
-- sh -e /etc/init.d/xvfb start
 # install launch4j
 - bin/install_launch4j.sh
 
 script:
   - lein deps
   - lein test
-  - lein uberjar
-  - lein launch4j
+  - xvfb-run lein uberjar
+  - xvfb-run lein launch4j
 
 after_success:
 - travis-custom-deploy sftp target/mincer-3.3.0-SNAPSHOT-standalone.jar target/mincer-3.3.0-SNAPSHOT.exe
