@@ -109,6 +109,15 @@
         (log/error "Semester out of range in abstract-unit with id:" id
                    "value:" semester "in section <modules>")))))
 
+(defmethod validate-module-abstract-units :module [node]
+  (doseq [[aid n] (filter (fn [[aid n]] (< 1 n))
+                            (frequencies
+                              (map #(-> % :attrs :id) (:content node))))]
+        (set! errors true)
+        (log/error "Abstract-Unit with id: " aid
+                   "appears " n "times in module" (-> node :attrs :id)))
+  (doseq [v  (:content node)]
+    (validate-module-abstract-units v)))
 (defmethod validate-module-abstract-units :default [node]
   (doseq [v  (:content node)]
     (validate-module-abstract-units v)))
