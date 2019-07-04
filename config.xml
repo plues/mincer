@@ -16,17 +16,17 @@
     <path></path>
     <bundledJre64Bit>false</bundledJre64Bit>
     <bundledJreAsFallback>false</bundledJreAsFallback>
-    <minVersion>1.8.0</minVersion>
+    <minVersion>11.0.0_00</minVersion>
     <maxVersion></maxVersion>
     <jdkPreference>preferJre</jdkPreference>
     <runtimeBits>64/32</runtimeBits>
   </jre>
   <versionInfo>
-    <fileVersion>0.0.0.1</fileVersion>
+    <fileVersion>0.0.0.2</fileVersion>
     <txtFileVersion>3.3.0-SNAPSHOT-dev</txtFileVersion>
     <fileDescription>mincer</fileDescription>
     <copyright>ISC</copyright>
-    <productVersion>0.0.0.1</productVersion>
+    <productVersion>0.0.0.2</productVersion>
     <txtProductVersion>3.3.0-SNAPSHOT-dev</txtProductVersion>
     <productName>mincer</productName>
     <companyName></companyName>
