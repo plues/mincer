@@ -17,7 +17,7 @@ Mincer supports two usage modes: batch/CLI and GUI modes.
 To start the graphical user-interface run the provided jar without arguments:
 
 ```
-$ java -jar mincer-3.2.1-standalone.jar
+$ java -jar mincer-3.3.0-standalone.jar
 ```
 
 ### CLI

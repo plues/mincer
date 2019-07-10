@@ -21,7 +21,7 @@
 
 (defn ranges [coll maxSemester]
   (filter (fn [sem] (some #(or (< % 1) (> % maxSemester))
-      (map #(Integer/parseInt %) (string/split sem #",")))) coll))
+      (map #(try (Integer/parseInt %) (catch NumberFormatException e -1)) (string/split sem #",")))) coll))
 
 (defn genKey [[abschl stg kzfa po]]
   (str abschl "-" stg "-" kzfa "-" po))
