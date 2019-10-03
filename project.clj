@@ -14,6 +14,7 @@
                  [seesaw "1.5.0"]]
   :plugins [[jonase/eastwood "0.2.3"]
             [lein-kibit "0.1.2"]
+            [lein-ancient "0.6.15"]
             [lein-launch4j "0.1.2"]]
   :launch4j-config-file "config.xml"
   :launch4j-install-dir ~(System/getenv "LAUNCH4J_INSTALL_DIR")
